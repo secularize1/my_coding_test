@@ -370,6 +370,55 @@ body{
 
 .code-btns{ display:flex; gap:10px; margin-top:9px; flex-wrap:wrap; }
 .code-btns.close-row{ justify-content:center; margin-top:6px; }
+/* ---------- 道牌与道侣 ---------- */
+.dao-card{ background:linear-gradient(180deg,rgba(217,183,106,.06),rgba(217,183,106,.01)); }
+.dao-wrap{ display:flex; align-items:center; gap:18px; }
+.dao-avatar{ flex:0 0 auto; }
+.hero-avatar{ width:104px; height:104px; display:block;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.45));
+  animation:haloBreath 5.4s ease-in-out infinite; }
+.avatar-preview .hero-avatar{ width:150px; height:150px; }
+.dao-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:7px; }
+.dao-name-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.dao-name{ font-size:22px; letter-spacing:3px; color:var(--gold); }
+.dao-sub{ font-size:11.5px; color:rgba(234,227,210,.5); font-family:system-ui,sans-serif; }
+.dao-btns{ display:flex; gap:8px; flex-wrap:wrap; margin-top:2px; }
+
+.partner-wrap{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.partner-avatar{ flex:0 0 auto; }
+.partner-avatar .hero-avatar{ width:86px; height:86px; }
+.partner-info{ flex:1; min-width:180px; display:flex; flex-direction:column; gap:6px; }
+.partner-name{ font-size:17px; letter-spacing:2px; color:var(--jade); }
+.partner-line{ font-size:11.5px; color:rgba(234,227,210,.5); font-family:system-ui,sans-serif; line-height:1.6; }
+.partner-line b{ color:var(--gold); }
+.intim-bar{ position:relative; height:12px; border-radius:7px; overflow:hidden;
+  background:rgba(234,227,210,.08); border:1px solid rgba(95,191,160,.22); max-width:340px; }
+.intim-fill{ height:100%; background:linear-gradient(90deg,var(--jade-deep),var(--jade)); }
+.partner-empty{ font-size:12.5px; color:rgba(234,227,210,.55); line-height:1.9; }
+.partner-empty b{ color:var(--gold); }
+
+.name-input{ width:100%; padding:11px 14px; font-family:inherit; font-size:15px;
+  color:var(--paper); background:rgba(10,13,19,.6); border:1px solid rgba(217,183,106,.25);
+  border-radius:10px; text-align:center; letter-spacing:2px; }
+.name-input:focus{ outline:none; border-color:rgba(95,191,160,.55); }
+
+.avatar-edit{ display:flex; gap:20px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
+.avatar-preview{ display:flex; justify-content:center; align-items:center; min-width:150px; }
+.avatar-picker{ flex:1; min-width:220px; }
+.pick-label{ font-size:11.5px; color:var(--jade); letter-spacing:2px; margin:10px 0 7px; }
+.ring-list{ display:flex; gap:9px; flex-wrap:wrap; }
+.ring-dot{ width:26px; height:26px; border-radius:50%; cursor:pointer;
+  border:2px solid rgba(234,227,210,.18); transition:transform .15s; }
+.ring-dot:hover{ transform:scale(1.12); }
+.ring-dot.on{ border-color:var(--paper); box-shadow:0 0 12px rgba(234,227,210,.4); }
+.seal-list{ display:flex; gap:8px; flex-wrap:wrap; }
+.seal-chip{ width:34px; height:34px; border-radius:9px; cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center; font-family:inherit;
+  color:rgba(234,227,210,.7); background:rgba(10,13,19,.55);
+  border:1px solid rgba(217,183,106,.2); transition:all .15s; }
+.seal-chip:hover{ border-color:rgba(95,191,160,.5); color:var(--paper); }
+.seal-chip.on{ border-color:var(--jade); color:var(--jade); background:rgba(95,191,160,.12); }
+.invite-area{ min-height:74px; max-height:150px; }
 </style>
 </head>
 <body>
@@ -486,6 +535,26 @@ body{
     </section>
 
     <section class="panel" id="panel-achievement">
+      <div class="card dao-card">
+        <div class="dao-wrap">
+          <div id="daoAvatar" class="dao-avatar"></div>
+          <div class="dao-info">
+            <div class="dao-name-row">
+              <span id="daoNameText" class="dao-name">无名散人</span>
+              <button id="btnEditName" class="mini-btn">改道号</button>
+            </div>
+            <div id="daoRealm" class="dao-sub">尚未择道</div>
+            <div id="daoBadge" class="dao-sub">道牌 · 青玉 · 道</div>
+            <div class="dao-btns">
+              <button id="btnEditAvatar" class="mini-btn">改道牌</button>
+              <button id="btnOpenInvite" class="mini-btn">邀请好友</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="partnerCard"></div>
+
       <div class="card">
         <div class="card-head">
           <h3 class="card-title">道途印记</h3>
@@ -546,6 +615,71 @@ body{
       <button id="btnCloseCode" class="mini-btn">关闭</button>
     </div>
     <div class="modal-hint">接手后会覆盖当前进度，建议先复制自己的存档码备份</div>
+  </div>
+</div>
+
+<div id="nameModal" class="modal">
+  <div class="modal-card code-card">
+    <div class="modal-title">道 号</div>
+    <div class="modal-sub">为自己取一个道号，它会出现在你的道牌上</div>
+    <input id="nameInput" class="name-input" maxlength="12" placeholder="如：无涯散人" spellcheck="false">
+    <div class="code-btns">
+      <button id="btnNameRandom" class="up-btn">随机一个</button>
+      <button id="btnNameSave" class="up-btn">就用这个</button>
+      <button id="btnNameCancel" class="mini-btn">取消</button>
+    </div>
+    <div class="modal-hint">最多 12 个字，留空则沿用「无名散人」</div>
+  </div>
+</div>
+
+<div id="avatarModal" class="modal">
+  <div class="modal-card code-card">
+    <div class="modal-title">道 牌</div>
+    <div class="modal-sub">选一圈颜色，再挑一个字刻在牌上</div>
+    <div class="avatar-edit">
+      <div id="avatarPreview" class="avatar-preview"></div>
+      <div class="avatar-picker">
+        <div class="pick-label">外圈</div>
+        <div id="ringList" class="ring-list"></div>
+        <div class="pick-label">道印</div>
+        <div id="sealList" class="seal-list"></div>
+      </div>
+    </div>
+    <div class="code-btns close-row">
+      <button id="btnAvatarSave" class="up-btn">保存道牌</button>
+      <button id="btnAvatarCancel" class="mini-btn">取消</button>
+    </div>
+  </div>
+</div>
+
+<div id="inviteModal" class="modal">
+  <div class="modal-card code-card">
+    <div class="modal-title">道 侣</div>
+    <div class="modal-sub">把自己的道牌发给微信好友，也把对方的贴回来，即可结为道侣</div>
+
+    <div class="code-sec">
+      <div class="code-label">我的邀请码</div>
+      <textarea id="inviteOut" class="code-area invite-area" readonly spellcheck="false"></textarea>
+      <div class="code-btns">
+        <button id="btnCopyInvite" class="up-btn">复制邀请码</button>
+        <button id="btnCopyInviteShare" class="up-btn">复制分享文案</button>
+      </div>
+    </div>
+
+    <div class="code-sec">
+      <div class="code-label">读取对方的邀请码</div>
+      <textarea id="inviteIn" class="code-area invite-area" placeholder="把好友发来的邀请码整段粘在这里（带多余文字也没关系）" spellcheck="false"></textarea>
+      <div class="code-btns">
+        <button id="btnBindPartner" class="up-btn">结为道侣</button>
+      </div>
+    </div>
+
+    <div id="partnerManage" class="code-sec"></div>
+
+    <div class="code-btns close-row">
+      <button id="btnCloseInvite" class="mini-btn">关闭</button>
+    </div>
+    <div class="modal-hint">结为道侣后，双方各得「全部收益」加成，还能双修；解绑不影响各自进度</div>
   </div>
 </div>
 
@@ -698,7 +832,7 @@ function heroHeadBeast() {
   `;
 }
 
-function heroSVG(kind) {
+function heroSVG(kind, uid) {
   const k = HERO_KINDS.indexOf(kind) >= 0 ? kind : "male";
   const info = HERO_INFO[k];
   const c = info.color, robe = info.robe;
@@ -713,7 +847,7 @@ function heroSVG(kind) {
              : k === "female" ? heroHeadFemale()
              : heroHeadMale();
 
-  return `
+  const svg = `
     <svg class="hero-svg" viewBox="0 0 200 224" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <defs>
         <radialGradient id="halo-${k}" cx="50%" cy="38%" r="58%">
@@ -743,6 +877,8 @@ function heroSVG(kind) {
       ${head}
     </svg>
   `;
+  /* 同一页面里若出现多份形象，用 uid 区分渐变 id，避免定义互相覆盖 */
+  return uid ? svg.replace(new RegExp("-" + k + "([\"\\)])", "g"), "-" + k + uid + "$1") : svg;
 }
 
 function renderHero(container, kind) {
@@ -750,6 +886,53 @@ function renderHero(container, kind) {
   container.innerHTML = heroSVG(HERO_KINDS.indexOf(kind) >= 0 ? kind : "male");
 }
 
+/* ============================================================
+   道牌头像
+   把主角本相裁进一枚圆形玉牌：外圈可换色，牌面刻一个字（道印）。
+   用于「道途」页顶部的个人道牌展示。
+   ============================================================ */
+function avatarRing(id) {
+  return AVATAR_RINGS.find(r => r.id === id) || AVATAR_RINGS[0];
+}
+
+function heroAvatarSVG(kind, ringId, seal, uid) {
+  const ring = avatarRing(ringId);
+  const col = ring.color;
+  const ch = seal || "道";
+  const gid = "avrg" + (uid || "");
+  const inner = heroSVG(kind || "male", gid)
+    .replace('class="hero-svg"', 'x="0" y="0" width="200" height="224" preserveAspectRatio="xMidYMid slice"');
+  return `
+  <svg class="hero-avatar" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="${gid}glow" cx="50%" cy="40%" r="62%">
+        <stop offset="0%" stop-color="${col}" stop-opacity=".32"/>
+        <stop offset="70%" stop-color="${col}" stop-opacity=".07"/>
+        <stop offset="100%" stop-color="${col}" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="${gid}clip"><circle cx="100" cy="100" r="86"/></clipPath>
+      <linearGradient id="${gid}ring" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${col}"/>
+        <stop offset="100%" stop-color="${col}" stop-opacity=".35"/>
+      </linearGradient>
+    </defs>
+
+    <circle cx="100" cy="100" r="94" fill="url(#${gid}glow)"/>
+    <g clip-path="url(#${gid}clip)">
+      <rect x="0" y="0" width="200" height="200" fill="#131a26"/>
+      <g transform="translate(100,104) scale(1.02) translate(-100,-104)">
+        ${inner}
+      </g>
+    </g>
+
+    <circle cx="100" cy="100" r="88" fill="none" stroke="url(#${gid}ring)" stroke-width="3"/>
+    <circle cx="100" cy="100" r="82" fill="none" stroke="${col}" stroke-opacity=".22" stroke-width="1"/>
+
+    <circle cx="100" cy="162" r="21" fill="rgba(10,13,19,.9)" stroke="${col}" stroke-width="1.6"/>
+    <text x="100" y="162" text-anchor="middle" dominant-baseline="central"
+          font-size="23" fill="${col}" font-family="Kaiti SC,KaiTi,STKaiti,serif">${ch}</text>
+  </svg>`;
+}
 
 /* ===== config.js ===== */
 /* ============================================================
@@ -853,6 +1036,31 @@ const SAVE_VERSION = 1;
 const AUTOSAVE_MS = 5000;
 
 
+/* ---------- 道牌：头像纹样与道印 ---------- */
+const AVATAR_RINGS = [
+  { id:"jade",   name:"青玉", color:"#5fbfa0" },
+  { id:"gold",   name:"鎏金", color:"#d9b76a" },
+  { id:"cinn",   name:"朱砂", color:"#c8503f" },
+  { id:"ice",    name:"寒霜", color:"#8fa8e8" },
+  { id:"moon",   name:"明月", color:"#e8e2d0" },
+  { id:"violet", name:"紫气", color:"#a98fe8" }
+];
+const AVATAR_SEALS = ["道","剑","丹","阵","月","星","云","鹤"];
+
+/* ---------- 道侣（双修） ----------
+   PARTNER_BASE      ：结为道侣的基础加成（挂在「全部收益」上，挂机与打坐同增，不影响 20 倍比例）
+   PARTNER_PER_INTIM ：每点亲密度的额外加成
+   PARTNER_CAP       ：加成上限
+   TRAIN_CD_SEC      ：双修冷却（秒）
+   TRAIN_GAIN_MIN    ：双修一次立刻得到的「挂机收益分钟数」 */
+const PARTNER_BASE      = 0.15;
+const PARTNER_PER_INTIM = 0.01;
+const PARTNER_CAP       = 0.60;
+const PARTNER_INTIM_MAX = 30;
+const TRAIN_CD_SEC      = 300;
+const TRAIN_GAIN_MIN    = 3;/* ---------- 道号随机词库：前缀 + 后缀拼出一个道号 ---------- */
+const DAO_NAME_A = ["无涯","青玄","太虚","流云","孤鹤","寒山","碧海","星尘","墨白","长歌","静水","丹丘","九霄","灵溪","素问"];
+const DAO_NAME_B = ["散人","道人","真人","居士","上人","仙客","道友","子","君","生"];
 
 /* ===== util.js ===== */
 /* util.js —— 通用小工具，不涉及游戏规则 */
@@ -925,6 +1133,14 @@ function defaultState() {
     lastSave: Date.now(),
 
     heroKind: null,           // 主角本相：null=尚未选择 / "male" / "female" / "beast"
+    daoName: null,            // 道号（玩家自取，别人看到的称呼）
+    avatarRing: "jade",       // 道牌外圈色（AVATAR_RINGS 的 id）
+    avatarSeal: "道",         // 道牌上的道印字
+
+    partner: null,            // 道侣：null 或 { name, kind, ring, seal, code, date }
+    partnerIntim: 0,          // 与道侣的亲密度
+    trainCdUntil: 0,          // 双修冷却结束时间戳
+
 
     realm: 0,                 // REALMS 的下标
     cultivation: 0,           // 当前境界已积累修为
@@ -1058,7 +1274,7 @@ function autoRate(s, now) {
   const qi = realmQi(s) * (1 + buffBonus(s, "qi", now));
   const common = 1 + techBonus(s, "引气效率") + techBonus(s, "全部收益");
   const juqi = techBonus(s, "自动灵气");           // 聚气阵：只加成挂机
-  return IDLE_BASE * qi * (common + juqi);
+  return IDLE_BASE * qi * (common + juqi) * partnerFactor(s);   // 道侣加成：挂机与打坐同增
 }
 
 /* 单次打坐所得。
@@ -1069,6 +1285,39 @@ function clickGain(s, now) {
   const jingxin = techBonus(s, "每次打坐");        // 静心咒：只奖励手动
   const lingxi = buffBonus(s, "click", now);      // 灵犀丹：按比例放大打坐收益
   return base * (1 + jingxin) * (1 + lingxi);
+}
+
+/* ---------- 道侣（双修） ---------- */
+/* 道侣加成：基础 + 亲密度×每点，封顶。
+   挂在「全部收益」上，挂机与打坐同增，因此不影响打坐=20秒挂机这条比例。 */
+function partnerBonus(s) {
+  if (!s.partner) return 0;
+  const raw = PARTNER_BASE + PARTNER_PER_INTIM * (s.partnerIntim || 0);
+  return Math.min(PARTNER_CAP, raw);
+}
+function partnerFactor(s) { return 1 + partnerBonus(s); }
+
+/* 双修冷却剩余秒数 */
+function trainCdLeft(s, now) {
+  const t = now === undefined ? Date.now() : now;
+  return Math.max(0, ((s.trainCdUntil || 0) - t) / 1000);
+}
+/* 双修：立刻得到「若干分钟挂机收益」，并有机会增进亲密度 */
+function trainPartner(s) {
+  const now = Date.now();
+  if (!s.partner) return { ok:false, nopartner:true };
+  if (trainCdLeft(s, now) > 0) return { ok:false, cd:trainCdLeft(s, now) };
+
+  const gain = autoRate(s, now) * 60 * TRAIN_GAIN_MIN;
+  s.cultivation += gain;
+  s.trainCdUntil = now + TRAIN_CD_SEC * 1000;
+
+  let intimUp = 0;
+  if ((s.partnerIntim || 0) < PARTNER_INTIM_MAX) {
+    intimUp = rndInt(1, 2);
+    s.partnerIntim = Math.min(PARTNER_INTIM_MAX, (s.partnerIntim || 0) + intimUp);
+  }
+  return { ok:true, gain, intimUp, intim: s.partnerIntim, bonus: partnerBonus(s) };
 }
 
 /* 突破成功率（上限 99%） */
@@ -1321,7 +1570,19 @@ function encodeSave(s) {
       f: (s.stats && s.stats.breakFails) | 0,
       k: (s.stats && s.stats.breaks) | 0
     },
-    ct: s.createdAt || Date.now()
+    ct: s.createdAt || Date.now(),
+    /* 道牌与道侣：一起打包，接手的人能看到你的道号与形象 */
+    dn: s.daoName || "",
+    ar: s.avatarRing || "jade",
+    as: s.avatarSeal || "道",
+    pi: s.partnerIntim | 0,
+    pt: s.partner ? {
+      n: s.partner.name || "",
+      k: s.partner.kind || "male",
+      r: s.partner.ring || "jade",
+      s: s.partner.seal || "道",
+      c: s.partner.code || ""
+    } : null
   };
   const json = JSON.stringify(packed);
   return CODE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
@@ -1334,20 +1595,17 @@ function decodeSave(code) {
   raw = raw.replace(/[\s\u3000]+/g, "");          // 去掉换行、空格、全角空格
   if (!raw) return { ok: false, reason: "empty" };
 
-  /* 容忍前面粘了说明文字：从前缀处截取 */
+  /* 容忍前面粘了说明文字、后面跟了闲聊：只从前缀处抓取真正的码 */
   const at = raw.indexOf(CODE_PREFIX);
   if (at < 0) return { ok: false, reason: "noprefix" };
-  raw = raw.slice(at);
-
-  const parts = raw.split(".");
-  if (parts.length !== 3) return { ok: false, reason: "format" };
-  if (parts[0] !== CODE_PREFIX) return { ok: false, reason: "format" };
+  const m = raw.slice(at).match(/^WENDAO1\.([A-Za-z0-9_-]+)\.([0-9a-z]+)/);
+  if (!m) return { ok: false, reason: "format" };
 
   let json;
-  try { json = b64urlDecode(parts[1]); }
+  try { json = b64urlDecode(m[1]); }
   catch (e) { return { ok: false, reason: "corrupt" }; }
 
-  if (hash32(json) !== parts[2]) return { ok: false, reason: "checksum" };
+  if (hash32(json) !== m[2]) return { ok: false, reason: "checksum" };
 
   let c;
   try { c = JSON.parse(json); }
@@ -1375,6 +1633,19 @@ function decodeSave(code) {
     cooldownUntil: 0,
     cooldownTotal: 0
   };
+  s.daoName = (typeof c.dn === "string" && c.dn.trim()) ? c.dn.trim().slice(0, 12) : null;
+  s.avatarRing = AVATAR_RINGS.some(r => r.id === c.ar) ? c.ar : "jade";
+  s.avatarSeal = (typeof c.as === "string" && c.as.trim()) ? c.as.trim().slice(0, 1) : "道";
+  s.partnerIntim = Math.max(0, Math.min(PARTNER_INTIM_MAX, c.pi | 0));
+  s.partner = (c.pt && typeof c.pt === "object" && c.pt.n) ? {
+    name: String(c.pt.n).slice(0, 12),
+    kind: HERO_KINDS.indexOf(c.pt.k) >= 0 ? c.pt.k : "male",
+    ring: AVATAR_RINGS.some(r => r.id === c.pt.r) ? c.pt.r : "jade",
+    seal: (typeof c.pt.s === "string" && c.pt.s.trim()) ? c.pt.s.trim().slice(0, 1) : "道",
+    code: String(c.pt.c || ""),
+    date: Date.now()
+  } : null;
+  s.trainCdUntil = 0;
   s.stats = {
     bestRealm: Math.max(0, (c.st && c.st.b) | 0),
     breakFails: Math.max(0, (c.st && c.st.f) | 0),
@@ -1416,6 +1687,66 @@ function shareText(s, code) {
   ].join("\n");
 }
 
+/* ============================================================
+   邀请码（结道侣用）
+   只带上「身份信息」：道号、本相、道牌、境界，够对方认人即可。
+   格式：WENDAOP.<base64url>.<校验码>
+   ============================================================ */
+const INVITE_PREFIX = "WENDAOP";
+
+function encodeInvite(s) {
+  const inv = {
+    v: SAVE_VERSION,
+    n: (s.daoName || "无名散人"),
+    h: s.heroKind || "male",
+    r: s.avatarRing || "jade",
+    g: s.avatarSeal || "道",
+    e: s.realm | 0,
+    d: s.createdAt || Date.now()
+  };
+  const json = JSON.stringify(inv);
+  return INVITE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
+}
+
+/* 返回 { ok:true, invite:{name,kind,ring,seal,realm,date} } 或 { ok:false, reason } */
+function decodeInvite(code) {
+  let raw = String(code == null ? "" : code);
+  raw = raw.replace(/[\s\u3000]+/g, "");
+  if (!raw) return { ok:false, reason:"empty" };
+
+  const at = raw.indexOf(INVITE_PREFIX);
+  if (at < 0) return { ok:false, reason:"noprefix" };
+  const m = raw.slice(at).match(/^WENDAOP\.([A-Za-z0-9_-]+)\.([0-9a-z]+)/);
+  if (!m) return { ok:false, reason:"format" };
+
+  let json;
+  try { json = b64urlDecode(m[1]); }
+  catch (e) { return { ok:false, reason:"corrupt" }; }
+  if (hash32(json) !== m[2]) return { ok:false, reason:"checksum" };
+
+  let c;
+  try { c = JSON.parse(json); }
+  catch (e) { return { ok:false, reason:"corrupt" }; }
+  if (!c || typeof c !== "object") return { ok:false, reason:"corrupt" };
+
+  return { ok:true, invite:{
+    name: (typeof c.n === "string" && c.n.trim()) ? c.n.trim().slice(0, 12) : "无名散人",
+    kind: HERO_KINDS.indexOf(c.h) >= 0 ? c.h : "male",
+    ring: AVATAR_RINGS.some(r => r.id === c.r) ? c.r : "jade",
+    seal: (typeof c.g === "string" && c.g.trim()) ? c.g.trim().slice(0, 1) : "道",
+    realm: Math.max(0, Math.min(REALMS.length - 1, c.e | 0)),
+    date: Date.now()
+  }};
+}
+
+/* 道侣分享文案 */
+function inviteShareText(s, code) {
+  return [
+    "我在《" + "问道" + "》的道号是「" + (s.daoName || "无名散人") + "」。",
+    "复制下面整段发我，我们结为道侣一同双修：",
+    code
+  ].join("\n");
+}
 
 /* ===== ui.js ===== */
 /* ============================================================
@@ -1674,6 +2005,8 @@ let lastPanel = "cultivate";
 function drawAll(s) {
   drawTop(s);
   drawHero(s);
+  drawDao(s);
+  drawPartner(s);
   drawLogs(s);
   switch (lastPanel) {
     case "cultivate":   drawCultivate(s); break;
@@ -1690,6 +2023,7 @@ function drawFast(s, dt) {
   drawTop(s);
   if (lastPanel === "cultivate") drawCultivate(s);
   if (lastPanel === "secret")    drawSecret(s);
+  if (lastPanel === "achievement") drawPartner(s);   // 双修冷却要走字
   if (lastPanel === "bag") {                 // 药力倒计时要走字，约 4 次/秒
     bagAcc += dt;
     if (bagAcc >= 0.25) { bagAcc = 0; drawPills(s); }
@@ -1749,6 +2083,186 @@ function copyText(text, okMsg) {
   } else {
     fallback();
   }
+}
+/* ============================================================
+   道牌 / 道侣 —— 视图
+   ============================================================ */
+Object.assign(el, {
+  daoAvatar:    $("#daoAvatar"),
+  daoNameText:  $("#daoNameText"),
+  daoRealm:     $("#daoRealm"),
+  daoBadge:     $("#daoBadge"),
+  partnerCard:  $("#partnerCard"),
+  nameModal:    $("#nameModal"),
+  nameInput:    $("#nameInput"),
+  avatarModal:  $("#avatarModal"),
+  avatarPreview:$("#avatarPreview"),
+  ringList:     $("#ringList"),
+  sealList:     $("#sealList"),
+  inviteModal:  $("#inviteModal"),
+  inviteOut:    $("#inviteOut"),
+  inviteIn:     $("#inviteIn"),
+  partnerManage:$("#partnerManage")
+});
+
+/* 道号：没取过就显示「无名散人」 */
+function daoNameOf(s) { return (s.daoName && s.daoName.trim()) ? s.daoName.trim() : "无名散人"; }
+
+let daoKey = null;
+function drawDao(s) {
+  if (!el.daoAvatar) return;
+  const key = (s.heroKind || "male") + "|" + (s.avatarRing || "jade") + "|" + (s.avatarSeal || "道");
+  if (daoKey !== key) {
+    el.daoAvatar.innerHTML = heroAvatarSVG(s.heroKind || "male", s.avatarRing, s.avatarSeal, "me");
+    daoKey = key;
+  }
+  setText(el.daoNameText, daoNameOf(s));
+  setText(el.daoRealm, REALMS[s.realm] ? REALMS[s.realm].label : "尚未择道");
+  setText(el.daoBadge, "道牌 · " + avatarRing(s.avatarRing).name + " · " + (s.avatarSeal || "道"));
+}
+
+let partnerKey = null;
+function drawPartner(s) {
+  if (!el.partnerCard) return;
+  const now = Date.now();
+
+  if (!s.partner) {
+    partnerKey = null;
+    el.partnerCard.innerHTML = [
+      '<div class="card-head"><h3 class="card-title">道 侣</h3>',
+      '<button class="mini-btn" data-open-invite="1">邀请好友</button></div>',
+      '<p class="card-desc">与好友结为道侣，双方各得「全部收益」加成，还能双修。</p>',
+      '<div class="partner-empty">还没有道侣。点上面的「邀请好友」，把邀请码发给微信好友，',
+      '也把对方的邀请码贴回来，就能结为道侣。</div>'
+    ].join("");
+    return;
+  }
+
+  const p = s.partner;
+  const key = p.kind + "|" + p.ring + "|" + p.seal + "|" + p.name;
+  const intim = s.partnerIntim || 0;
+  const cdLeft = trainCdLeft(s, now);
+  const ready = cdLeft <= 0;
+  const pctIntim = Math.min(1, intim / PARTNER_INTIM_MAX);
+  const cdTotal = TRAIN_CD_SEC;
+  const cdPct = ready ? 1 : Math.max(0, Math.min(1, 1 - cdLeft / cdTotal));
+
+  if (partnerKey !== key) {
+    partnerKey = key;
+    el.partnerCard.innerHTML = [
+      '<div class="card-head"><h3 class="card-title">道 侣</h3>',
+      '<button class="mini-btn" data-open-invite="1">邀请 / 管理</button></div>',
+      '<div class="partner-wrap">',
+        '<div class="partner-avatar">' + heroAvatarSVG(p.kind, p.ring, p.seal, "pt") + '</div>',
+        '<div class="partner-info">',
+          '<div class="partner-name">' + escapeHtml(p.name) + '</div>',
+          '<div class="partner-line" id="partnerBonusLine"></div>',
+          '<div class="intim-bar"><div id="intimFill" class="intim-fill" style="width:' + (pctIntim*100).toFixed(1) + '%"></div></div>',
+          '<div class="partner-line">亲密度 <b id="intimNum">' + intim + '</b> / ' + PARTNER_INTIM_MAX + '</div>',
+          '<div class="partner-line" id="trainCdLine"></div>',
+          '<div class="code-btns">',
+            '<button class="up-btn" id="btnTrain"' + (ready ? "" : " disabled") + '>双 修</button>',
+            '<button class="mini-btn" id="btnUnbind">解 绑</button>',
+          '</div>',
+        '</div>',
+      '</div>'
+    ].join("");
+    paintPartnerText(s);
+    return;
+  }
+
+  /* 数据没变时只刷新会走动的部分 */
+  const fill = document.getElementById("intimFill");
+  if (fill) fill.style.width = (pctIntim * 100).toFixed(1) + "%";
+  const num = document.getElementById("intimNum");
+  if (num) setText(num, String(intim));
+  const btn = document.getElementById("btnTrain");
+  if (btn) btn.disabled = !ready;
+  const line = document.getElementById("trainCdLine");
+  if (line) line.innerHTML = ready
+    ? '双修 · 每 ' + fmtTime(cdTotal) + ' 可一次，得 ' + TRAIN_GAIN_MIN + ' 分钟挂机修为'
+    : '双修冷却中 · 还需 <b>' + fmtTime(cdLeft) + '</b>';
+}
+
+/* 只更新道侣卡片上的文字部分（加成、冷却） */
+function paintPartnerText(s) {
+  const p = s.partner;
+  if (!p) return;
+  const line = document.getElementById("partnerBonusLine");
+  if (line) line.innerHTML = "「" + escapeHtml(p.name) + "」 · 全部收益 +<b>" +
+    (partnerBonus(s) * 100).toFixed(0) + "%</b>";
+  const cd = document.getElementById("trainCdLine");
+  if (cd) {
+    const left = trainCdLeft(s);
+    cd.innerHTML = left <= 0
+      ? '双修 · 每 ' + fmtTime(TRAIN_CD_SEC) + ' 可一次，得 ' + TRAIN_GAIN_MIN + ' 分钟挂机修为'
+      : '双修冷却中 · 还需 <b>' + fmtTime(left) + '</b>';
+  }
+}
+
+/* ---------- 道号弹窗 ---------- */
+function openNameModal(s) {
+  if (!el.nameModal) return;
+  el.nameInput.value = (s.daoName || "");
+  el.nameModal.classList.add("show");
+  setTimeout(() => el.nameInput.focus(), 60);
+}
+function closeNameModal() { if (el.nameModal) el.nameModal.classList.remove("show"); }
+
+/* ---------- 道牌弹窗 ---------- */
+let draftRing = "jade", draftSeal = "道";
+
+function paintAvatarDraft() {
+  if (el.avatarPreview) {
+    el.avatarPreview.innerHTML = heroAvatarSVG(S ? S.heroKind : "male", draftRing, draftSeal, "pv");
+  }
+  if (el.ringList) {
+    el.ringList.innerHTML = AVATAR_RINGS.map(r =>
+      '<div class="ring-dot' + (r.id === draftRing ? " on" : "") + '" data-ring="' + r.id +
+      '" title="' + r.name + '" style="background:radial-gradient(circle at 35% 30%,' + r.color + ',' + r.color + '88)"></div>'
+    ).join("");
+  }
+  if (el.sealList) {
+    el.sealList.innerHTML = AVATAR_SEALS.map(c =>
+      '<button class="seal-chip' + (c === draftSeal ? " on" : "") + '" data-seal="' + c + '">' + c + '</button>'
+    ).join("");
+  }
+}
+function openAvatarModal(s) {
+  if (!el.avatarModal) return;
+  draftRing = s.avatarRing || "jade";
+  draftSeal = s.avatarSeal || "道";
+  paintAvatarDraft();
+  el.avatarModal.classList.add("show");
+}
+function closeAvatarModal() { if (el.avatarModal) el.avatarModal.classList.remove("show"); }
+
+/* ---------- 邀请 / 道侣弹窗 ---------- */
+function openInviteModal(s) {
+  if (!el.inviteModal) return;
+  el.inviteOut.value = encodeInvite(s);
+  el.inviteIn.value = "";
+  paintPartnerManage(s);
+  el.inviteModal.classList.add("show");
+}
+function closeInviteModal() { if (el.inviteModal) el.inviteModal.classList.remove("show"); }
+
+function paintPartnerManage(s) {
+  if (!el.partnerManage) return;
+  if (!s.partner) { el.partnerManage.innerHTML = ""; return; }
+  const p = s.partner;
+  el.partnerManage.innerHTML = [
+    '<div class="code-label">当前道侣</div>',
+    '<div class="partner-line">「' + escapeHtml(p.name) + '」 · 亲密度 <b>' + (s.partnerIntim || 0) +
+      '</b> / ' + PARTNER_INTIM_MAX + ' · 全部收益 +<b>' + (partnerBonus(s) * 100).toFixed(0) + '%</b></div>',
+    '<div class="code-btns"><button class="mini-btn danger" id="btnUnbind2">解 绑</button></div>'
+  ].join("");
+}
+
+/* 随机道号 */
+function randomDaoName() {
+  return DAO_NAME_A[Math.floor(Math.random() * DAO_NAME_A.length)] +
+         DAO_NAME_B[Math.floor(Math.random() * DAO_NAME_B.length)];
 }
 
 /* ===== game.js ===== */
@@ -2142,6 +2656,136 @@ function bindEvents() {
   window.addEventListener("beforeunload", () => saveState(S));
   document.addEventListener("visibilitychange", () => { if (document.hidden) saveState(S); });
 
+  /* ============================================================
+     道牌 / 道侣
+     ============================================================ */
+  const nameModalEl   = document.getElementById("nameModal");
+  const avatarModalEl = document.getElementById("avatarModal");
+  const inviteModalEl = document.getElementById("inviteModal");
+
+  /* 道号 */
+  document.getElementById("btnEditName").addEventListener("click", () => openNameModal(S));
+  document.getElementById("btnNameRandom").addEventListener("click", () => {
+    el.nameInput.value = randomDaoName();
+  });
+  document.getElementById("btnNameSave").addEventListener("click", () => {
+    const v = (el.nameInput.value || "").trim().slice(0, 12);
+    S.daoName = v || null;
+    closeNameModal();
+    doSave(true);
+    drawAll(S);
+    toast(v ? "道号已定 · " + v : "已沿用「无名散人」", "good");
+  });
+  document.getElementById("btnNameCancel").addEventListener("click", closeNameModal);
+  el.nameInput.addEventListener("keydown", ev => {
+    if (ev.code === "Enter") document.getElementById("btnNameSave").click();
+  });
+  nameModalEl.addEventListener("click", ev => { if (ev.target === nameModalEl) closeNameModal(); });
+
+  /* 道牌 */
+  document.getElementById("btnEditAvatar").addEventListener("click", () => openAvatarModal(S));
+  document.getElementById("ringList").addEventListener("click", ev => {
+    const d = ev.target.closest("[data-ring]");
+    if (!d) return;
+    draftRing = d.dataset.ring;
+    paintAvatarDraft();
+  });
+  document.getElementById("sealList").addEventListener("click", ev => {
+    const d = ev.target.closest("[data-seal]");
+    if (!d) return;
+    draftSeal = d.dataset.seal;
+    paintAvatarDraft();
+  });
+  document.getElementById("btnAvatarSave").addEventListener("click", () => {
+    S.avatarRing = draftRing;
+    S.avatarSeal = draftSeal;
+    daoKey = null;                     // 强制重画道牌
+    closeAvatarModal();
+    doSave(true);
+    drawAll(S);
+    toast("道牌已换", "good");
+  });
+  document.getElementById("btnAvatarCancel").addEventListener("click", closeAvatarModal);
+  avatarModalEl.addEventListener("click", ev => { if (ev.target === avatarModalEl) closeAvatarModal(); });
+
+  /* 邀请 / 道侣 */
+  function openInvite() { openInviteModal(S); }
+  document.getElementById("btnOpenInvite").addEventListener("click", openInvite);
+  document.getElementById("btnCloseInvite").addEventListener("click", closeInviteModal);
+  inviteModalEl.addEventListener("click", ev => { if (ev.target === inviteModalEl) closeInviteModal(); });
+
+  document.getElementById("btnCopyInvite").addEventListener("click", () => {
+    copyText(el.inviteOut.value, "邀请码已复制，粘到微信即可");
+  });
+  document.getElementById("btnCopyInviteShare").addEventListener("click", () => {
+    copyText(inviteShareText(S, el.inviteOut.value), "分享文案已复制");
+  });
+
+  document.getElementById("btnBindPartner").addEventListener("click", () => {
+    const raw = el.inviteIn.value;
+    if (!raw.trim()) { toast("请先粘贴对方的邀请码", "bad"); return; }
+    const r = decodeInvite(raw);
+    if (!r.ok) {
+      const msg = {
+        empty: "邀请码是空的",
+        noprefix: "没有找到邀请码，请确认复制完整",
+        format: "邀请码格式不对，可能发断行了",
+        corrupt: "邀请码已损坏，读不出来",
+        checksum: "邀请码抄错了一处，请重新复制"
+      }[r.reason] || "邀请码无效";
+      toast(msg, "bad");
+      return;
+    }
+    if (S.partner) { toast("你已有道侣，请先解绑", "bad"); return; }
+    const inv = r.invite;
+    if (!confirm('与「' + inv.name + '」（' + REALMS[inv.realm].label + '）结为道侣？')) return;
+    S.partner = { name:inv.name, kind:inv.kind, ring:inv.ring, seal:inv.seal, code:raw.trim(), date:Date.now() };
+    S.partnerIntim = 0;
+    partnerKey = null;
+    closeInviteModal();
+    pushLog(S, "你与「" + inv.name + "」结为道侣，从此双修共进。", true);
+    burstParticles();
+    doSave(true);
+    drawAll(S);
+    toast("已与「" + inv.name + "」结为道侣", "good");
+  });
+
+  /* 双修 / 解绑（卡片是动态重绘的，用事件委托） */
+  document.addEventListener("click", ev => {
+    const openBtn = ev.target.closest("[data-open-invite]");
+    if (openBtn) { openInvite(); return; }
+
+    if (ev.target.closest("#btnTrain")) {
+      const r = trainPartner(S);
+      if (!r.ok) {
+        if (r.nopartner) toast("你还没有道侣", "bad");
+        else if (r.cd) toast("双修冷却中 · 还需 " + fmtTime(r.cd), "bad");
+        return;
+      }
+      const msg = "与「" + S.partner.name + "」双修，修为 +" + fmtInt(r.gain) +
+        (r.intimUp ? "，亲密度 +" + r.intimUp : "");
+      pushLog(S, msg, true);
+      toast(msg, "good");
+      burstParticles();
+      drawAll(S);
+      return;
+    }
+
+    if (ev.target.closest("#btnUnbind") || ev.target.closest("#btnUnbind2")) {
+      if (!S.partner) return;
+      if (!confirm("确定与「" + S.partner.name + "」解绑？亲密度与本方加成将清零。")) return;
+      const nm = S.partner.name;
+      S.partner = null;
+      S.partnerIntim = 0;
+      partnerKey = null;
+      pushLog(S, "你与「" + nm + "」解除了道侣之约。", false);
+      closeInviteModal();
+      doSave(true);
+      drawAll(S);
+      toast("已解绑", "good");
+      return;
+    }
+  });
   /* 键盘：空格打坐，回车突破 —— 手速党的福音 */
   document.addEventListener("keydown", ev => {
     const tag = (ev.target.tagName || "").toLowerCase();
