@@ -419,6 +419,61 @@ body{
 .seal-chip:hover{ border-color:rgba(95,191,160,.5); color:var(--paper); }
 .seal-chip.on{ border-color:var(--jade); color:var(--jade); background:rgba(95,191,160,.12); }
 .invite-area{ min-height:74px; max-height:150px; }
+/* ---------- 仙榜 ---------- */
+.lb-setup{ display:flex; justify-content:space-between; align-items:center; gap:12px;
+  flex-wrap:wrap; margin-bottom:14px; }
+.lb-status{ font-size:11.5px; font-family:system-ui,sans-serif; color:rgba(234,227,210,.5); }
+.lb-status.on{ color:var(--jade); }
+.lb-status.err{ color:#e88a7a; }
+.lb-btns{ display:flex; gap:8px; flex-wrap:wrap; }
+
+.lb-tabs{ display:flex; gap:8px; margin-bottom:12px; }
+.lb-tab{ flex:1; padding:8px 4px; cursor:pointer; font-family:inherit; font-size:12.5px;
+  letter-spacing:2px; color:rgba(234,227,210,.55); background:rgba(10,13,19,.5);
+  border:1px solid rgba(217,183,106,.18); border-radius:9px; transition:all .15s; }
+.lb-tab:hover{ color:var(--paper); border-color:rgba(217,183,106,.4); }
+.lb-tab.on{ color:#10141c; background:linear-gradient(180deg,var(--gold),#b9975a);
+  border-color:transparent; }
+
+.lb-list{ display:flex; flex-direction:column; gap:6px; }
+.lb-row{ display:flex; align-items:center; gap:10px; padding:8px 12px;
+  border:1px solid rgba(217,183,106,.13); border-radius:11px;
+  background:rgba(10,13,19,.35); }
+.lb-row .rk{ flex:0 0 30px; text-align:center; font-size:14px; font-family:system-ui,sans-serif;
+  color:rgba(234,227,210,.5); }
+.lb-row.top1 .rk{ color:#f2d78e; font-size:17px; }
+.lb-row.top2 .rk{ color:#d6d6d6; font-size:16px; }
+.lb-row.top3 .rk{ color:#e0a878; font-size:16px; }
+.lb-row .av{ flex:0 0 auto; }
+.lb-row .av .hero-avatar{ width:40px; height:40px; animation:none; filter:none; }
+.lb-row .who{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+.lb-row .nm{ font-size:13.5px; color:var(--paper); letter-spacing:1px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.lb-row .sub{ font-size:10.5px; color:rgba(234,227,210,.42); font-family:system-ui,sans-serif; }
+.lb-row .val{ flex:0 0 auto; text-align:right; font-size:12.5px;
+  color:var(--gold); font-family:system-ui,sans-serif; }
+.lb-row.me{ border-color:rgba(95,191,160,.6); background:rgba(95,191,160,.08); }
+.lb-my{ margin-bottom:10px; }
+.lb-my .lb-row{ border-color:rgba(95,191,160,.45); background:rgba(95,191,160,.06); }
+.lb-empty{ padding:24px 0; text-align:center; font-size:12px; font-family:system-ui,sans-serif;
+  color:rgba(234,227,210,.35); }
+.lb-steps{ margin-bottom:14px; display:flex; flex-direction:column; gap:7px; }
+.lb-step{ font-size:11.5px; line-height:1.7; color:rgba(234,227,210,.62);
+  font-family:system-ui,sans-serif; }
+.lb-step b{ display:inline-flex; align-items:center; justify-content:center;
+  width:17px; height:17px; margin-right:6px; border-radius:50%; font-size:10px;
+  color:#10141c; background:var(--gold); }
+.lb-link{ color:var(--jade); }
+.lb-code{ min-height:130px; max-height:190px; font-size:10.5px; line-height:1.45; }
+/* ---------- 仙榜后端设置（多方案） ---------- */
+.lb-be-tabs{ margin-bottom:10px; }
+.lb-subtag{ font-size:11px; color:var(--jade); font-family:system-ui,sans-serif;
+  margin-bottom:12px; letter-spacing:.5px; }
+/* 弹窗内容较高时允许滚动，避免小屏被截断 */
+#lbModal .modal-card{ max-height:88vh; overflow-y:auto; }
+#lbModal .modal-card::-webkit-scrollbar{ width:6px; }
+#lbModal .modal-card::-webkit-scrollbar-thumb{ background:rgba(217,183,106,.25); border-radius:3px; }
+.lb-step .lb-link{ color:var(--jade); }
 </style>
 </head>
 <body>
@@ -465,6 +520,7 @@ body{
     <button class="tab" data-tab="bag">丹 房</button>
     <button class="tab" data-tab="secret">秘 境</button>
     <button class="tab" data-tab="achievement">道 途</button>
+    <button class="tab" data-tab="rank">仙 榜</button>
   </nav>
 
   <main class="panels">
@@ -562,6 +618,33 @@ body{
         </div>
         <p class="card-desc">达成后可领取灵石奖励。</p>
         <div id="achList" class="ach-list"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-rank">
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">仙 榜</h3>
+          <button id="btnLbRefresh" class="mini-btn">刷新</button>
+        </div>
+        <p class="card-desc">全网道友的排名。首次使用需先「设置后端」粘贴一次网址。</p>
+
+        <div class="lb-setup">
+          <span id="lbStatus" class="lb-status">尚未设置后端</span>
+          <div class="lb-btns">
+            <button id="btnLbSetup" class="mini-btn">设置后端</button>
+            <button id="btnLbSubmit" class="mini-btn">上传我的进度</button>
+          </div>
+        </div>
+
+        <div class="lb-tabs">
+          <button class="lb-tab on" data-board="power">修为榜</button>
+          <button class="lb-tab" data-board="speed">速通榜</button>
+        </div>
+
+        <div id="lbMyRow" class="lb-my"></div>
+        <div id="lbList" class="lb-list"></div>
+        <div id="lbEmpty" class="lb-empty">这里还空着，去邀请道友一起来上榜吧。</div>
       </div>
     </section>
 
@@ -680,6 +763,36 @@ body{
       <button id="btnCloseInvite" class="mini-btn">关闭</button>
     </div>
     <div class="modal-hint">结为道侣后，双方各得「全部收益」加成，还能双修；解绑不影响各自进度</div>
+  </div>
+</div>
+
+<div id="lbModal" class="modal">
+  <div class="modal-card code-card">
+    <div class="modal-title">仙 榜 后 端</div>
+    <div class="modal-sub">一次性设置，之后所有人共用这一个后端</div>
+
+    <div class="lb-tabs lb-be-tabs">
+      <button class="lb-tab on" data-be="cloudflare">Cloudflare（推荐）</button>
+      <button class="lb-tab" data-be="deno">Deno Deploy</button>
+    </div>
+    <div id="lbBeTag" class="lb-subtag"></div>
+
+    <div id="lbSteps" class="lb-steps"></div>
+
+    <textarea id="lbCode" class="code-area lb-code" readonly spellcheck="false"></textarea>
+    <div class="code-btns">
+      <button id="btnLbCopyCode" class="up-btn">复制后端代码</button>
+    </div>
+
+    <div class="code-label" style="margin-top:14px">后端网址</div>
+    <input id="lbEndpoint" class="name-input" placeholder="https://xxx.workers.dev" spellcheck="false">
+
+    <div class="code-btns">
+      <button id="btnLbSave" class="up-btn">保存</button>
+      <button id="btnLbTest" class="mini-btn">测试连接</button>
+      <button id="btnLbClose" class="mini-btn">关闭</button>
+    </div>
+    <div class="modal-hint">网址只存在你自己浏览器里。设好后点「上传我的进度」即可上榜</div>
   </div>
 </div>
 
@@ -1162,7 +1275,8 @@ function defaultState() {
     stats: {                  // 记录类数据
       bestRealm: 0,
       breakFails: 0,
-      breaks: 0
+      breaks: 0,
+      clearMs: 0              // 首次登仙耗时（毫秒），速通榜用；0=尚未通关
     },
 
     logs: []                  // [{ t, text, hi }]
@@ -1372,6 +1486,10 @@ function doBreak(s) {
     s.cultivation -= need;
     s.realm++;
     s.stats.bestRealm = Math.max(s.stats.bestRealm, s.realm);
+    /* 首次登仙：记下从建号到通关的耗时，供速通榜用 */
+    if (isMaxRealm(s) && !s.stats.clearMs) {
+      s.stats.clearMs = Math.max(1, now - (s.createdAt || now));
+    }
     const stones = breakStoneReward(s);
     addStones(s, stones);
     return { ok:true, chance, realm:REALMS[s.realm], stones };
@@ -1512,241 +1630,6 @@ function pushLog(s, text, hi) {
   if (s.logs.length > 60) s.logs.length = 60;
 }
 
-
-/* ===== savecode.js ===== */
-/* ============================================================
-   savecode.js —— 存档码
-   把进度压成一段纯文本，方便复制到微信发给别人。
-   格式：WENDAO1.<base64url 数据>.<校验码>
-   ============================================================ */
-
-const CODE_PREFIX = "WENDAO1";
-
-/* ---------- base64url（UTF-8 安全） ---------- */
-function b64urlEncode(str) {
-  const bytes = new TextEncoder().encode(str);
-  let bin = "";
-  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-function b64urlDecode(s) {
-  let t = String(s).replace(/-/g, "+").replace(/_/g, "/");
-  while (t.length % 4) t += "=";
-  const bin = atob(t);
-  const bytes = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
-
-/* ---------- 简易校验码（防手抖抄错） ---------- */
-function hash32(str) {
-  let h = 2166136261;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(36);
-}
-
-/* ---------- 导出 ---------- */
-/* 只打包「进度」：临时药力、日志、冷却时间都不带，
-   这样存档码更短，微信里也不容易发断 */
-function encodeSave(s) {
-  const packed = {
-    v: SAVE_VERSION,
-    h: s.heroKind || "male",
-    r: s.realm | 0,
-    c: Math.floor(s.cultivation),
-    s: Math.floor(s.stones),
-    ts: Math.floor(s.totalStones),
-    tc: s.totalClicks | 0,
-    t: s.techniques || {},
-    p: s.pills || {},
-    e: { n: (s.explore && s.explore.counts) || {}, c: (s.explore && s.explore.total) | 0 },
-    a: s.achievements || {},
-    st: {
-      b: (s.stats && s.stats.bestRealm) | 0,
-      f: (s.stats && s.stats.breakFails) | 0,
-      k: (s.stats && s.stats.breaks) | 0
-    },
-    ct: s.createdAt || Date.now(),
-    /* 道牌与道侣：一起打包，接手的人能看到你的道号与形象 */
-    dn: s.daoName || "",
-    ar: s.avatarRing || "jade",
-    as: s.avatarSeal || "道",
-    pi: s.partnerIntim | 0,
-    pt: s.partner ? {
-      n: s.partner.name || "",
-      k: s.partner.kind || "male",
-      r: s.partner.ring || "jade",
-      s: s.partner.seal || "道",
-      c: s.partner.code || ""
-    } : null
-  };
-  const json = JSON.stringify(packed);
-  return CODE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
-}
-
-/* ---------- 导入 ---------- */
-/* 返回 { ok:true, state } 或 { ok:false, reason } */
-function decodeSave(code) {
-  let raw = String(code == null ? "" : code);
-  raw = raw.replace(/[\s\u3000]+/g, "");          // 去掉换行、空格、全角空格
-  if (!raw) return { ok: false, reason: "empty" };
-
-  /* 容忍前面粘了说明文字、后面跟了闲聊：只从前缀处抓取真正的码 */
-  const at = raw.indexOf(CODE_PREFIX);
-  if (at < 0) return { ok: false, reason: "noprefix" };
-  const m = raw.slice(at).match(/^WENDAO1\.([A-Za-z0-9_-]+)\.([0-9a-z]+)/);
-  if (!m) return { ok: false, reason: "format" };
-
-  let json;
-  try { json = b64urlDecode(m[1]); }
-  catch (e) { return { ok: false, reason: "corrupt" }; }
-
-  if (hash32(json) !== m[2]) return { ok: false, reason: "checksum" };
-
-  let c;
-  try { c = JSON.parse(json); }
-  catch (e) { return { ok: false, reason: "corrupt" }; }
-  if (!c || typeof c !== "object") return { ok: false, reason: "corrupt" };
-
-  /* 还原成完整 state，并做范围校验，防止改档改坏 */
-  const s = defaultState();
-  s.version = SAVE_VERSION;
-  s.heroKind = HERO_KINDS.indexOf(c.h) >= 0 ? c.h : "male";
-  s.realm = Math.max(0, Math.min(REALMS.length - 1, c.r | 0));
-  s.cultivation = Math.max(0, Number(c.c) || 0);
-  s.stones = Math.max(0, Number(c.s) || 0);
-  s.totalStones = Math.max(0, Number(c.ts) || 0);
-  s.totalClicks = Math.max(0, c.tc | 0);
-  s.techniques = sanitizeTechs(c.t);
-  s.pills = sanitizePills(c.p);
-  s.achievements = (c.a && typeof c.a === "object") ? c.a : {};
-  s.createdAt = Number(c.ct) || Date.now();
-  s.lastTick = Date.now();
-  s.buffs = [];
-  s.explore = {
-    counts: (c.e && c.e.n && typeof c.e.n === "object") ? c.e.n : {},
-    total: Math.max(0, (c.e && c.e.c) | 0),
-    cooldownUntil: 0,
-    cooldownTotal: 0
-  };
-  s.daoName = (typeof c.dn === "string" && c.dn.trim()) ? c.dn.trim().slice(0, 12) : null;
-  s.avatarRing = AVATAR_RINGS.some(r => r.id === c.ar) ? c.ar : "jade";
-  s.avatarSeal = (typeof c.as === "string" && c.as.trim()) ? c.as.trim().slice(0, 1) : "道";
-  s.partnerIntim = Math.max(0, Math.min(PARTNER_INTIM_MAX, c.pi | 0));
-  s.partner = (c.pt && typeof c.pt === "object" && c.pt.n) ? {
-    name: String(c.pt.n).slice(0, 12),
-    kind: HERO_KINDS.indexOf(c.pt.k) >= 0 ? c.pt.k : "male",
-    ring: AVATAR_RINGS.some(r => r.id === c.pt.r) ? c.pt.r : "jade",
-    seal: (typeof c.pt.s === "string" && c.pt.s.trim()) ? c.pt.s.trim().slice(0, 1) : "道",
-    code: String(c.pt.c || ""),
-    date: Date.now()
-  } : null;
-  s.trainCdUntil = 0;
-  s.stats = {
-    bestRealm: Math.max(0, (c.st && c.st.b) | 0),
-    breakFails: Math.max(0, (c.st && c.st.f) | 0),
-    breaks: Math.max(0, (c.st && c.st.k) | 0)
-  };
-
-  return { ok: true, state: migrate(s) };
-}
-
-/* 功法等级限制在各自上限内 */
-function sanitizeTechs(src) {
-  const out = {};
-  if (!src || typeof src !== "object") return out;
-  for (const t of TECHNIQUES) {
-    const v = Math.floor(Number(src[t.id]) || 0);
-    if (v > 0) out[t.id] = Math.max(0, Math.min(t.max, v));
-  }
-  return out;
-}
-
-/* 丹药数量做个上限，避免异常数值 */
-function sanitizePills(src) {
-  const out = {};
-  if (!src || typeof src !== "object") return out;
-  for (const id of Object.keys(PILLS)) {
-    const v = Math.floor(Number(src[id]) || 0);
-    if (v > 0) out[id] = Math.min(999999, v);
-  }
-  return out;
-}
-
-/* ---------- 给微信用的分享文案 ---------- */
-function shareText(s, code) {
-  const realm = REALMS[s.realm] ? REALMS[s.realm].label : "炼气期 一层";
-  return [
-    "我在《问道》修到了「" + realm + "」。",
-    "复制下面整段发我，粘进游戏「存档码」里就能接手我的道途：",
-    code
-  ].join("\n");
-}
-
-/* ============================================================
-   邀请码（结道侣用）
-   只带上「身份信息」：道号、本相、道牌、境界，够对方认人即可。
-   格式：WENDAOP.<base64url>.<校验码>
-   ============================================================ */
-const INVITE_PREFIX = "WENDAOP";
-
-function encodeInvite(s) {
-  const inv = {
-    v: SAVE_VERSION,
-    n: (s.daoName || "无名散人"),
-    h: s.heroKind || "male",
-    r: s.avatarRing || "jade",
-    g: s.avatarSeal || "道",
-    e: s.realm | 0,
-    d: s.createdAt || Date.now()
-  };
-  const json = JSON.stringify(inv);
-  return INVITE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
-}
-
-/* 返回 { ok:true, invite:{name,kind,ring,seal,realm,date} } 或 { ok:false, reason } */
-function decodeInvite(code) {
-  let raw = String(code == null ? "" : code);
-  raw = raw.replace(/[\s\u3000]+/g, "");
-  if (!raw) return { ok:false, reason:"empty" };
-
-  const at = raw.indexOf(INVITE_PREFIX);
-  if (at < 0) return { ok:false, reason:"noprefix" };
-  const m = raw.slice(at).match(/^WENDAOP\.([A-Za-z0-9_-]+)\.([0-9a-z]+)/);
-  if (!m) return { ok:false, reason:"format" };
-
-  let json;
-  try { json = b64urlDecode(m[1]); }
-  catch (e) { return { ok:false, reason:"corrupt" }; }
-  if (hash32(json) !== m[2]) return { ok:false, reason:"checksum" };
-
-  let c;
-  try { c = JSON.parse(json); }
-  catch (e) { return { ok:false, reason:"corrupt" }; }
-  if (!c || typeof c !== "object") return { ok:false, reason:"corrupt" };
-
-  return { ok:true, invite:{
-    name: (typeof c.n === "string" && c.n.trim()) ? c.n.trim().slice(0, 12) : "无名散人",
-    kind: HERO_KINDS.indexOf(c.h) >= 0 ? c.h : "male",
-    ring: AVATAR_RINGS.some(r => r.id === c.r) ? c.r : "jade",
-    seal: (typeof c.g === "string" && c.g.trim()) ? c.g.trim().slice(0, 1) : "道",
-    realm: Math.max(0, Math.min(REALMS.length - 1, c.e | 0)),
-    date: Date.now()
-  }};
-}
-
-/* 道侣分享文案 */
-function inviteShareText(s, code) {
-  return [
-    "我在《" + "问道" + "》的道号是「" + (s.daoName || "无名散人") + "」。",
-    "复制下面整段发我，我们结为道侣一同双修：",
-    code
-  ].join("\n");
-}
 
 /* ===== ui.js ===== */
 /* ============================================================
@@ -2014,16 +1897,22 @@ function drawAll(s) {
     case "bag":         drawPills(s); break;
     case "secret":      drawSecret(s); break;
     case "achievement": drawAch(s); break;
+    case "rank":        drawRank(s); break;
   }
 }
 
 /* 每帧只刷新会动的部分，省性能 */
 let bagAcc = 0;
+let rankAcc = 0;
 function drawFast(s, dt) {
   drawTop(s);
   if (lastPanel === "cultivate") drawCultivate(s);
   if (lastPanel === "secret")    drawSecret(s);
   if (lastPanel === "achievement") drawPartner(s);   // 双修冷却要走字
+  if (lastPanel === "rank") {                        // 榜单状态约 2 次/秒
+    rankAcc += dt;
+    if (rankAcc >= 0.5) { rankAcc = 0; drawRank(s); }
+  }
   if (lastPanel === "bag") {                 // 药力倒计时要走字，约 4 次/秒
     bagAcc += dt;
     if (bagAcc >= 0.25) { bagAcc = 0; drawPills(s); }
@@ -2264,6 +2153,781 @@ function randomDaoName() {
   return DAO_NAME_A[Math.floor(Math.random() * DAO_NAME_A.length)] +
          DAO_NAME_B[Math.floor(Math.random() * DAO_NAME_B.length)];
 }
+/* ============================================================
+   仙榜 —— 视图
+   ============================================================ */
+Object.assign(el, {
+  lbStatus:  $("#lbStatus"),
+  lbList:    $("#lbList"),
+  lbEmpty:   $("#lbEmpty"),
+  lbMyRow:   $("#lbMyRow"),
+  lbModal:   $("#lbModal"),
+  lbCode:    $("#lbCode"),
+  lbEndpoint:$("#lbEndpoint"),
+  lbSteps:   $("#lbSteps"),
+  lbBeTag:   $("#lbBeTag")
+});
+
+function lbStatusText() {
+  if (!lbGetEndpoint()) return { cls:"", txt:"尚未设置后端" };
+  if (lbState.loading)  return { cls:"",    txt:"正在拉取…" };
+  if (lbState.error)    return { cls:"err", txt:"连接异常 · " + lbState.error };
+  const when = lbState.lastAt ? new Date(lbState.lastAt).toLocaleTimeString("zh-CN", { hour12:false }) : "—";
+  return { cls:"on", txt:"已连接 · 共 " + lbState.list.length + " 位道友 · 更新于 " + when };
+}
+
+/* 一行的长相 */
+function lbRowHtml(rec, rank, isMe, uidKey) {
+  const realm = REALMS[rec.realm] ? REALMS[rec.realm].label : REALMS[0].label;
+  const main = lbState.board === "speed"
+    ? lbFmtClear(rec.clearMs) + " 登仙"
+    : realm;
+  const sub = lbState.board === "speed"
+    ? "打坐 " + fmtInt(rec.totalClicks) + " 次"
+    : "修为 " + fmtInt(rec.cultivation);
+  return [
+    '<div class="lb-row' + (rank <= 3 ? " top" + rank : "") + (isMe ? " me" : "") + '">',
+      '<div class="rk">' + (rank <= 3 ? ["🥇","🥈","🥉"][rank-1] : rank) + '</div>',
+      '<div class="av">' + heroAvatarSVG(rec.heroKind, rec.ring, rec.seal, uidKey || ("r" + rank)) + '</div>',
+      '<div class="who">',
+        '<div class="nm">' + escapeHtml(rec.name) + (isMe ? ' <span class="dao-sub">（我）</span>' : '') + '</div>',
+        '<div class="sub">' + escapeHtml(sub) + '</div>',
+      '</div>',
+      '<div class="val">' + escapeHtml(main) + '</div>',
+    '</div>'
+  ].join("");
+}
+
+function lbRecKey(r) { return [r.name, r.heroKind, r.ring, r.seal, r.realm, r.cultivation, r.totalClicks, r.clearMs].join("|"); }
+
+let lbDrawnKey = "";
+function drawRank(s) {
+  if (!el.lbList) return;
+
+  const st = lbStatusText();
+  el.lbStatus.className = "lb-status" + (st.cls ? " " + st.cls : "");
+  setText(el.lbStatus, st.txt);
+
+  const sorted = lbSort(lbState.list, lbState.board).slice(0, LB_TOP_N);
+  const mine = lbMyRank(lbState.list, lbState.board);
+
+  const key = lbState.board + "|" + lbState.loading + "|" + lbState.error + "|" +
+              sorted.map(lbRecKey).join(";");
+  if (key === lbDrawnKey) return;
+  lbDrawnKey = key;
+
+  /* 我的名次：只有掉出当前榜单之外，才单独置顶显示，避免和自己重复 */
+  const inList = mine && mine.rank <= sorted.length;
+  if (mine && !inList) {
+    el.lbMyRow.innerHTML = '<div class="lb-my">' + lbRowHtml(mine.row, mine.rank, true, "lbme") + "</div>";
+  } else if (!mine && lbState.list.length) {
+    el.lbMyRow.innerHTML = '<div class="lb-empty" style="padding:8px 0">你还没有上榜，点「上传我的进度」即可。</div>';
+  } else {
+    el.lbMyRow.innerHTML = "";
+  }
+
+  el.lbList.innerHTML = sorted.map((r, i) => lbRowHtml(r, i + 1, !!(mine && r.hid === mine.row.hid))).join("");
+  if (el.lbEmpty) el.lbEmpty.style.display = sorted.length ? "none" : "block";
+
+  document.querySelectorAll(".lb-tab").forEach(b => b.classList.toggle("on", b.dataset.board === lbState.board));
+}
+
+/* ---------- 后端设置弹窗 ---------- */
+let lbBeDraft = "cloudflare";
+
+function paintLbBackend() {
+  const be = lbBackend(lbBeDraft);
+  if (el.lbCode) el.lbCode.value = be.code;
+  if (el.lbBeTag) el.lbBeTag.textContent = be.name + " · " + be.tag;
+  if (el.lbSteps) {
+    el.lbSteps.innerHTML = be.steps.map((t, i) =>
+      '<div class="lb-step"><b>' + (i + 1) + '</b> ' + escapeHtml(t) + "</div>").join("");
+  }
+  document.querySelectorAll("[data-be]").forEach(b =>
+    b.classList.toggle("on", b.dataset.be === lbBeDraft));
+  if (el.lbEndpoint) {
+    el.lbEndpoint.placeholder = lbBeDraft === "deno" ? "https://xxx.deno.dev" : "https://xxx.workers.dev";
+  }
+}
+
+function openLbModal(s) {
+  if (!el.lbModal) return;
+  el.lbEndpoint.value = lbGetEndpoint();
+  paintLbBackend();
+  el.lbModal.classList.add("show");
+}
+function closeLbModal() { if (el.lbModal) el.lbModal.classList.remove("show"); }
+
+/* ===== savecode.js ===== */
+/* ============================================================
+   savecode.js —— 存档码
+   把进度压成一段纯文本，方便复制到微信发给别人。
+   格式：WENDAO1.<base64url 数据>.<校验码>
+   ============================================================ */
+
+const CODE_PREFIX = "WENDAO1";
+
+/* ---------- base64url（UTF-8 安全） ---------- */
+function b64urlEncode(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function b64urlDecode(s) {
+  let t = String(s).replace(/-/g, "+").replace(/_/g, "/");
+  while (t.length % 4) t += "=";
+  const bin = atob(t);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+/* ---------- 简易校验码（防手抖抄错） ---------- */
+function hash32(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return (h >>> 0).toString(36);
+}
+
+/* ---------- 导出 ---------- */
+/* 只打包「进度」：临时药力、日志、冷却时间都不带，
+   这样存档码更短，微信里也不容易发断 */
+function encodeSave(s) {
+  const packed = {
+    v: SAVE_VERSION,
+    h: s.heroKind || "male",
+    r: s.realm | 0,
+    c: Math.floor(s.cultivation),
+    s: Math.floor(s.stones),
+    ts: Math.floor(s.totalStones),
+    tc: s.totalClicks | 0,
+    t: s.techniques || {},
+    p: s.pills || {},
+    e: { n: (s.explore && s.explore.counts) || {}, c: (s.explore && s.explore.total) | 0 },
+    a: s.achievements || {},
+    st: {
+      b: (s.stats && s.stats.bestRealm) | 0,
+      f: (s.stats && s.stats.breakFails) | 0,
+      k: (s.stats && s.stats.breaks) | 0,
+      cl: Math.floor((s.stats && s.stats.clearMs) || 0)
+    },
+    ct: s.createdAt || Date.now(),
+    /* 道牌与道侣：一起打包，接手的人能看到你的道号与形象 */
+    dn: s.daoName || "",
+    ar: s.avatarRing || "jade",
+    as: s.avatarSeal || "道",
+    pi: s.partnerIntim | 0,
+    pt: s.partner ? {
+      n: s.partner.name || "",
+      k: s.partner.kind || "male",
+      r: s.partner.ring || "jade",
+      s: s.partner.seal || "道",
+      c: s.partner.code || ""
+    } : null
+  };
+  const json = JSON.stringify(packed);
+  return CODE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
+}
+
+/* ---------- 导入 ---------- */
+/* 返回 { ok:true, state } 或 { ok:false, reason } */
+function decodeSave(code) {
+  let raw = String(code == null ? "" : code);
+  raw = raw.replace(/[\s\u3000]+/g, "");          // 去掉换行、空格、全角空格
+  if (!raw) return { ok: false, reason: "empty" };
+
+  /* 容忍前面粘了说明文字、后面跟了闲聊：只从前缀处抓取真正的码 */
+  const at = raw.indexOf(CODE_PREFIX);
+  if (at < 0) return { ok: false, reason: "noprefix" };
+  const m = raw.slice(at).match(/^WENDAO1\.([A-Za-z0-9_-]+)\.([0-9a-z]+)/);
+  if (!m) return { ok: false, reason: "format" };
+
+  let json;
+  try { json = b64urlDecode(m[1]); }
+  catch (e) { return { ok: false, reason: "corrupt" }; }
+
+  if (hash32(json) !== m[2]) return { ok: false, reason: "checksum" };
+
+  let c;
+  try { c = JSON.parse(json); }
+  catch (e) { return { ok: false, reason: "corrupt" }; }
+  if (!c || typeof c !== "object") return { ok: false, reason: "corrupt" };
+
+  /* 还原成完整 state，并做范围校验，防止改档改坏 */
+  const s = defaultState();
+  s.version = SAVE_VERSION;
+  s.heroKind = HERO_KINDS.indexOf(c.h) >= 0 ? c.h : "male";
+  s.realm = Math.max(0, Math.min(REALMS.length - 1, c.r | 0));
+  s.cultivation = Math.max(0, Number(c.c) || 0);
+  s.stones = Math.max(0, Number(c.s) || 0);
+  s.totalStones = Math.max(0, Number(c.ts) || 0);
+  s.totalClicks = Math.max(0, c.tc | 0);
+  s.techniques = sanitizeTechs(c.t);
+  s.pills = sanitizePills(c.p);
+  s.achievements = (c.a && typeof c.a === "object") ? c.a : {};
+  s.createdAt = Number(c.ct) || Date.now();
+  s.lastTick = Date.now();
+  s.buffs = [];
+  s.explore = {
+    counts: (c.e && c.e.n && typeof c.e.n === "object") ? c.e.n : {},
+    total: Math.max(0, (c.e && c.e.c) | 0),
+    cooldownUntil: 0,
+    cooldownTotal: 0
+  };
+  s.daoName = (typeof c.dn === "string" && c.dn.trim()) ? c.dn.trim().slice(0, 12) : null;
+  s.avatarRing = AVATAR_RINGS.some(r => r.id === c.ar) ? c.ar : "jade";
+  s.avatarSeal = (typeof c.as === "string" && c.as.trim()) ? c.as.trim().slice(0, 1) : "道";
+  s.partnerIntim = Math.max(0, Math.min(PARTNER_INTIM_MAX, c.pi | 0));
+  s.partner = (c.pt && typeof c.pt === "object" && c.pt.n) ? {
+    name: String(c.pt.n).slice(0, 12),
+    kind: HERO_KINDS.indexOf(c.pt.k) >= 0 ? c.pt.k : "male",
+    ring: AVATAR_RINGS.some(r => r.id === c.pt.r) ? c.pt.r : "jade",
+    seal: (typeof c.pt.s === "string" && c.pt.s.trim()) ? c.pt.s.trim().slice(0, 1) : "道",
+    code: String(c.pt.c || ""),
+    date: Date.now()
+  } : null;
+  s.trainCdUntil = 0;
+  s.stats = {
+    bestRealm: Math.max(0, (c.st && c.st.b) | 0),
+    breakFails: Math.max(0, (c.st && c.st.f) | 0),
+    breaks: Math.max(0, (c.st && c.st.k) | 0),
+    clearMs: Math.max(0, Number(c.st && c.st.cl) || 0)
+  };
+
+  return { ok: true, state: migrate(s) };
+}
+
+/* 功法等级限制在各自上限内 */
+function sanitizeTechs(src) {
+  const out = {};
+  if (!src || typeof src !== "object") return out;
+  for (const t of TECHNIQUES) {
+    const v = Math.floor(Number(src[t.id]) || 0);
+    if (v > 0) out[t.id] = Math.max(0, Math.min(t.max, v));
+  }
+  return out;
+}
+
+/* 丹药数量做个上限，避免异常数值 */
+function sanitizePills(src) {
+  const out = {};
+  if (!src || typeof src !== "object") return out;
+  for (const id of Object.keys(PILLS)) {
+    const v = Math.floor(Number(src[id]) || 0);
+    if (v > 0) out[id] = Math.min(999999, v);
+  }
+  return out;
+}
+
+/* ---------- 给微信用的分享文案 ---------- */
+function shareText(s, code) {
+  const realm = REALMS[s.realm] ? REALMS[s.realm].label : "炼气期 一层";
+  return [
+    "我在《问道》修到了「" + realm + "」。",
+    "复制下面整段发我，粘进游戏「存档码」里就能接手我的道途：",
+    code
+  ].join("\n");
+}
+
+/* ============================================================
+   邀请码（结道侣用）
+   只带上「身份信息」：道号、本相、道牌、境界，够对方认人即可。
+   格式：WENDAOP.<base64url>.<校验码>
+   ============================================================ */
+const INVITE_PREFIX = "WENDAOP";
+
+function encodeInvite(s) {
+  const inv = {
+    v: SAVE_VERSION,
+    n: (s.daoName || "无名散人"),
+    h: s.heroKind || "male",
+    r: s.avatarRing || "jade",
+    g: s.avatarSeal || "道",
+    e: s.realm | 0,
+    d: s.createdAt || Date.now()
+  };
+  const json = JSON.stringify(inv);
+  return INVITE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
+}
+
+/* 返回 { ok:true, invite:{name,kind,ring,seal,realm,date} } 或 { ok:false, reason } */
+function decodeInvite(code) {
+  let raw = String(code == null ? "" : code);
+  raw = raw.replace(/[\s\u3000]+/g, "");
+  if (!raw) return { ok:false, reason:"empty" };
+
+  const at = raw.indexOf(INVITE_PREFIX);
+  if (at < 0) return { ok:false, reason:"noprefix" };
+  const m = raw.slice(at).match(/^WENDAOP\.([A-Za-z0-9_-]+)\.([0-9a-z]+)/);
+  if (!m) return { ok:false, reason:"format" };
+
+  let json;
+  try { json = b64urlDecode(m[1]); }
+  catch (e) { return { ok:false, reason:"corrupt" }; }
+  if (hash32(json) !== m[2]) return { ok:false, reason:"checksum" };
+
+  let c;
+  try { c = JSON.parse(json); }
+  catch (e) { return { ok:false, reason:"corrupt" }; }
+  if (!c || typeof c !== "object") return { ok:false, reason:"corrupt" };
+
+  return { ok:true, invite:{
+    name: (typeof c.n === "string" && c.n.trim()) ? c.n.trim().slice(0, 12) : "无名散人",
+    kind: HERO_KINDS.indexOf(c.h) >= 0 ? c.h : "male",
+    ring: AVATAR_RINGS.some(r => r.id === c.r) ? c.r : "jade",
+    seal: (typeof c.g === "string" && c.g.trim()) ? c.g.trim().slice(0, 1) : "道",
+    realm: Math.max(0, Math.min(REALMS.length - 1, c.e | 0)),
+    date: Date.now()
+  }};
+}
+
+/* 道侣分享文案 */
+function inviteShareText(s, code) {
+  return [
+    "我在《" + "问道" + "》的道号是「" + (s.daoName || "无名散人") + "」。",
+    "复制下面整段发我，我们结为道侣一同双修：",
+    code
+  ].join("\n");
+}
+
+/* ===== leaderboard.js ===== */
+/* ============================================================
+   leaderboard.js —— 仙榜（联网排名）
+   后端用 Google Apps Script + 表格，免费、不用服务器。
+   游戏这边只做两件事：GET 拉榜单、GET 上传自己的进度。
+   拉取优先用 fetch；万一被浏览器跨域拦住，自动改用 JSONP 兜底。
+   ============================================================ */
+
+const LB_EP_KEY   = "xiuxian_lb_ep_v1";     // 后端网址（独立存，重开游戏也不丢）
+const LB_ID_KEY   = "xiuxian_lb_id_v1";     // 本机标识，用于「更新我自己的那条」
+const LB_TOP_N    = 50;
+const LB_TIMEOUT  = 12000;
+
+/* ---------- 榜单设置（存在浏览器里，不占存档） ---------- */
+function lbGetEndpoint() {
+  try { return (localStorage.getItem(LB_EP_KEY) || "").trim(); } catch (e) { return ""; }
+}
+function lbSetEndpoint(url) {
+  try { localStorage.setItem(LB_EP_KEY, (url || "").trim()); return true; }
+  catch (e) { return false; }
+}
+
+/* 本机标识：第一次访问时生成，之后一直沿用 */
+function lbGetSyncId() {
+  try {
+    let id = localStorage.getItem(LB_ID_KEY);
+    if (!id) {
+      id = "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+      localStorage.setItem(LB_ID_KEY, id);
+    }
+    return id;
+  } catch (e) {
+    return "d" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+}
+
+/* ---------- 面板状态 ---------- */
+const lbState = {
+  board: "power",        // power=修为榜  speed=速通榜
+  list: [],
+  loading: false,
+  error: "",
+  lastAt: 0
+};
+
+/* ---------- 参数拼装 ---------- */
+function lbQ(params) {
+  const parts = [];
+  for (const k in params) {
+    if (params[k] === undefined || params[k] === null) continue;
+    parts.push(encodeURIComponent(k) + "=" + encodeURIComponent(params[k]));
+  }
+  return parts.join("&");
+}
+
+/* JSONP 兜底：script 标签不受跨域限制 */
+function lbJsonp(url, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const cb = "lb_cb_" + Math.random().toString(36).slice(2, 10);
+    const sep = url.indexOf("?") >= 0 ? "&" : "?";
+    const script = document.createElement("script");
+    let done = false;
+
+    const timer = setTimeout(() => {
+      if (done) return;
+      done = true; cleanup(); reject(new Error("timeout"));
+    }, timeoutMs || LB_TIMEOUT);
+
+    function cleanup() {
+      clearTimeout(timer);
+      try { delete window[cb]; } catch (e) { window[cb] = undefined; }
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+
+    window[cb] = data => {
+      if (done) return;
+      done = true; cleanup(); resolve(data);
+    };
+    script.onerror = () => {
+      if (done) return;
+      done = true; cleanup(); reject(new Error("network"));
+    };
+    script.src = url + sep + "callback=" + cb;
+    document.head.appendChild(script);
+  });
+}
+
+/* 先 fetch，失败再 JSONP；两种都不行才算断网 */
+function lbRequest(params) {
+  const ep = lbGetEndpoint();
+  if (!ep) return Promise.reject(new Error("noendpoint"));
+  const url = ep + (ep.indexOf("?") >= 0 ? "&" : "?") + lbQ(params);
+
+  return fetch(url, { method: "GET", cache: "no-store" })
+    .then(res => {
+      if (!res.ok) throw new Error("http " + res.status);
+      return res.json();
+    })
+    .catch(() => lbJsonp(url, LB_TIMEOUT));
+}
+
+/* ---------- 上传自己的进度 ---------- */
+function lbBuildPayload(s) {
+  return {
+    action: "submit",
+    syncId: lbGetSyncId(),
+    name: (typeof daoNameOf === "function" ? daoNameOf(s) : "无名散人"),
+    heroKind: s.heroKind || "male",
+    ring: s.avatarRing || "jade",
+    seal: s.avatarSeal || "道",
+    realm: s.realm | 0,
+    cultivation: Math.floor(s.cultivation || 0),
+    totalClicks: s.totalClicks | 0,
+    totalStones: Math.floor(s.totalStones || 0),
+    clearMs: Math.floor((s.stats && s.stats.clearMs) || 0)
+  };
+}
+
+function lbSubmit(s) {
+  return lbRequest(lbBuildPayload(s));
+}
+
+/* ---------- 拉榜单 ---------- */
+function lbRefresh() {
+  if (!lbGetEndpoint()) {
+    lbState.error = "noendpoint";
+    lbState.list = [];
+    return Promise.resolve(lbState);
+  }
+  lbState.loading = true;
+  lbState.error = "";
+  return lbRequest({ action: "list" })
+    .then(r => {
+      lbState.loading = false;
+      if (!r || !r.ok || !Array.isArray(r.list)) throw new Error(r && r.error ? r.error : "bad");
+      lbState.list = r.list;
+      lbState.lastAt = Date.now();
+      return lbState;
+    })
+    .catch(err => {
+      lbState.loading = false;
+      lbState.error = String(err && err.message ? err.message : err);
+      return lbState;
+    });
+}
+
+/* ---------- 排序 ---------- */
+function lbSort(list, board) {
+  const arr = (list || []).slice();
+  if (board === "speed") {
+    return arr.filter(r => r.clearMs > 0).sort((a, b) => a.clearMs - b.clearMs);
+  }
+  return arr.sort((a, b) =>
+    (b.realm - a.realm) || (b.cultivation - a.cultivation) || (b.totalClicks - a.totalClicks)
+  );
+}
+
+/* 本机标识的短哈希。
+   必须与后端脚本里的 hashId() 完全一致（FNV-1a → 8 位十六进制），
+   否则「我的名次」永远匹配不上。 */
+function lbHashId(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return ("0000000" + (h >>> 0).toString(16)).slice(-8);
+}
+
+/* 我排第几（用本机标识比对，后端只回一个短哈希，不泄露原始 id） */
+function lbMyRank(list, board) {
+  const sorted = lbSort(list, board);
+  const hid = lbHashId(lbGetSyncId());
+  for (let i = 0; i < sorted.length; i++) if (sorted[i].hid === hid) return { rank: i + 1, row: sorted[i] };
+  return null;
+}
+
+function lbFmtClear(ms) {
+  if (!ms || ms <= 0) return "—";
+  return fmtTime(Math.round(ms / 1000));
+}
+
+/* ============================================================
+   后端代码（给玩家一键复制去部署）
+   两套可选，都不需要 Google 账号：
+     cloudflare —— Cloudflare Worker + KV（推荐，免费，大陆可访问）
+     deno       —— Deno Deploy + Deno KV（更简单，零建库，国内可能不稳）
+   两套都实现了同一套接口：?action=list 与 ?action=submit
+   ============================================================ */
+
+const LB_CF_CODE = `/**
+ * 问道 · 仙榜后端（Cloudflare Worker + KV）
+ * 部署后无需改动，接口与游戏对接。
+ */
+const MAX_ROWS  = 800;
+const MAX_REALM = 33;      // 境界表最大下标（仙人）
+const KEY       = 'board';
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
+
+export default {
+  async fetch(request, env) {
+    const u = new URL(request.url);
+    if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
+
+    const q = {};
+    u.searchParams.forEach(function (v, k) { q[k] = v; });
+
+    let body = {};
+    if (request.method === 'POST') {
+      try { body = await request.json(); } catch (e) { body = {}; }
+    }
+    const p = Object.assign({}, q, body);
+
+    let out;
+    try {
+      if (p.action === 'submit') out = await handleSubmit(env, p);
+      else                       out = await handleList(env);
+    } catch (e) {
+      out = { ok: false, error: String(e) };
+    }
+
+    const json = JSON.stringify(out);
+    if (p.callback) {
+      return new Response(p.callback + '(' + json + ');', {
+        headers: Object.assign({ 'Content-Type': 'application/javascript' }, CORS)
+      });
+    }
+    return new Response(json, {
+      headers: Object.assign({ 'Content-Type': 'application/json' }, CORS)
+    });
+  }
+};
+
+async function readBoard(env) {
+  if (!env || !env.LB) throw new Error('缺少 KV 绑定：请在 Worker 设置里绑定变量名 LB');
+  const raw = await env.LB.get(KEY);
+  if (!raw) return [];
+  try { const a = JSON.parse(raw); return Array.isArray(a) ? a : []; }
+  catch (e) { return []; }
+}
+async function writeBoard(env, list) {
+  await env.LB.put(KEY, JSON.stringify(list));
+}
+
+async function handleSubmit(env, p) {
+  const syncId = str(p.syncId, 40);
+  if (!syncId) return { ok: false, error: '缺少 syncId' };
+
+  const row = {
+    hid: hashId(syncId),
+    name: str(p.name, 12) || '无名散人',
+    heroKind: pick(p.heroKind, ['male', 'female', 'beast'], 'male'),
+    ring: pick(p.ring, ['jade', 'gold', 'cinn', 'ice', 'moon', 'violet'], 'jade'),
+    seal: str(p.seal, 1) || '道',
+    realm: clampInt(p.realm, 0, MAX_REALM, 0),
+    cultivation: clampNum(p.cultivation, 0, 1e30, 0),
+    totalClicks: clampInt(p.totalClicks, 0, 1e12, 0),
+    totalStones: clampNum(p.totalStones, 0, 1e30, 0),
+    clearMs: clampNum(p.clearMs, 0, 1e13, 0),
+    updatedAt: new Date().toISOString()
+  };
+
+  const list = await readBoard(env);
+  let at = -1;
+  for (let i = 0; i < list.length; i++) if (list[i].hid === row.hid) { at = i; break; }
+
+  if (at >= 0) list[at] = row;
+  else {
+    if (list.length >= MAX_ROWS) return { ok: false, error: '榜单已满' };
+    list.push(row);
+  }
+  await writeBoard(env, list);
+  return { ok: true, updated: at >= 0, hid: row.hid };
+}
+
+async function handleList(env) {
+  const list = await readBoard(env);
+  return { ok: true, count: list.length, list: list };
+}
+
+function str(v, max) {
+  return String(v == null ? '' : v).replace(/[\\u0000-\\u001f<>]/g, '').trim().slice(0, max);
+}
+function pick(v, allowed, dft) { return allowed.indexOf(String(v)) >= 0 ? String(v) : dft; }
+function clampInt(v, lo, hi, dft) { const n = parseInt(v, 10); if (isNaN(n)) return dft; return Math.max(lo, Math.min(hi, n)); }
+function clampNum(v, lo, hi, dft) { const n = parseFloat(v); if (!isFinite(n)) return dft; return Math.max(lo, Math.min(hi, n)); }
+function hashId(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return ('0000000' + (h >>> 0).toString(16)).slice(-8);
+}
+`;
+
+const LB_DENO_CODE = `/**
+ * 问道 · 仙榜后端（Deno Deploy + Deno KV）
+ * 不用建数据库，粘进去直接就能用。
+ */
+const MAX_ROWS  = 800;
+const MAX_REALM = 33;
+const kv = await Deno.openKv();
+
+const CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type'
+};
+
+Deno.serve(async (request) => {
+  const u = new URL(request.url);
+  if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
+
+  const q = {};
+  u.searchParams.forEach(function (v, k) { q[k] = v; });
+
+  let body = {};
+  if (request.method === 'POST') {
+    try { body = await request.json(); } catch (e) { body = {}; }
+  }
+  const p = Object.assign({}, q, body);
+
+  let out;
+  try {
+    if (p.action === 'submit') out = await handleSubmit(p);
+    else                       out = await handleList();
+  } catch (e) {
+    out = { ok: false, error: String(e) };
+  }
+
+  const json = JSON.stringify(out);
+  if (p.callback) {
+    return new Response(p.callback + '(' + json + ');', {
+      headers: Object.assign({ 'Content-Type': 'application/javascript' }, CORS)
+    });
+  }
+  return new Response(json, {
+    headers: Object.assign({ 'Content-Type': 'application/json' }, CORS)
+  });
+});
+
+async function readBoard() {
+  const r = await kv.get(['board']);
+  const a = r.value;
+  return Array.isArray(a) ? a : [];
+}
+async function writeBoard(list) {
+  await kv.set(['board'], list);
+}
+
+async function handleSubmit(p) {
+  const syncId = str(p.syncId, 40);
+  if (!syncId) return { ok: false, error: '缺少 syncId' };
+
+  const row = {
+    hid: hashId(syncId),
+    name: str(p.name, 12) || '无名散人',
+    heroKind: pick(p.heroKind, ['male', 'female', 'beast'], 'male'),
+    ring: pick(p.ring, ['jade', 'gold', 'cinn', 'ice', 'moon', 'violet'], 'jade'),
+    seal: str(p.seal, 1) || '道',
+    realm: clampInt(p.realm, 0, MAX_REALM, 0),
+    cultivation: clampNum(p.cultivation, 0, 1e30, 0),
+    totalClicks: clampInt(p.totalClicks, 0, 1e12, 0),
+    totalStones: clampNum(p.totalStones, 0, 1e30, 0),
+    clearMs: clampNum(p.clearMs, 0, 1e13, 0),
+    updatedAt: new Date().toISOString()
+  };
+
+  const list = await readBoard();
+  let at = -1;
+  for (let i = 0; i < list.length; i++) if (list[i].hid === row.hid) { at = i; break; }
+
+  if (at >= 0) list[at] = row;
+  else {
+    if (list.length >= MAX_ROWS) return { ok: false, error: '榜单已满' };
+    list.push(row);
+  }
+  await writeBoard(list);
+  return { ok: true, updated: at >= 0, hid: row.hid };
+}
+
+async function handleList() {
+  const list = await readBoard();
+  return { ok: true, count: list.length, list: list };
+}
+
+function str(v, max) {
+  return String(v == null ? '' : v).replace(/[\\u0000-\\u001f<>]/g, '').trim().slice(0, max);
+}
+function pick(v, allowed, dft) { return allowed.indexOf(String(v)) >= 0 ? String(v) : dft; }
+function clampInt(v, lo, hi, dft) { const n = parseInt(v, 10); if (isNaN(n)) return dft; return Math.max(lo, Math.min(hi, n)); }
+function clampNum(v, lo, hi, dft) { const n = parseFloat(v); if (!isFinite(n)) return dft; return Math.max(lo, Math.min(hi, n)); }
+function hashId(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return ('0000000' + (h >>> 0).toString(16)).slice(-8);
+}
+`;
+
+const LB_BACKENDS = {
+  cloudflare: {
+    id: "cloudflare",
+    name: "Cloudflare Worker",
+    tag: "推荐 · 免费 · 大陆可访问",
+    code: LB_CF_CODE,
+    steps: [
+      "用邮箱注册并登录 dash.cloudflare.com（免费，不用信用卡）。",
+      "左侧点「存储和数据库 → KV」，新建一个命名空间，名字随意（例如 wendao）。",
+      "左侧点「计算 → Workers 和 Pages」，新建一个 Worker，起个名字，进「编辑代码」。",
+      "把下面这段代码整段粘进去覆盖原内容，先点一次「部署」。",
+      "回到该 Worker 的「设置 → 绑定」，添加 KV 命名空间绑定：变量名填 LB，选中刚建的命名空间，保存。",
+      "再点一次「部署」，然后复制 Worker 地址（形如 https://xxx.workers.dev），粘到下面那栏保存。"
+    ]
+  },
+  deno: {
+    id: "deno",
+    name: "Deno Deploy",
+    tag: "更简单 · 零建库 · 国内可能不稳",
+    code: LB_DENO_CODE,
+    steps: [
+      "打开 dash.deno.com，用 GitHub 账号登录（你有 GitHub 就行）。",
+      "点「New Playground」，随便起个名字。",
+      "把下面这段代码整段粘进去覆盖原内容（不用建数据库，直接就能存）。",
+      "点「Save & Deploy」，等它部署完成。",
+      "复制它给出的地址（形如 https://xxx.deno.dev），粘到下面那栏保存。"
+    ]
+  }
+};
+
+const LB_BACKEND_ORDER = ["cloudflare", "deno"];
+function lbBackend(id) { return LB_BACKENDS[id] || LB_BACKENDS.cloudflare; }
 
 /* ===== game.js ===== */
 /* ============================================================
@@ -2785,6 +3449,86 @@ function bindEvents() {
       toast("已解绑", "good");
       return;
     }
+  });
+  /* ============================================================
+     仙榜（联网排名）
+     ============================================================ */
+  const lbModalEl = document.getElementById("lbModal");
+
+  function lbToastErr(err) {
+    const m = String(err && err.message ? err.message : err);
+    if (m === "noendpoint") toast("还没设置后端，先点「设置后端」", "bad");
+    else if (m === "timeout") toast("连接超时，稍后再试", "bad");
+    else toast("连不上后端：" + m, "bad");
+  }
+
+  function lbLoad() {
+    lbState.loading = true;
+    lbDrawnKey = "";
+    drawRank(S);
+    lbRefresh().then(() => { lbDrawnKey = ""; drawRank(S); });
+  }
+
+  document.getElementById("btnLbRefresh").addEventListener("click", lbLoad);
+
+  document.getElementById("btnLbSubmit").addEventListener("click", () => {
+    if (!lbGetEndpoint()) { toast("请先设置后端", "bad"); openLbModal(S); return; }
+    if (!S.daoName) { toast("建议先取个道号，榜上更好认", "bad"); }
+    toast("上传中…", "good");
+    lbSubmit(S)
+      .then(r => {
+        if (!r || !r.ok) throw new Error(r && r.error ? r.error : "上传失败");
+        pushLog(S, "已将你的进度呈上仙榜。", true);
+        toast("已上榜 · 正在刷新", "good");
+        lbLoad();
+      })
+      .catch(err => { toast("上传失败：" + String(err.message || err), "bad"); });
+  });
+
+  document.getElementById("btnLbSetup").addEventListener("click", () => openLbModal(S));
+  document.getElementById("btnLbClose").addEventListener("click", closeLbModal);
+  lbModalEl.addEventListener("click", ev => { if (ev.target === lbModalEl) closeLbModal(); });
+
+  document.getElementById("btnLbCopyCode").addEventListener("click", () => {
+    copyText(el.lbCode.value, "后端代码已复制，粘到部署页面即可");
+  });
+
+  /* 切换后端方案（Cloudflare / Deno） */
+  document.querySelectorAll("[data-be]").forEach(b => {
+    b.addEventListener("click", () => { lbBeDraft = b.dataset.be; paintLbBackend(); });
+  });
+
+  document.getElementById("btnLbSave").addEventListener("click", () => {
+    const url = (el.lbEndpoint.value || "").trim();
+    if (url && !/^https?:\/\//i.test(url)) { toast("网址要以 http(s):// 开头", "bad"); return; }
+    lbSetEndpoint(url);
+    closeLbModal();
+    lbDrawnKey = "";
+    drawRank(S);
+    if (url) { toast("后端已保存，正在拉取…", "good"); lbLoad(); }
+    else toast("已清空后端设置", "good");
+  });
+
+  document.getElementById("btnLbTest").addEventListener("click", () => {
+    const url = (el.lbEndpoint.value || "").trim();
+    if (!url) { toast("请先填入网址", "bad"); return; }
+    lbSetEndpoint(url);
+    toast("测试中…", "good");
+    lbRequest({ action: "list" })
+      .then(r => {
+        if (r && r.ok) toast("连接成功 · 榜单 " + (r.count | 0) + " 条", "good");
+        else toast("连上了，但返回异常", "bad");
+      })
+      .catch(lbToastErr);
+  });
+
+  /* 两个榜单切换 */
+  document.querySelectorAll(".lb-tab").forEach(b => {
+    b.addEventListener("click", () => {
+      lbState.board = b.dataset.board;
+      lbDrawnKey = "";
+      drawRank(S);
+    });
   });
   /* 键盘：空格打坐，回车突破 —— 手速党的福音 */
   document.addEventListener("keydown", ev => {
