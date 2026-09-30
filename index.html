@@ -759,21 +759,29 @@ function renderHero(container, kind) {
 
 /* 灵气倍率：每突破一个境界，基础收益乘以该值。
    调大 → 整体节奏变快；调小 → 变慢。这是最核心的一个旋钮。 */
-const QI_MULT = 1.32;
+const QI_MULT = 1.40;
+
+/* ---------- 收益配比（核心手感旋钮） ----------
+   IDLE_BASE      ：每秒挂机得到的修为基数
+   CLICK_IDLE_RATIO：打坐一次 = 多少秒的挂机收益
+   炼气一层无功法时：挂机 0.06/秒，打坐 1.2/次，正好 20 倍。
+   功法会各自微调（静心咒偏打坐、聚气阵偏挂机），这是有意设计。 */
+const IDLE_BASE = 0.06;
+const CLICK_IDLE_RATIO = 20;
 
 /* 境界表：每个大境界的层数、修为需求基数、层间增幅、突破率 */
 const REALMS = (() => {
   const major = [
     { name:"炼气期", tiers:9, base:6,      mult:1.32, rate:0.95, rateDrop:0.06 },
-    { name:"筑基期", tiers:3, base:180,    mult:1.50, rate:0.85, rateDrop:0.08 },
-    { name:"金丹期", tiers:3, base:1800,   mult:1.60, rate:0.75, rateDrop:0.09 },
-    { name:"元婴期", tiers:3, base:16000,  mult:1.68, rate:0.66, rateDrop:0.09 },
-    { name:"化神期", tiers:3, base:130000, mult:1.75, rate:0.58, rateDrop:0.09 },
-    { name:"炼虚期", tiers:3, base:1.0e6,  mult:1.82, rate:0.50, rateDrop:0.09 },
-    { name:"合体期", tiers:3, base:8.0e6,  mult:1.90, rate:0.43, rateDrop:0.09 },
-    { name:"大乘期", tiers:3, base:6.5e7,  mult:1.98, rate:0.36, rateDrop:0.09 },
-    { name:"渡劫期", tiers:3, base:5.2e8,  mult:2.06, rate:0.30, rateDrop:0.08 },
-    { name:"仙人",   tiers:1, base:6.5e9,  mult:2.20, rate:0.25, rateDrop:0.00 }
+    { name:"筑基期", tiers:3, base:160,    mult:1.48, rate:0.88, rateDrop:0.07 },
+    { name:"金丹期", tiers:3, base:1350,   mult:1.48, rate:0.83, rateDrop:0.07 },
+    { name:"元婴期", tiers:3, base:9000,   mult:1.48, rate:0.80, rateDrop:0.06 },
+    { name:"化神期", tiers:3, base:60000,  mult:1.48, rate:0.77, rateDrop:0.06 },
+    { name:"炼虚期", tiers:3, base:400000, mult:1.48, rate:0.74, rateDrop:0.05 },
+    { name:"合体期", tiers:3, base:2.6e6,  mult:1.48, rate:0.71, rateDrop:0.05 },
+    { name:"大乘期", tiers:3, base:1.7e7,  mult:1.48, rate:0.68, rateDrop:0.05 },
+    { name:"渡劫期", tiers:3, base:1.1e8,  mult:1.48, rate:0.65, rateDrop:0.04 },
+    { name:"仙人",   tiers:1, base:7.5e8,  mult:2.00, rate:0.62, rateDrop:0.00 }
   ];
   const TIER_CN = ["一","二","三","四","五","六","七","八","九"];
   const out = [];
@@ -812,7 +820,7 @@ const PILLS = {
   huiqi:  { name:"回气丹", desc:"立刻获得 1 分钟的打坐收益",        kind:"burst", color:"#5fbfa0" },
   juyuan: { name:"聚元丹", desc:"境界灵气 +20%，持续 2 分钟",       kind:"buff", stat:"qi",    value:0.20, dur:120, color:"#d9b76a" },
   wuxin:  { name:"悟心丹", desc:"突破成功率 +15%，持续 90 秒",      kind:"buff", stat:"rate",  value:0.15, dur:90,  color:"#8fa8e8" },
-  lingxi: { name:"灵犀丹", desc:"每次打坐额外 +30 修为，持续 2 分钟", kind:"buff", stat:"click", value:30,   dur:120, color:"#c8503f" }
+  lingxi: { name:"灵犀丹", desc:"每次打坐收益翻倍，持续 2 分钟", kind:"buff", stat:"click", value:1.0,  dur:120, color:"#c8503f" }
 };
 
 /* 秘境：unlockRealm 是 REALMS 的下标（0=炼气一层，9=筑基一层…） */
@@ -1044,19 +1052,23 @@ function techFactor(s, unit) {
   return 1 + techBonus(s, unit) + techBonus(s, "全部收益");
 }
 
-/* 每秒自动修为 */
+/* 每秒自动修为（挂机）。
+   基数 IDLE_BASE 写在 config.js，打坐基数是它的 CLICK_IDLE_RATIO 倍。 */
 function autoRate(s, now) {
-  const base = 1;
   const qi = realmQi(s) * (1 + buffBonus(s, "qi", now));
-  return base * qi * (1 + techBonus(s, "自动灵气") + techBonus(s, "引气效率") + techBonus(s, "全部收益"));
+  const common = 1 + techBonus(s, "引气效率") + techBonus(s, "全部收益");
+  const juqi = techBonus(s, "自动灵气");           // 聚气阵：只加成挂机
+  return IDLE_BASE * qi * (common + juqi);
 }
 
-/* 单次打坐所得 */
+/* 单次打坐所得。
+   基础部分 = 当前挂机收益的 CLICK_IDLE_RATIO 倍（严格 20 倍，各境界都不漂）。
+   在此之上：静心咒按比例放大（手动专属天赋）、灵犀丹按境界加固定值。 */
 function clickGain(s, now) {
-  const base = 2;
-  const qi = realmQi(s) * (1 + buffBonus(s, "qi", now));
-  const mult = 1 + techBonus(s, "每次打坐") + techBonus(s, "引气效率") + techBonus(s, "全部收益");
-  return base * qi * mult * (1 + buffBonus(s, "click", now));
+  const base = CLICK_IDLE_RATIO * autoRate(s, now);
+  const jingxin = techBonus(s, "每次打坐");        // 静心咒：只奖励手动
+  const lingxi = buffBonus(s, "click", now);      // 灵犀丹：按比例放大打坐收益
+  return base * (1 + jingxin) * (1 + lingxi);
 }
 
 /* 突破成功率（上限 99%） */
@@ -2134,6 +2146,7 @@ function bindEvents() {
   document.addEventListener("keydown", ev => {
     const tag = (ev.target.tagName || "").toLowerCase();
     if (tag === "input" || tag === "textarea") return;
+    if (ev.repeat) return;                                  // 按住不放不算，避免连发刷收益
     if (ev.code === "Space") { ev.preventDefault(); el.btnMeditate.click(); }
     if (ev.code === "Enter" && !el.btnBreak.disabled) { ev.preventDefault(); el.btnBreak.click(); }
   });
