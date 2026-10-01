@@ -146,6 +146,89 @@ body{
 .meditate-hint{ font-size:11px; color:rgba(234,227,210,.55); font-family:system-ui,sans-serif; }
 .meditate-hint b{ color:var(--jade); }
 
+/* ---------- 凝神：时机玩法 ---------- */
+.meditate-wrap{ position:relative; }
+.focus-ring{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:132px; height:132px; pointer-events:none; opacity:0; transition:opacity .18s; }
+.meditate-btn.charging .focus-ring{ opacity:1; }
+.fr-target{ fill:none; stroke:rgba(217,183,106,1); stroke-width:3.4;
+  filter:drop-shadow(0 0 7px rgba(217,183,106,1)); }
+.fr-sweep{ fill:none; stroke:#8ff0d2; stroke-width:4.6;
+  filter:drop-shadow(0 0 11px rgba(95,255,214,1)); }
+.meditate-btn.charging .seal{ opacity:.2; }
+.meditate-btn.charging .meditate-label{ color:var(--gold); }
+ .meditate-btn.charging{ border-color:rgba(217,183,106,.7);
+  box-shadow:0 0 30px rgba(217,183,106,.28) inset; }
+.meditate-btn.ready{ border-color:rgba(217,183,106,.8);
+  background:radial-gradient(circle at 50% 30%, rgba(217,183,106,.28), rgba(0,0,0,.35));
+  animation:pulseReady 1.6s ease-in-out infinite; }
+@keyframes pulseReady{
+  0%,100%{ box-shadow:0 0 0 rgba(217,183,106,0); }
+  50%{ box-shadow:0 0 26px rgba(217,183,106,.4); }
+}
+.meditate-btn.perfect{ border-color:rgba(217,183,106,1);
+  box-shadow:0 0 44px rgba(217,183,106,.65); }
+.meditate-btn.miss{ animation:shakeNo .32s; border-color:rgba(200,80,63,.7); }
+@keyframes shakeNo{
+  0%,100%{ transform:translateX(0); }
+  25%{ transform:translateX(-5px); }
+  75%{ transform:translateX(5px); }
+}
+
+/* ---------- 灵力条 ---------- */
+.spirit-row{ display:flex; align-items:center; gap:9px; margin-top:10px; }
+.spirit-label{ font-size:11.5px; color:rgba(234,227,210,.6); letter-spacing:2px;
+  font-family:system-ui,sans-serif; }
+.spirit-bar{ flex:1; height:7px; border-radius:4px; overflow:hidden;
+  background:rgba(0,0,0,.45); border:1px solid rgba(217,183,106,.2); }
+.spirit-bar i{ display:block; height:100%; width:0;
+  background:linear-gradient(90deg,var(--jade-deep),var(--jade));
+  transition:width .16s ease; }
+.spirit-bar.full i{ background:linear-gradient(90deg,#b9975a,var(--gold));
+  box-shadow:0 0 10px rgba(217,183,106,.7); }
+.spirit-text{ font-size:11px; color:rgba(234,227,210,.5); min-width:52px;
+  text-align:right; font-family:system-ui,sans-serif; }
+.spirit-row.full .spirit-text{ color:var(--gold); }
+
+/* ---------- 修行印记 ---------- */
+.dao-feats{ display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }
+.dao-feats .feat{ font-size:11px; padding:2px 9px; border-radius:11px;
+  border:1px solid rgba(95,191,160,.32); color:rgba(234,227,210,.72);
+  background:rgba(95,191,160,.07); font-family:system-ui,sans-serif; }
+.dao-feats .feat b{ color:var(--jade); font-weight:normal; }
+.dao-feats .feat.bad{ border-color:rgba(200,80,63,.35); background:rgba(200,80,63,.07); }
+.dao-feats .feat.bad b{ color:var(--cinnabar); }
+
+/* ---------- 心魔 ---------- */
+.demon-layer[hidden]{ display:none; }
+/* 心魔挡路：按钮自身的字全部藏起来，只留心魔层 */
+.meditate-wrap.demon-on .meditate-btn > .seal,
+.meditate-wrap.demon-on .meditate-btn > .meditate-label,
+.meditate-wrap.demon-on .meditate-btn > .meditate-hint,
+.meditate-wrap.demon-on .meditate-btn > .focus-ring{ visibility:hidden; }
+.meditate-wrap.demon-on .meditate-btn{ border-color:rgba(200,80,63,.5); }
+.demon-layer{ position:absolute; inset:0; border-radius:16px; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  overflow:hidden;
+  background:radial-gradient(circle at 50% 42%, #3a0c14, #0a0509 78%);
+  border:1px solid rgba(200,80,63,.6); animation:demonIn .22s ease-out; }
+@keyframes demonIn{ from{ opacity:0; transform:scale(.92); } to{ opacity:1; transform:scale(1); } }
+.demon-art{ width:56px; height:56px; margin-bottom:-2px;
+  filter:drop-shadow(0 0 8px rgba(200,80,63,.65));
+  animation:demonFloat 2.4s ease-in-out infinite; }
+.dg-eye{ animation:dgBlink 3.2s ease-in-out infinite; }
+@keyframes dgBlink{ 0%,44%,56%,100%{ opacity:1; } 50%{ opacity:.25; } }
+.demon-foe{ font-size:16px; letter-spacing:8px; color:#e88a7f; line-height:1;
+  text-shadow:0 0 16px rgba(200,80,63,.85); }
+@keyframes demonFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-5px); } }
+.demon-bar{ width:58%; height:6px; border-radius:3px; overflow:hidden;
+  background:rgba(0,0,0,.6); border:1px solid rgba(200,80,63,.5); }
+.demon-bar i{ display:block; height:100%; width:100%;
+  background:linear-gradient(90deg,#c8503f,#e8a07f); transition:width .12s linear; }
+.demon-hint{ font-size:10.5px; color:rgba(234,227,210,.78); font-family:system-ui,sans-serif;
+  line-height:1; white-space:nowrap; letter-spacing:0; }
+.demon-hint b{ color:#e8a07f; }
+
 .break-box{ display:flex; flex-direction:column; gap:12px; }
 .break-info .line{ font-size:13px; color:rgba(234,227,210,.7); margin-bottom:6px;
   font-family:system-ui,sans-serif; }
@@ -553,12 +636,56 @@ body{
       <div class="card focus-card">
         <div class="hero-col">
           <div id="heroStage" class="hero-stage"></div>
-          <button id="btnMeditate" class="meditate-btn">
-            <span class="seal">炁</span>
-            <span class="aura"></span>
-            <span class="meditate-label">打 坐</span>
-            <span class="meditate-hint">每次 +<b id="meditateGain">2</b> 修为</span>
-          </button>
+          <div class="meditate-wrap" id="meditateWrap">
+            <button id="btnMeditate" class="meditate-btn">
+              <span class="seal">炁</span>
+              <span class="aura"></span>
+              <svg class="focus-ring" id="focusRing" viewBox="0 0 200 200" aria-hidden="true">
+                <circle class="fr-target" cx="100" cy="100" r="44"/>
+                <circle class="fr-sweep" id="focusSweep" cx="100" cy="100" r="92"/>
+              </svg>
+              <span class="meditate-label" id="meditateLabel">打 坐</span>
+              <span class="meditate-hint">每次 +<b id="meditateGain">2</b> 修为</span>
+            </button>
+            <div class="demon-layer" id="demonLayer" hidden>
+              <svg class="demon-art" viewBox="0 0 120 120" aria-hidden="true">
+                <defs>
+                  <radialGradient id="dgFog" cx="50%" cy="55%" r="60%">
+                    <stop offset="0%" stop-color="#b8333f" stop-opacity=".75"/>
+                    <stop offset="100%" stop-color="#8a2230" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="dgBody" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#4a1c26"/>
+                    <stop offset="100%" stop-color="#1a0a10"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="60" cy="62" r="52" fill="url(#dgFog)"/>
+                <path d="M60,20 C78,20 92,32 94,50 C96,64 90,74 88,84
+                         C86,92 82,98 76,98 C72,98 70,94 68,90
+                         C66,86 62,84 60,84 C58,84 54,86 52,90
+                         C50,94 48,98 44,98 C38,98 34,92 32,84
+                         C30,74 24,64 26,50 C28,32 42,20 60,20 Z"
+                      fill="url(#dgBody)" stroke="#e0605a" stroke-width="1.6" stroke-opacity=".9"/>
+                <path d="M46,44 L40,26 L56,38 Z" fill="#4a1c26" stroke="#e0605a" stroke-width="1.1" stroke-opacity=".85"/>
+                <path d="M74,44 L80,26 L64,38 Z" fill="#4a1c26" stroke="#e0605a" stroke-width="1.1" stroke-opacity=".85"/>
+                <ellipse class="dg-eye" cx="48" cy="54" rx="6.8" ry="4.6" fill="#ff7a66"/>
+                <ellipse class="dg-eye" cx="72" cy="54" rx="6.8" ry="4.6" fill="#ff7a66"/>
+                <circle cx="48" cy="54" r="2" fill="#2a0a0c"/>
+                <circle cx="72" cy="54" r="2" fill="#2a0a0c"/>
+                <path d="M44,72 C51,78 69,78 76,72 C71,84 49,84 44,72 Z" fill="#5a1420"/>
+                <path d="M48,73 L51,79 L54,73 L57,79 L60,73 L63,79 L66,73 L69,79 L72,73"
+                      fill="none" stroke="#0a0509" stroke-width="1.4"/>
+              </svg>
+              <div class="demon-foe">心 魔</div>
+              <div class="demon-bar"><i id="demonFill"></i></div>
+              <div class="demon-hint">连点镇之 · 余 <b id="demonLeft">3</b> 击</div>
+            </div>
+          </div>
+          <div class="spirit-row" id="spiritRow">
+            <span class="spirit-label">灵力</span>
+            <div class="spirit-bar" id="spiritBar"><i id="spiritFill"></i></div>
+            <span class="spirit-text" id="spiritText">0 / 45</span>
+          </div>
         </div>
 
         <div class="break-box">
@@ -629,6 +756,7 @@ body{
               <button id="btnEditAvatar" class="mini-btn">改道牌</button>
               <button id="btnOpenInvite" class="mini-btn">邀请好友</button>
             </div>
+            <div id="daoFeats" class="dao-feats"></div>
           </div>
         </div>
       </div>
@@ -1378,6 +1506,35 @@ const LEGACY_TECH_SCALE = {
   wuxing:0.012/0.0065, lianxin:0.020/0.011, tiandao:0.030/0.018
 };
 
+/* ---------- 凝神（打坐时机玩法） ----------
+   打坐每次积攒 1 点灵力；灵力满时按钮转为「凝神」。
+   点一下牵出收拢的光环（半径由 R 收到 0），要在光环合于目标圈时再点一下。
+   偏差用「初始半径」归一化：offset = (当前半径 − 目标半径) / 初始半径。
+   FOCUS_NEED       ：集满灵力需要打坐多少次
+   FOCUS_PERFECT/GOOD：完美 / 尚可 的收益倍率（失手按 1 倍，等于普通打坐）
+   FOCUS_DUR_MS     ：光环从初始半径收拢到圆心的时间
+   FOCUS_START_R    ：光环初始半径（SVG 200×200 坐标系）
+   FOCUS_TARGET_R   ：目标圈半径
+   FOCUS_*_BAND     ：判定带宽（以初始半径为单位） */
+const FOCUS_NEED         = 30;
+const FOCUS_PERFECT      = 5;
+const FOCUS_GOOD         = 2.5;
+const FOCUS_DUR_MS       = 1150;
+const FOCUS_START_R      = 92;
+const FOCUS_TARGET_R     = 44;
+const FOCUS_PERFECT_BAND = 0.10;
+const FOCUS_GOOD_BAND    = 0.24;
+
+/* ---------- 心魔 ----------
+   打坐时有小概率惊动心魔，限时连点降服；超时则被其反噬。 */
+const DEMON_CHANCE       = 0.004;   // 每次打坐的触发概率
+const DEMON_CD_SEC       = 60;      // 两次心魔之间的最短间隔（秒）
+const DEMON_UNLOCK_REALM = 4;       // 炼气期五层之后才会遇到
+const DEMON_WINDOW_MS    = 5000;    // 降服时限
+const DEMON_HITS         = 3;       // 需要点中几次
+const DEMON_FAIL_LOSS    = 0.04;    // 失败损失当前修为的比例
+const DEMON_REWARD_SEC   = 300;     // 成功奖励 = 多少秒的挂机收益
+
 /* ---------- 道牌：头像纹样与道印 ---------- */
 const AVATAR_RINGS = [
   { id:"jade",   name:"青玉", color:"#5fbfa0" },
@@ -1490,6 +1647,9 @@ function defaultState() {
     totalStones: 0,           // 累计获得灵石（成就用）
     totalClicks: 0,           // 累计打坐次数
 
+    spirit: 0,                // 灵力：集满可发动「凝神」
+    demonCdUntil: 0,          // 心魔下次可出现的时刻
+
     techniques: {},           // { 功法id: 等级 }
     pills: {},                // { 丹药id: 数量 }
     buffs: [],                // [{ id, name, stat, value, until, color }]
@@ -1505,7 +1665,11 @@ function defaultState() {
       bestRealm: 0,
       breakFails: 0,
       breaks: 0,
-      clearMs: 0              // 首次登仙耗时（毫秒），速通榜用；0=尚未通关
+      clearMs: 0,             // 首次登仙耗时（毫秒），速通榜用；0=尚未通关
+      focus: 0,               // 「凝神」发动次数
+      perfect: 0,             // 其中完美命中次数
+      demons: 0,              // 降服心魔次数
+      demonFails: 0           // 被心魔反噬次数
     },
 
     logs: []                  // [{ t, text, hi }]
@@ -1534,6 +1698,8 @@ function migrate(s) {
   out.explore = Object.assign({}, d.explore, s.explore || {});
   out.explore.counts = (s.explore && s.explore.counts) || {};
   out.techniques = (fromVersion < 2) ? scaleLegacyTechs(s.techniques) : (s.techniques || {});
+  out.spirit = Math.max(0, Math.min(FOCUS_NEED, Number(s.spirit) || 0));
+  out.demonCdUntil = Number(s.demonCdUntil) || 0;
   out.pills = s.pills || {};
   out.achievements = s.achievements || {};
   out.buffs = Array.isArray(s.buffs) ? s.buffs : [];
@@ -1706,12 +1872,77 @@ function breakStoneReward(s) {
   return Math.floor(8 * Math.pow(1.55, s.realm));
 }
 
+/* ---------- 灵力：打坐积攒，集满可发动「凝神」 ---------- */
+function focusReady(s) { return (s.spirit || 0) >= FOCUS_NEED; }
+
+/* 打坐一次：攒灵力，同时推进心魔冷却判断 */
+function gainSpirit(s) {
+  const before = focusReady(s);
+  s.spirit = Math.min(FOCUS_NEED, (s.spirit || 0) + 1);
+  return { ready: focusReady(s), justReady: !before && focusReady(s) };
+}
+
+/* 凝神结算：offset 已按初始半径归一化（0 = 正合目标圈）
+   无论中与不中都会结算一次打坐，只是倍率不同：
+     perfect 完美 → 5 倍    good 尚可 → 2.5 倍    miss 失手 → 1 倍（等于普通打坐）
+   这样失手也不亏修为，只亏掉这次加成机会，手感更宽容。 */
+function resolveFocus(s, offset) {
+  const d = Math.abs(offset);
+  let quality, mult;
+  if (d <= FOCUS_PERFECT_BAND)      { quality = "perfect"; mult = FOCUS_PERFECT; }
+  else if (d <= FOCUS_GOOD_BAND)    { quality = "good";    mult = FOCUS_GOOD; }
+  else                              { quality = "miss";    mult = 1; }
+
+  const base = clickGain(s, Date.now());
+  const gain = base * mult;
+  s.cultivation += gain;
+  s.totalClicks += 1;
+
+  s.spirit = 0;
+  s.stats.focus = (s.stats.focus || 0) + 1;
+  if (quality === "perfect") s.stats.perfect = (s.stats.perfect || 0) + 1;
+  return { quality, mult, gain, offset: d };
+}
+
+/* ---------- 心魔 ---------- */
+/* 是否该惊动心魔：境界达标 + 过了冷却 + 掷骰命中 */
+function maybeSummonDemon(s) {
+  const now = Date.now();
+  if (s.realm < DEMON_UNLOCK_REALM) return false;
+  if (now < (s.demonCdUntil || 0)) return false;
+  if (Math.random() >= DEMON_CHANCE) return false;
+  s.demonCdUntil = now + DEMON_CD_SEC * 1000;
+  return true;
+}
+/* 降服成功：给「若干秒挂机收益」的奖励 */
+function demonReward(s) { return autoRate(s) * DEMON_REWARD_SEC; }
+/* 反噬：损失当前修为的一部分（不退回境界，只削进度） */
+function demonPunish(s) {
+  const lost = s.cultivation * DEMON_FAIL_LOSS;
+  s.cultivation = Math.max(0, s.cultivation - lost);
+  s.stats.demonFails = (s.stats.demonFails || 0) + 1;
+  return lost;
+}
+/* 心魔期内每次点中：先给一次普通打坐收益，再计一次镇压进度 */
+function demonHit(s) {
+  const g = clickGain(s, Date.now());
+  s.cultivation += g;
+  s.totalClicks += 1;
+  return g;
+}
+function demonWin(s) {
+  const g = demonReward(s);
+  s.cultivation += g;
+  s.stats.demons = (s.stats.demons || 0) + 1;
+  return g;
+}
+
 /* ---------- 打坐 ---------- */
 function doMeditate(s) {
   const g = clickGain(s, Date.now());
   s.cultivation += g;
   s.totalClicks++;
-  return g;
+  return { gain: g, spirit: gainSpirit(s) };
 }
 
 /* ---------- 突破 ---------- */
@@ -1906,6 +2137,17 @@ const el = {
   saveNote:    $("#saveNote"),
   flash:       $("#flash"),
   heroStage:   $("#heroStage"),
+  spiritRow:   $("#spiritRow"),
+  spiritBar:   $("#spiritBar"),
+  spiritFill:  $("#spiritFill"),
+  spiritText:  $("#spiritText"),
+  meditateLabel: $("#meditateLabel"),
+  focusSweep:  $("#focusSweep"),
+  meditateWrap: $("#meditateWrap"),
+  demonLayer:  $("#demonLayer"),
+  demonFill:   $("#demonFill"),
+  demonLeft:   $("#demonLeft"),
+  daoFeats:    $("#daoFeats"),
   pickModal:   $("#pickModal"),
   pickList:    $("#pickList"),
   codeModal:   $("#codeModal"),
@@ -1961,6 +2203,7 @@ function drawCultivate(s) {
   const maxed = isMaxRealm(s);
 
   setText(el.meditateGain, fmtInt(clickGain(s, now)));
+  drawMeditateUI(s);
 
   if (maxed) {
     setText(el.nextRealm, "已至绝顶");
@@ -1975,6 +2218,44 @@ function drawCultivate(s) {
     setText(el.breakChance, pct(breakChance(s, now), 1));
     setText(el.breakStone, fmtInt(breakStoneReward(s)));
     el.btnBreak.disabled = s.cultivation < next.need;
+  }
+}
+
+/* 打坐区的三样东西：灵力条、凝神状态、心魔 */
+function drawMeditateUI(s) {
+  const btn = el.btnMeditate;
+  if (!btn) return;
+
+  /* 灵力条 */
+  const sp = Math.max(0, Math.min(FOCUS_NEED, s.spirit || 0));
+  const full = sp >= FOCUS_NEED;
+  if (el.spiritFill) el.spiritFill.style.width = (sp / FOCUS_NEED * 100).toFixed(1) + "%";
+  if (el.spiritText) setText(el.spiritText, sp + " / " + FOCUS_NEED);
+  if (el.spiritBar) el.spiritBar.classList.toggle("full", full);
+  if (el.spiritRow) el.spiritRow.classList.toggle("full", full);
+
+  /* 按钮文字：心魔 > 凝神 > 打坐 */
+  let label = "打 坐";
+  if (demonFoe)      label = "镇 魔";
+  else if (charge)   label = "凝 神";
+  else if (full)     label = "凝 神";
+  if (el.meditateLabel) setText(el.meditateLabel, label);
+
+  btn.classList.toggle("ready", full && !charge && !demonFoe);
+  btn.classList.toggle("charging", !!charge);
+  /* 心魔挡路时，按钮内部文字整体让位，避免与心魔层叠字 */
+  if (el.meditateWrap) el.meditateWrap.classList.toggle("demon-on", !!demonFoe);
+
+  /* 心魔遮罩 */
+  if (el.demonLayer) {
+    if (demonFoe) {
+      el.demonLayer.hidden = false;
+      const left = Math.max(0, demonFoe.until - Date.now());
+      if (el.demonFill) el.demonFill.style.width = (left / DEMON_WINDOW_MS * 100).toFixed(1) + "%";
+      if (el.demonLeft) setText(el.demonLeft, String(Math.max(0, DEMON_HITS - demonFoe.hits)));
+    } else {
+      el.demonLayer.hidden = true;
+    }
   }
 }
 
@@ -2135,6 +2416,13 @@ function closePickModal() {
 /* ---------- 重绘 ---------- */
 let lastPanel = "cultivate";
 
+/* ---------- 打坐交互的运行时状态（不进存档） ----------
+   charge   ：凝神光环正在收拢 { startAt }
+   demonFoe ：心魔当前拦住去路 { until, hits, total }
+   game.js 的点击处理与主循环会直接读写这两个变量。 */
+let charge = null;
+let demonFoe = null;
+
 function drawAll(s) {
   drawTop(s);
   drawHero(s);
@@ -2258,6 +2546,20 @@ function drawDao(s) {
   setText(el.daoNameText, daoNameOf(s));
   setText(el.daoRealm, REALMS[s.realm] ? REALMS[s.realm].label : "尚未择道");
   setText(el.daoBadge, "道牌 · " + avatarRing(s.avatarRing).name + " · " + (s.avatarSeal || "道"));
+
+  /* 修行印记：凝神与降魔的战绩 */
+  if (el.daoFeats) {
+    const st = s.stats || {};
+    const f = st.focus || 0, pf = st.perfect || 0;
+    const dm = st.demons || 0, df = st.demonFails || 0;
+    const rate = f > 0 ? Math.round(pf / f * 100) : 0;
+    el.daoFeats.innerHTML = [
+      '<span class="feat"><b>' + f + '</b> 凝神</span>',
+      '<span class="feat"><b>' + rate + '%</b> 完美率</span>',
+      '<span class="feat"><b>' + dm + '</b> 降魔</span>',
+      df > 0 ? '<span class="feat bad"><b>' + df + '</b> 反噬</span>' : ''
+    ].join("");
+  }
 }
 
 let partnerKey = null;
@@ -2537,13 +2839,17 @@ function encodeSave(s) {
     tc: s.totalClicks | 0,
     t: s.techniques || {},
     p: s.pills || {},
+    sp: s.spirit | 0,
     e: { n: (s.explore && s.explore.counts) || {}, c: (s.explore && s.explore.total) | 0 },
     a: s.achievements || {},
     st: {
       b: (s.stats && s.stats.bestRealm) | 0,
       f: (s.stats && s.stats.breakFails) | 0,
       k: (s.stats && s.stats.breaks) | 0,
-      cl: Math.floor((s.stats && s.stats.clearMs) || 0)
+      cl: Math.floor((s.stats && s.stats.clearMs) || 0),
+      fc: (s.stats && s.stats.focus) | 0,
+      pf: (s.stats && s.stats.perfect) | 0,
+      dm: (s.stats && s.stats.demons) | 0
     },
     ct: s.createdAt || Date.now(),
     /* 道牌与道侣：一起打包，接手的人能看到你的道号与形象 */
@@ -2596,6 +2902,7 @@ function decodeSave(code) {
   s.stones = Math.max(0, Number(c.s) || 0);
   s.totalStones = Math.max(0, Number(c.ts) || 0);
   s.totalClicks = Math.max(0, c.tc | 0);
+  s.spirit = Math.max(0, Math.min(FOCUS_NEED, c.sp | 0));
   s.techniques = sanitizeTechs(c.t);
   s.pills = sanitizePills(c.p);
   s.achievements = (c.a && typeof c.a === "object") ? c.a : {};
@@ -2625,7 +2932,11 @@ function decodeSave(code) {
     bestRealm: Math.max(0, (c.st && c.st.b) | 0),
     breakFails: Math.max(0, (c.st && c.st.f) | 0),
     breaks: Math.max(0, (c.st && c.st.k) | 0),
-    clearMs: Math.max(0, Number(c.st && c.st.cl) || 0)
+    clearMs: Math.max(0, Number(c.st && c.st.cl) || 0),
+    focus: Math.max(0, (c.st && c.st.fc) | 0),
+    perfect: Math.max(0, (c.st && c.st.pf) | 0),
+    demons: Math.max(0, (c.st && c.st.dm) | 0),
+    demonFails: 0
   };
 
   return { ok: true, state: migrate(s) };
@@ -3062,6 +3373,7 @@ function loop(now) {
   autosaveAcc += dt * 1000;
   if (autosaveAcc >= AUTOSAVE_MS) { autosaveAcc = 0; doSave(true); }
 
+  stepMeditateInteractions();
   drawFast(S, dt);
   stepParticles(dt);
 
@@ -3206,9 +3518,24 @@ function bindEvents() {
   const hash = (location.hash || "").replace("#", "");
   if (hash && document.querySelector('.tab[data-tab="' + hash + '"]')) openTab(hash);
 
-  /* 打坐 */
+  /* 打坐：心魔 > 凝神 > 平常，三选一 */
   el.btnMeditate.addEventListener("click", () => {
-    const g = doMeditate(S);
+    /* (a) 心魔拦路：每一次点击都算一记镇压 */
+    if (demonFoe) { meditateDuringDemon(); return; }
+
+    /* (b) 光环收拢中：这次点击就是「凝神」的落点 */
+    if (charge) { resolveCharge(); return; }
+
+    /* (c) 灵力已满：牵起光环，开始收拢 */
+    if (focusReady(S)) { beginCharge(); return; }
+
+    /* (d) 平常打坐 */
+    const r = doMeditate(S);
+    if (r.spirit.justReady) {
+      toast("灵力充盈 · 可发「凝神」", "good");
+      pushLog(S, "灵力已满，静心凝神，可搏一次顿悟。", true);
+    }
+    maybeTriggerDemon();
     if (S.totalClicks === 1) pushLog(S, "初次入定，气感微生。", false);
     if (S.totalClicks % 100 === 0) pushLog(S, "已打坐 " + S.totalClicks + " 次。", false);
     drawCultivate(S);
@@ -3623,6 +3950,128 @@ function bindEvents() {
     if (ev.code === "Space") { ev.preventDefault(); el.btnMeditate.click(); }
     if (ev.code === "Enter" && !el.btnBreak.disabled) { ev.preventDefault(); el.btnBreak.click(); }
   });
+}
+
+/* ============================================================
+   打坐交互：凝神光环 + 心魔
+   这两个玩法都活在「修炼」页上，运行时状态放在 ui.js 的
+   charge / demonFoe 里，由下面的函数读写。
+   ============================================================ */
+
+/* ---------- 凝神 ---------- */
+function beginCharge() {
+  charge = { startAt: Date.now() };
+  drawMeditateUI(S);
+}
+
+/* 根据已过时间算出光环当前的归一化偏差 */
+function chargeOffset(now) {
+  const t = Math.min(1, (now - charge.startAt) / FOCUS_DUR_MS);
+  const r = FOCUS_START_R * (1 - t);
+  return (r - FOCUS_TARGET_R) / FOCUS_START_R;
+}
+
+/* 玩家在光环收拢途中点下：判定这一击 */
+function resolveCharge() {
+  const r = resolveFocus(S, chargeOffset(Date.now()));
+  charge = null;
+
+  if (r.quality === "perfect") {
+    el.btnMeditate.classList.add("perfect");
+    setTimeout(() => el.btnMeditate.classList.remove("perfect"), 320);
+    flash();
+    burstParticles();
+    toast("凝神 · 顿悟！修为 ×" + FOCUS_PERFECT, "good");
+    pushLog(S, "心神合一，灵气倒灌，修为 +" + fmtInt(r.gain) + "。", true);
+  } else if (r.quality === "good") {
+    toast("凝神 · 小有所得 ×" + FOCUS_GOOD, "good");
+    pushLog(S, "凝神尚可，修为 +" + fmtInt(r.gain) + "。", false);
+  } else {
+    el.btnMeditate.classList.add("miss");
+    setTimeout(() => el.btnMeditate.classList.remove("miss"), 360);
+    toast("凝神失手，只得寻常收益", "bad");
+  }
+  drawCultivate(S);
+}
+
+/* 光环收拢到头还没点：算一次失手，灵力不清空（留给下次机会） */
+function chargeTimeout() {
+  const r = resolveFocus(S, chargeOffset(Date.now()));
+  charge = null;
+  el.btnMeditate.classList.add("miss");
+  setTimeout(() => el.btnMeditate.classList.remove("miss"), 360);
+  toast("光环已散，凝神未成", "bad");
+  drawCultivate(S);
+}
+
+/* ---------- 心魔 ---------- */
+/* 平常打坐时，按概率惊动心魔 */
+function maybeTriggerDemon() {
+  if (demonFoe) return;
+  if (!maybeSummonDemon(S)) return;
+  startDemon();
+}
+function startDemon() {
+  charge = null;                                   // 凝神被打断，灵力留着
+  demonFoe = { until: Date.now() + DEMON_WINDOW_MS, hits: 0 };
+  pushLog(S, "打坐惊动心魔！速速点「打坐」以镇之。", true);
+  toast("心魔现身 · 连点打坐", "bad");
+  drawMeditateUI(S);
+}
+function meditateDuringDemon() {
+  demonHit(S);                                     // 每次点中照常给一次打坐收益
+  demonFoe.hits++;
+  if (demonFoe.hits >= DEMON_HITS) {
+    const g = demonWin(S);
+    demonFoe = null;
+    flash();
+    burstParticles();
+    toast("心魔已伏 · 修为 +" + fmtInt(g), "good");
+    pushLog(S, "心魔伏诛，心境更坚，修为 +" + fmtInt(g) + "。", true);
+  }
+  drawCultivate(S);
+}
+function demonTimeout() {
+  const lost = demonPunish(S);
+  demonFoe = null;
+  toast("被心魔反噬 · 修为 −" + fmtInt(lost), "bad");
+  pushLog(S, "心魔反噬，气机紊乱，修为散去 " + fmtInt(lost) + "。", false);
+  drawCultivate(S);
+}
+
+/* ---------- 主循环每帧推进 ---------- */
+/* 只在「修炼」页推进这两个玩法：翻看其它页签时暂停，
+   免得玩家去看功法/秘境时被心魔偷袭。 */
+let interactAt = 0;
+function stepMeditateInteractions() {
+  const now = Date.now();
+  const dt = interactAt ? now - interactAt : 0;
+  interactAt = now;
+
+  if (lastPanel !== "cultivate") {
+    /* 离开修炼页：把两个倒计时整体往后顺延，等于按了暂停 */
+    if (dt > 0) {
+      if (demonFoe) demonFoe.until += dt;
+      if (charge)   charge.startAt += dt;
+    }
+    return;
+  }
+
+  /* 心魔超时 */
+  if (demonFoe && now >= demonFoe.until) demonTimeout();
+
+  /* 凝神光环收拢 */
+  if (charge) {
+    const t = Math.min(1, (now - charge.startAt) / FOCUS_DUR_MS);
+    const r = FOCUS_START_R * (1 - t);
+    if (el.focusSweep) el.focusSweep.setAttribute("r", r.toFixed(1));
+    if (t >= 1) chargeTimeout();
+  } else if (el.focusSweep) {
+    el.focusSweep.setAttribute("r", String(FOCUS_START_R));
+  }
+
+  /* 灵力条与按钮文字跟着走 */
+  if (lastPanel === "cultivate") drawMeditateUI(S);
 }
 
 /* 突破 / 探索成功时炸出一圈粒子 */
