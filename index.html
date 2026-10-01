@@ -831,15 +831,19 @@ body{
     <div class="lb-share">
       <div class="code-label">分享给好友（可选）</div>
       <p class="lb-share-tip">
-        导出这一行「配置码」发给好友，他们粘贴后点导入即可，不用自己申请令牌；
-        也可以把它发给开发者写进游戏文件，这样所有人打开就能直接用。
+        别人只要知道「用户名/仓库名」就能看榜，<b>不需要你的令牌</b>。
+        下面生成的分享码不含令牌，发给好友很安全；他们粘贴后即可查看榜单。
       </p>
       <div class="code-btns">
-        <button id="btnLbExport" class="up-btn">导出配置码</button>
+        <button id="btnLbExport" class="up-btn">生成分享码</button>
+        <button id="btnLbCopyLink" class="mini-btn">复制带榜单的网址</button>
       </div>
-      <input id="lbImport" class="name-input lb-import-in" placeholder="粘贴好友发来的配置码" spellcheck="false">
+      <p class="lb-share-tip">
+        想让好友也能上传，他们得自己建一个令牌（步骤同上），或由你把令牌单独发给他。
+      </p>
+      <input id="lbImport" class="name-input lb-import-in" placeholder="粘贴好友发来的分享码" spellcheck="false">
       <div class="code-btns">
-        <button id="btnLbImport" class="mini-btn">导入配置码</button>
+        <button id="btnLbImport" class="mini-btn">导入分享码</button>
       </div>
     </div>
   </div>
@@ -2227,17 +2231,19 @@ function lbStatusText() {
   const gh = lbGetMode() === "github";
   if (!lbReady()) return { cls:"", txt:"尚未设置后端" };
 
-  const where = gh
-    ? (function () {
-        const c = lbGhGetConfig();
-        return c.owner + "/" + c.repo + " · " + c.path;
-      })()
-    : lbGetEndpoint();
+  let where, suffix = "";
+  if (gh) {
+    const c = lbGhGetConfig();
+    where = c.owner + "/" + c.repo;
+    if (!c.token) suffix = " · 只读";        // 没有令牌：能看不能传
+  } else {
+    where = lbGetEndpoint();
+  }
 
   if (lbState.loading) return { cls:"", txt:"正在拉取… · " + where };
   if (lbState.error)   return { cls:"err", txt:"连接异常 · " + where };
   const when = lbState.lastAt ? new Date(lbState.lastAt).toLocaleTimeString("zh-CN", { hour12:false }) : "—";
-  return { cls:"on", txt:"已连接 · " + where + " · 共 " + lbState.list.length + " 位道友 · 更新于 " + when };
+  return { cls:"on", txt:"已连接 · " + where + suffix + " · 共 " + lbState.list.length + " 位道友 · 更新于 " + when };
 }
 
 /* 一行的长相 */
@@ -2581,8 +2587,12 @@ function inviteShareText(s, code) {
 /* ===== leaderboard.js ===== */
 /* ============================================================
    leaderboard.js —— 仙榜（联网排名）
-   后端用 Google Apps Script + 表格，免费、不用服务器。
-   游戏这边只做两件事：GET 拉榜单、GET 上传自己的进度。
+
+   三种后端，任选其一：
+     · GitHub 仓库（推荐）—— 不用域名、不用服务器，你已有的账号即可；
+       看榜走 jsDelivr / raw 公开读取（任何人免登录可看），
+       上传才需要各自的令牌（写在浏览器本地，不会随分享码外传）。
+     · Cloudflare Worker / Deno Deploy —— 需要自备一个可访问的网址。
    拉取优先用 fetch；万一被浏览器跨域拦住，自动改用 JSONP 兜底。
    ============================================================ */
 
@@ -2784,12 +2794,47 @@ function lbSetMode(m) {
 let LB_BUILTIN_GH = null;
 function lbSetBuiltinGh(cfg) { LB_BUILTIN_GH = cfg || null; }
 
-/* 把当前设置打包成一行文本，便于贴给朋友或写进文件 */
-function lbExportConfig() {
+/* 支持用网址参数直接指定榜单，方便分享给朋友：
+     .../index.html?lb=用户名/仓库名
+     .../index.html?lb=WENDAOLB1.xxxx.yyyy   （配置码）
+   这种方式是只读的、不带令牌，分享出去很安全。 */
+function lbApplyUrlParams() {
+  let q = "";
+  try { q = String(location.search || ""); } catch (e) { return false; }
+  const m = q.match(/[?&]lb=([^&]+)/);
+  if (!m) return false;
+
+  let v = "";
+  try { v = decodeURIComponent(m[1]); } catch (e) { v = m[1]; }
+  v = String(v).trim();
+  if (!v) return false;
+
+  if (v.indexOf("WENDAOLB1") === 0) return !!lbImportConfig(v).ok;
+
+  const p = lbParseOwnerRepo(v);
+  if (!p.owner || !p.repo) return false;
+
+  const cur = lbGhGetConfig();
+  /* 只改「指向哪个仓库」，本机自己的令牌（如果是同一个仓库）保留不动 */
+  const sameRepo = (cur.owner === p.owner && cur.repo === p.repo);
+  lbGhSetConfig({
+    owner: p.owner, repo: p.repo,
+    path: cur.path || "leaderboard.json",
+    branch: cur.branch || "main",
+    token: sameRepo ? cur.token : ""
+  });
+  lbSetMode("github");
+  return true;
+}
+/* 把当前设置打包成一行文本，便于贴给朋友或写进文件。
+   withToken=false 时只带走「仓库地址」，用于分享给朋友看榜
+   —— 这样朋友能看榜、且绝不会拿到你的令牌。 */
+function lbExportConfig(withToken) {
   let j;
   if (lbGetMode() === "github") {
     const c = lbGhGetConfig();
-    j = { m:"github", o:c.owner, r:c.repo, p:c.path, b:c.branch, t:c.token };
+    j = { m:"github", o:c.owner, r:c.repo, p:c.path, b:c.branch };
+    if (withToken && c.token) j.t = c.token;
   } else {
     j = { m:"http", e:lbGetEndpoint() };
   }
@@ -2813,9 +2858,12 @@ function lbImportConfig(text) {
 
   if (j.m === "github") {
     if (!j.o || !j.r) return { ok:false, reason:"corrupt" };
-    lbGhSetConfig({ owner:j.o, repo:j.r, path:j.p || "leaderboard.json", branch:j.b || "main", token:j.t || "" });
+    /* 导入的配置没带令牌时，保留本机原有的令牌，避免把上传能力冲掉 */
+    const cur = lbGhGetConfig();
+    const token = j.t || (cur.owner === j.o && cur.repo === j.r ? cur.token : "");
+    lbGhSetConfig({ owner:j.o, repo:j.r, path:j.p || "leaderboard.json", branch:j.b || "main", token: token });
     lbSetMode("github");
-    return { ok:true, mode:"github", summary:j.o + "/" + j.r };
+    return { ok:true, mode:"github", summary:j.o + "/" + j.r, readonly: !token };
   }
   lbSetEndpoint(j.e || "");
   lbSetMode("http");
@@ -2840,7 +2888,11 @@ function lbGhSetConfig(cfg) {
   try { localStorage.setItem(LB_GH_KEY, JSON.stringify(cfg)); return true; }
   catch (e) { return false; }
 }
-function lbGhReady() { const c = lbGhGetConfig(); return !!(c.owner && c.repo && c.token); }
+/* 只看榜：知道仓库就够了，不需要令牌 */
+function lbGhCanRead()  { const c = lbGhGetConfig(); return !!(c.owner && c.repo); }
+/* 要上传：必须有令牌 */
+function lbGhCanWrite() { const c = lbGhGetConfig(); return !!(c.owner && c.repo && c.token); }
+function lbGhReady()    { return lbGhCanRead(); }
 
 /* 如果游戏正跑在 GitHub Pages 上，直接从网址猜出用户名和仓库名，
    这样玩家只需要再填一个令牌即可。 */
@@ -2901,7 +2953,7 @@ function lbRawFetch(url, options, timeoutMs) {
         txt => {
           let d = null;
           try { d = txt ? JSON.parse(txt) : null; } catch (e) {}
-          finish(resolve, { status: res.status, ok: res.ok, data: d });
+          finish(resolve, { status: res.status, ok: res.ok, data: d, raw: txt });
         },
         () => finish(reject, new Error("network"))
       ),
@@ -2926,6 +2978,64 @@ function lbGhUrl() {
   return "https://api.github.com/repos/" + encodeURIComponent(c.owner) + "/" +
          encodeURIComponent(c.repo) + "/contents/" + path;
 }
+
+/* 公开读取地址：不需要令牌，也不消耗 API 配额。
+   任何人都能看榜，靠的就是这个。 */
+function lbGhRawUrl() {
+  const c = lbGhGetConfig();
+  const path = c.path.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  return "https://raw.githubusercontent.com/" + encodeURIComponent(c.owner) + "/" +
+         encodeURIComponent(c.repo) + "/" + encodeURIComponent(c.branch) + "/" + path;
+}
+
+/* jsDelivr 的镜像地址。它在国内通常能连（有本地节点），
+   比 raw.githubusercontent.com 稳，所以优先用它读榜。 */
+function lbGhCdnUrl() {
+  const c = lbGhGetConfig();
+  const path = c.path.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  return "https://cdn.jsdelivr.net/gh/" + encodeURIComponent(c.owner) + "/" +
+         encodeURIComponent(c.repo) + "@" + encodeURIComponent(c.branch) + "/" + path;
+}
+
+function lbParsePublic(text) {
+  try {
+    const j = JSON.parse(text || "[]");
+    if (Array.isArray(j)) return j;
+  } catch (e) {}
+  return [];
+}
+
+/* 匿名读（无需令牌），两条线路依次尝试：
+     1) cdn.jsdelivr.net          —— 国内一般能连，优先
+     2) raw.githubusercontent.com —— 备选
+   注意：jsDelivr 对「还没同步到的文件」也会回 404，
+   所以 404 不能直接当作「榜单是空的」，必须继续试下一条。 */
+function lbGhReadPublic() {
+  const bust = "?t=" + Date.now();
+  const tries = [lbGhCdnUrl() + bust, lbGhRawUrl() + bust];
+
+  let sawMissing = false;    // 至少有一路明确说文件不存在
+
+  const attempt = i => {
+    if (i >= tries.length) {
+      /* 全都试过了：若只是文件还没建，就当空榜单；否则算连不上 */
+      if (sawMissing) return { list: [], sha: null };
+      throw new Error("network");
+    }
+    return lbRawFetch(tries[i], { headers: { "Accept": "application/json" } })
+      .then(r => {
+        if (r.status === 404) { sawMissing = true; return attempt(i + 1); }
+        if (!r.ok) throw new Error("http " + r.status);
+        /* 有的 CDN 会把内容当文本回，这里用原始文本再解析一次兜底 */
+        let list = [];
+        if (Array.isArray(r.data)) list = r.data;
+        else if (r.raw) list = lbParsePublic(r.raw);
+        return { list: list, sha: null };
+      })
+      .catch(() => attempt(i + 1));
+  };
+  return attempt(0);
+}
 function lbGhMapStatus(r) {
   if (r.status === 401) throw new Error("token401");
   if (r.status === 403) throw new Error("token403");
@@ -2945,6 +3055,8 @@ function lbGhCheckRepo() {
 
 function lbGhRead() {
   const c = lbGhGetConfig();
+  /* 没有令牌 = 只读模式：走公开地址，不消耗配额，也不需要授权 */
+  if (!c.token) return lbGhReadPublic();
   return lbRawFetch(lbGhUrl() + "?ref=" + encodeURIComponent(c.branch), { headers: lbGhHeaders(false) })
     .then(r => {
       /* 404 有两种可能：文件还没建（正常）或仓库/分支写错了（要报错）。
@@ -3030,9 +3142,14 @@ function lbRowOf(payload) {
 function lbGhRequest(params) {
   const action = params && params.action;
 
+  /* 看榜：任何人都行（公开读，不需要令牌） */
   if (action === "list") {
+    if (!lbGhCanRead()) return Promise.reject(new Error("noendpoint"));
     return lbGhRead().then(res => ({ ok: true, count: res.list.length, list: res.list }));
   }
+
+  /* 上传 / 移除：必须有自己的令牌 */
+  if (!lbGhCanWrite()) return Promise.reject(new Error("needtoken"));
 
   if (action === "submit") {
     const row = lbRowOf(params);
@@ -3441,6 +3558,8 @@ function boot() {
   S.lastTick = Date.now();
   bindEvents();
   initParticles();
+
+  lbApplyUrlParams();                 // 支持用 ?lb=用户名/仓库名 直接看榜
 
   if (!S.heroKind) openPickModal();   // 全新道途：先请玩家择一身
   else startJourney();
@@ -3950,7 +4069,9 @@ function bindEvents() {
       token401:   "令牌无效或已过期，请重新生成",
       token403:   "令牌权限不足：Contents 必须设为 Read and write",
       conflict:   "有人同时在改榜单，稍后再试",
-      nouser:     "请先填 GitHub 用户名和仓库名"
+      nouser:     "请先填 GitHub 用户名和仓库名",
+      needtoken:  "上传需要令牌：这是只读模式（你可以看榜，但没填令牌）",
+      rate403:    "GitHub 访问受限，稍后再试"
     };
     if (map[m]) toast(map[m], "bad");
     else if (m.indexOf("http ") === 0) toast("后端报错（" + m + "）", "bad");
@@ -4052,12 +4173,23 @@ function bindEvents() {
     else toast("已清空后端设置", "good");
   });
 
-  /* 导出 / 导入配置码（方便把设置分享给好友或写进文件） */
+  /* 分享码：默认不带令牌，拿到的人能看榜但不能改榜单 */
   document.getElementById("btnLbExport").addEventListener("click", () => {
     if (!lbReady()) { toast("请先设置好并保存后端", "bad"); return; }
-    const code = lbExportConfig();
+    const code = lbExportConfig(false);
     el.lbImport.value = code;
-    copyText(code, "配置码已复制，发给好友即可");
+    copyText(code, "分享码已复制（不含令牌，可放心发给好友）");
+  });
+
+  /* 直接生成一条带榜单参数的网址，好友点开就能看榜 */
+  document.getElementById("btnLbCopyLink").addEventListener("click", () => {
+    if (lbGetMode() !== "github" || !lbGhCanRead()) { toast("请先设置好 GitHub 后端", "bad"); return; }
+    const c = lbGhGetConfig();
+    let base = "";
+    try { base = location.origin + location.pathname; } catch (e) { base = ""; }
+    if (!base || base.indexOf("http") !== 0) { toast("本地文件方式没有网址，请改用分享码", "bad"); return; }
+    const link = base + "?lb=" + encodeURIComponent(c.owner + "/" + c.repo);
+    copyText(link, "网址已复制，好友点开即可看榜");
   });
 
   document.getElementById("btnLbImport").addEventListener("click", () => {
