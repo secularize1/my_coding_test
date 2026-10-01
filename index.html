@@ -591,6 +591,137 @@ body{
 .lb-share-tip{ font-size:11px; line-height:1.7; color:rgba(234,227,210,.45);
   font-family:system-ui,sans-serif; margin-bottom:10px; }
 .lb-import-in{ letter-spacing:0; font-size:12px; text-align:left; margin-top:9px; }
+/* ============================================================
+   寰宇：地界 / 地点 / 剧情 / 声望
+   ============================================================ */
+.world-regions{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; }
+.world-region{ padding:6px 14px; cursor:pointer; border-radius:20px; font-size:13px;
+  letter-spacing:2px; color:rgba(234,227,210,.6); background:rgba(28,34,48,.6);
+  border:1px solid rgba(217,183,106,.16); transition:.2s; }
+.world-region:hover{ color:var(--paper); border-color:rgba(217,183,106,.42); }
+.world-region.on{ color:#10141c; background:linear-gradient(180deg,var(--gold),#b9975a);
+  border-color:transparent; }
+.world-region.locked{ opacity:.4; cursor:not-allowed; }
+
+.world-desc{ font-size:12px; color:rgba(234,227,210,.46); margin-bottom:12px;
+  font-family:system-ui,sans-serif; }
+
+.world-list{ display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:10px; }
+.world-item{ border:1px solid rgba(217,183,106,.14); border-radius:12px; padding:11px 13px;
+  background:rgba(0,0,0,.22); transition:.2s; }
+.world-item.locked{ opacity:.42; }
+.world-item.story{ border-color:rgba(217,183,106,.42);
+  background:linear-gradient(180deg,rgba(217,183,106,.10),rgba(0,0,0,.25)); }
+.world-head{ display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.world-name{ font-size:14px; letter-spacing:1px; }
+.world-fac{ font-size:10px; padding:1px 8px; border-radius:20px;
+  font-family:system-ui,sans-serif; border:1px solid currentColor; }
+.world-meta{ font-size:11px; color:rgba(234,227,210,.48); margin-top:5px;
+  font-family:system-ui,sans-serif; }
+.world-meta .flavor{ color:rgba(234,227,210,.6); }
+.world-btn{ margin-top:8px; width:100%; padding:6px 0; font-size:12px; cursor:pointer;
+  font-family:inherit; letter-spacing:2px; border-radius:8px; color:var(--paper);
+  background:rgba(217,183,106,.14); border:1px solid rgba(217,183,106,.3); transition:.18s; }
+.world-btn:hover:not(:disabled){ background:rgba(217,183,106,.26); }
+.world-btn:disabled{ opacity:.45; cursor:not-allowed; }
+.world-btn.story{ background:linear-gradient(180deg,rgba(217,183,106,.9),rgba(185,151,90,.9));
+  color:#10141c; border-color:transparent; }
+
+/* 剧情弹窗 */
+.story-card{ width:min(660px,92vw); text-align:left; }
+.story-title{ font-size:20px; letter-spacing:8px; color:var(--gold); text-align:center;
+  margin-bottom:16px; text-shadow:0 0 18px rgba(217,183,106,.35); }
+.story-body{ font-size:15px; line-height:2; color:var(--paper-dim); white-space:pre-line;
+  padding:0 4px 16px; border-bottom:1px solid rgba(217,183,106,.14); margin-bottom:14px; }
+.story-choices{ display:grid; gap:9px; }
+.story-choice{ text-align:left; cursor:pointer; padding:11px 14px; border-radius:10px;
+  font-family:inherit; font-size:14px; color:var(--paper); line-height:1.6;
+  background:rgba(255,255,255,.03); border:1px solid rgba(217,183,106,.2); transition:.18s; }
+.story-choice:hover{ border-color:rgba(217,183,106,.62); background:rgba(217,183,106,.1);
+  transform:translateX(4px); }
+.story-choice .hint{ display:block; font-size:11px; color:rgba(234,227,210,.42);
+  margin-top:3px; font-family:system-ui,sans-serif; }
+.story-result{ margin-top:14px; padding:12px 14px; border-radius:10px; font-size:14px;
+  line-height:1.9; color:var(--jade); white-space:pre-line;
+  background:rgba(95,191,160,.08); border:1px solid rgba(95,191,160,.28); }
+.story-foot{ text-align:center; margin-top:14px; }
+
+/* 声望 */
+.rep-list{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; }
+.rep-item{ border:1px solid rgba(217,183,106,.16); border-radius:11px; padding:10px 12px;
+  background:rgba(0,0,0,.24); text-align:left; }
+.rep-top{ display:flex; justify-content:space-between; align-items:baseline; gap:6px; }
+.rep-name{ font-size:14px; }
+.rep-val{ font-size:12px; font-family:system-ui,sans-serif; }
+.rep-bar{ height:4px; border-radius:2px; margin:7px 0 5px; background:rgba(255,255,255,.08);
+  position:relative; overflow:hidden; }
+.rep-bar i{ position:absolute; top:0; bottom:0; left:50%; background:var(--jade); border-radius:2px; }
+.rep-bar i.neg{ background:var(--cinnabar); }
+.rep-desc{ font-size:10.5px; color:rgba(234,227,210,.42); font-family:system-ui,sans-serif;
+  line-height:1.6; }
+
+@media (max-width:820px){
+  .rep-list{ grid-template-columns:1fr; }
+  .tabs{ flex-wrap:wrap; }
+  .tab{ flex:1 0 28%; }
+}
+
+/* ---------- 寰宇 · 场景地图 ---------- */
+.world-split{ display:grid; grid-template-columns:1.72fr 1fr; gap:12px; align-items:start; }
+.world-split .world-list{ grid-template-columns:1fr; }
+.world-stage{ position:relative; aspect-ratio:1000/560; border-radius:12px; overflow:hidden;
+  background:#070a0e; border:1px solid rgba(217,183,106,.22);
+  box-shadow:inset 0 0 70px rgba(0,0,0,.5); }
+.world-map-svg{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.world-stage-cap{ position:absolute; left:11px; bottom:9px; right:11px; margin:0; z-index:3;
+  font-size:11.5px; color:rgba(234,227,210,.62); background:rgba(8,11,16,.55);
+  display:inline-block; width:auto; padding:3px 11px; border-radius:20px;
+  border:1px solid rgba(217,183,106,.16); backdrop-filter:blur(3px); }
+
+.world-spot{ position:absolute; transform:translate(-50%,-50%); z-index:2; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; gap:3px; padding:3px;
+  border:0; background:none; font-family:inherit; color:var(--paper); transition:.18s; }
+.world-spot .spot-dot{ width:32px; height:32px; border-radius:50%; display:grid; place-items:center;
+  font-size:14px; font-family:system-ui,sans-serif; color:var(--paper);
+  background:rgba(9,13,19,.66); border:1px solid rgba(217,183,106,.45);
+  box-shadow:0 2px 8px rgba(0,0,0,.5); transition:.2s; }
+.world-spot .spot-name{ font-size:11px; letter-spacing:1px; padding:1px 8px; border-radius:20px;
+  white-space:nowrap; background:rgba(8,11,16,.66); border:1px solid rgba(217,183,106,.2);
+  transition:.2s; }
+.world-spot:hover{ transform:translate(-50%,-50%) scale(1.07); }
+.world-spot:hover .spot-dot{ border-color:var(--gold); box-shadow:0 0 16px rgba(217,183,106,.55); }
+.world-spot:hover .spot-name{ border-color:rgba(217,183,106,.6); }
+.world-spot:focus-visible{ outline:none; }
+.world-spot:focus-visible .spot-dot{ border-color:var(--gold); }
+
+.world-spot.ready .spot-dot{ color:#10141c; border-color:transparent;
+  background:linear-gradient(180deg,var(--gold),#b9975a); animation:spotPulse 1.9s ease-in-out infinite; }
+.world-spot.ready .spot-name{ border-color:rgba(217,183,106,.7); color:var(--gold); }
+@keyframes spotPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(217,183,106,.55); } 50%{ box-shadow:0 0 0 10px rgba(217,183,106,0); } }
+
+.world-spot.cd .spot-dot{ opacity:.62; }
+.world-spot.cd .spot-name{ color:rgba(234,227,210,.5); }
+.world-spot.cd{ cursor:not-allowed; }
+
+.world-spot.done .spot-dot{ border-color:rgba(234,227,210,.26); opacity:.72; }
+.world-spot.done .spot-name{ color:rgba(234,227,210,.52); }
+
+.world-spot.locked{ cursor:not-allowed; }
+.world-spot.locked .spot-dot{ border-color:rgba(234,227,210,.18); background:rgba(6,9,13,.74);
+  color:rgba(234,227,210,.45); font-size:12px; }
+.world-spot.locked .spot-name{ color:rgba(234,227,210,.34); border-color:rgba(234,227,210,.12); }
+
+@media (max-width:900px){
+  .world-split{ grid-template-columns:1fr; }
+}
+@media (max-width:820px){
+  .world-spot .spot-dot{ width:26px; height:26px; font-size:12px; }
+  .world-spot .spot-name{ font-size:9.5px; padding:1px 6px; letter-spacing:0; }
+}
+
+.world-spots{ position:absolute; inset:0; z-index:2; pointer-events:none; }
+.world-spots .world-spot{ pointer-events:auto; }
+
 </style>
 </head>
 <body>
@@ -636,6 +767,7 @@ body{
     <button class="tab" data-tab="technique">功 法</button>
     <button class="tab" data-tab="bag">丹 房</button>
     <button class="tab" data-tab="secret">秘 境</button>
+    <button class="tab" data-tab="world">寰 宇</button>
     <button class="tab" data-tab="achievement">道 途</button>
     <button class="tab" data-tab="rank">仙 榜</button>
   </nav>
@@ -748,6 +880,21 @@ body{
           <div id="cdText" class="cd-text">准备就绪</div>
         </div>
         <div id="secretList" class="secret-list"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-world">
+      <div class="card">
+        <div class="card-head">
+          <h3 class="card-title">寰 宇</h3>
+          <button id="btnWorldMap" class="mini-btn">势力声望</button>
+        </div>
+        <p class="card-desc">往来各处，结缘或结怨。声望影响当地可走的路。</p>
+        <div id="worldRegionTabs" class="world-regions"></div>
+        <div class="world-split">
+          <div id="worldStage" class="world-stage"></div>
+          <div id="worldList" class="world-list"></div>
+        </div>
       </div>
     </section>
 
@@ -925,6 +1072,30 @@ body{
       <button id="btnCloseInvite" class="mini-btn">关闭</button>
     </div>
     <div class="modal-hint">结为道侣后，双方各得「全部收益」加成，还能双修；解绑不影响各自进度</div>
+  </div>
+</div>
+
+<div id="storyModal" class="modal">
+  <div class="modal-card story-card">
+    <div class="story-title" id="storyTitle">机 缘</div>
+    <div class="story-body" id="storyBody"></div>
+    <div class="story-choices" id="storyChoices"></div>
+    <div class="story-result" id="storyResult" hidden></div>
+    <div class="story-foot">
+      <button id="btnStoryClose" class="mini-btn" hidden>离 去</button>
+    </div>
+  </div>
+</div>
+
+<div id="repModal" class="modal">
+  <div class="modal-card">
+    <div class="modal-title">势 力 声 望</div>
+    <div class="modal-sub">你所行之事，各方都记着</div>
+    <div id="repList" class="rep-list"></div>
+    <div class="modal-hint">声望会影响部分地点的剧情走向</div>
+    <div class="code-btns close-row">
+      <button id="btnCloseRep" class="mini-btn">关闭</button>
+    </div>
   </div>
 </div>
 
@@ -2147,6 +2318,14 @@ function defaultState() {
     },
 
     achievements: {},         // { 成就id: 领取时间 }
+
+    world: {                  // 寰宇：地界探索 / 剧情 / 势力声望
+      rep:    {},             // { 势力id: 声望值 -100~100 }
+      seen:   {},             // { 剧情id: 观看时间 }
+      flags:  {},             // 剧情留下的印记
+      cd:     {},             // { 地点id: 冷却结束时间戳 }
+      counts: {}              // { 地点id: 已探索次数 }
+    },
     stats: {                  // 记录类数据
       bestRealm: 0,
       breakFails: 0,
@@ -2189,6 +2368,16 @@ function migrate(s) {
   out.pills = s.pills || {};
   out.achievements = s.achievements || {};
   out.buffs = Array.isArray(s.buffs) ? s.buffs : [];
+  /* 寰宇：老档没有 world，这里补齐并把各子表规整成对象 */
+  const sw = (s.world && typeof s.world === "object") ? s.world : {};
+  const isObj = v => v && typeof v === "object" && !Array.isArray(v);
+  out.world = {
+    rep:    isObj(sw.rep)    ? sw.rep    : {},
+    seen:   isObj(sw.seen)   ? sw.seen   : {},
+    flags:  isObj(sw.flags)  ? sw.flags  : {},
+    cd:     isObj(sw.cd)     ? sw.cd     : {},
+    counts: isObj(sw.counts) ? sw.counts : {}
+  };
   out.logs = Array.isArray(s.logs) ? s.logs : [];
   out.version = SAVE_VERSION;
   return out;
@@ -2223,6 +2412,1011 @@ function loadState() {
 /* 清档 */
 function clearState() {
   try { localStorage.removeItem(SAVE_KEY); } catch (e) {}
+}
+
+
+/* ===== world.js ===== */
+/* ============================================================
+   world.js —— 寰宇（世界探索 / 剧情 / 势力声望）
+   三层结构：region 地界 → node 地点 → event 剧情
+   地点分两类：
+     explore:true  可反复探索，给灵石/修为/丹药，有冷却
+     带 event      一次性剧情，做出抉择后影响各势力声望
+   ============================================================ */
+
+/* ---------- 势力 ---------- */
+const WORLD_FACTIONS = {
+  qingyun: { name:"青云宗",   type:"正道", color:"#7fd8e8", desc:"东域第一大宗，以剑气与清誉为立身之本。" },
+  xuedao:  { name:"血刀门",   type:"魔道", color:"#c8503f", desc:"刀出必见血，门人以杀证道。" },
+  wanbao:  { name:"万宝商盟", type:"中立", color:"#d9b76a", desc:"只认灵石不认人，天下消息最灵通之处。" },
+  danxia:  { name:"丹霞谷",   type:"中立", color:"#e8aede", desc:"以丹入道，谷中丹香经年不散。" },
+  youying: { name:"幽影阁",   type:"魔道", color:"#a98fe8", desc:"收钱办事的影中之阁，无人见过阁主真容。" },
+  taixu:   { name:"太虚道宫", type:"正道", color:"#cfe0ff", desc:"天外天之上的道宫，只与登临者论道。" }
+};
+
+/* ---------- 地界 ---------- */
+const WORLD_REGIONS = [
+  { id:"qingyun", name:"青云山麓", unlockRealm:0,  desc:"凡尘与仙门交界，云气常年不散。",
+    nodes:["shimen","yanwu","yaopu","jizhen"] },
+  { id:"luoxia",  name:"落霞荒原", unlockRealm:6,  desc:"血色残阳下的荒原，正魔两道在此角力。",
+    nodes:["duanren","xuechi","shangmeng","gudao"] },
+  { id:"guixu",   name:"归墟海",   unlockRealm:12, desc:"万水归墟之处，海底沉着上古遗秘。",
+    nodes:["danfang","anying","chenchuan"] },
+  { id:"tianwai", name:"天外天",   unlockRealm:18, desc:"云海之上的浮空诸岛，唯有大能可至。",
+    nodes:["wendao","xinggui"] }
+];
+
+/* ---------- 地点 ----------
+   faction    ：此地属于哪个势力（null = 无主之地）
+   unlockRealm：REALMS 的下标门槛
+   cd         ：探索冷却（秒）；剧情地点为 0
+   events     ：该地可触发的剧情 id 列表，按顺序取第一个「未看过且满足条件」的
+   doneText   ：剧情都走完之后再来的说明 */
+const WORLD_NODES = [
+  /* ---- 青云山麓 ---- */
+  { id:"shimen", name:"山门石阶", region:"qingyun", faction:"qingyun", unlockRealm:0, cd:0,
+    events:["ruMen","qingyunDian"], doneText:"石阶上人来人往，执事弟子远远朝你拱手。" },
+  { id:"yanwu",  name:"演武场",   region:"qingyun", faction:"qingyun", unlockRealm:0, cd:20, explore:true,
+    flavor:["你与几名外门弟子对练，剑风掠过耳畔。","演武场上尘土飞扬，你以一敌三，气力渐长。"],
+    stone:[8,26], cult:[40,110] },
+  { id:"yaopu",  name:"后山药圃", region:"qingyun", faction:"qingyun", unlockRealm:2, cd:26, explore:true,
+    flavor:["药圃里灵草沾露，你顺手采下几株。","守圃弟子见你根骨清正，允你自取。"],
+    stone:[14,40], pills:{juyuan:[0.10,0.30]} },
+  { id:"jizhen", name:"山脚集镇", region:"qingyun", faction:null, unlockRealm:0, cd:16, explore:true,
+    flavor:["镇上人声鼎沸，你在茶摊听了一段江湖闲话。","卖符的老道打量你一眼，赠了你一道平安符。"],
+    stone:[4,18], cult:[25,80] },
+
+  /* ---- 落霞荒原 ---- */
+  { id:"duanren",  name:"断刃谷",   region:"luoxia", faction:"xuedao", unlockRealm:6, cd:0,
+    events:["duanRen"], doneText:"谷中刀气森然，血刀门弟子见了你，只冷冷让开一条路。" },
+  { id:"xuechi",   name:"血池",     region:"luoxia", faction:"xuedao", unlockRealm:6, cd:40, explore:true,
+    flavor:["血池翻涌着腥气，崖壁上刻满刀痕。","你在池边石缝里抠出几块灵石与一枚残丹。"],
+    stone:[180,520], pills:{wuxin:[0.15,0.40]} },
+  { id:"shangmeng",name:"商盟分舵", region:"luoxia", faction:"wanbao", unlockRealm:7, cd:0,
+    events:["shangMeng"], doneText:"掌柜正拨着算盘，抬眼朝你一笑，算是打过招呼。" },
+  { id:"gudao",    name:"荒漠古栈", region:"luoxia", faction:null, unlockRealm:6, cd:34, explore:true,
+    flavor:["古栈早已废弃，风沙里埋着旅人的行囊。","驼铃自远处传来，你在断墙下歇了一夜。"],
+    stone:[120,380], cult:[900,2600] },
+
+  /* ---- 归墟海 ---- */
+  { id:"danfang",  name:"丹房重地", region:"guixu", faction:"danxia", unlockRealm:12, cd:0,
+    events:["danFang"], doneText:"丹炉余温尚在，谷中弟子正忙着翻晒灵草。" },
+  { id:"anying",   name:"影阁暗巷", region:"guixu", faction:"youying", unlockRealm:13, cd:0,
+    events:["anying"], doneText:"巷子深处传来极轻的脚步声，你一动，那声音便停了。" },
+  { id:"chenchuan",name:"沉船海域", region:"guixu", faction:null, unlockRealm:12, cd:52, explore:true,
+    flavor:["沉船的木梁随浪起伏，舱中散落着前朝器物。","海底暗流撕扯衣袖，你捞起一只密封的玉匣。"],
+    stone:[900,2600], pills:{lingxi:[0.20,0.45]} },
+
+  /* ---- 天外天 ---- */
+  { id:"wendao",   name:"问道台",   region:"tianwai", faction:"taixu", unlockRealm:18, cd:0,
+    events:["wenDao"], doneText:"道台上空无一人，只有云海在脚下翻涌。" },
+  { id:"xinggui",  name:"星轨回廊", region:"tianwai", faction:"taixu", unlockRealm:18, cd:70, explore:true,
+    flavor:["回廊悬于虚空，星河在脚下缓缓流转。","你沿星轨缓行，一步一境，周身灵气自行汇聚。"],
+    stone:[5000,14000], cult:[90000,260000] }
+];
+
+/* ---------- 剧情 ----------
+   text   ：可写成字符串，或 function(s) 返回字符串（用来按本相变化措辞）
+   once   ：默认 true，看完即记入 seen
+   req    ：{ rep:{势力id:最低声望}, realm:最低境界下标 } 满足才出现
+   choices：每项 { label, hint, show(s)可选, eff(s) 返回一句结果文本 } */
+const WORLD_EVENTS = {
+
+  ruMen: {
+    title:"山门试炼",
+    text: s => s.heroKind === "beast"
+      ? "青云宗山门前，执事长老按住剑柄，目光在你狼首与立耳上停了停：「兽族血脉……也想入我青云？」\n阶下弟子纷纷侧目，无人出声。"
+      : "青云宗山门前，执事长老拦住你的去路：「欲入青云，先过三问。答得来，便是同门；答不来，原路下山。」",
+    choices:[
+      { label:"「弟子愿受考校。」", hint:"声望 · 青云宗",
+        eff: s => { worldRep(s, "qingyun", 6); worldGainStones(s, 30);
+          return "你一连三答沉稳，长老捋须颔首：「可。」\n一块外门令牌落在你掌心。"; } },
+      { label:"「我自有道，不劳相试。」", hint:"修为",
+        eff: s => { worldRep(s, "qingyun", -2); worldGainCult(s, 120);
+          return "长老一怔，旋即失笑：「好个自有道。」\n他也不拦，只在你转身时补了一句：「山门常开。」"; } },
+      { label:"「狼族子弟，求见宗主。」", hint:"声望 · 青云宗", show: s => s.heroKind === "beast",
+        eff: s => { worldRep(s, "qingyun", 10); worldGainStones(s, 60);
+          return "长老沉默良久，终是侧身让路：「宗主说过，血脉不论出身。」\n你踏阶而上，身后议论声渐远。"; } }
+    ]
+  },
+
+  qingyunDian: {
+    title:"剑冢夜话",
+    req:{ rep:{ qingyun:8 } },
+    text:"夜半，你被引至后山剑冢。执事长老立在万剑之间：「你声望已足，可入冢选一剑。」",
+    choices:[
+      { label:"取那柄最钝的剑。", hint:"修为 · 声望",
+        eff: s => { worldRep(s, "qingyun", 4); worldGainCult(s, 300);
+          return "你握住那柄满是缺口的旧剑，剑身忽然轻鸣。\n长老动容：「此剑上一位主人，是本宗开山祖师。」"; } },
+      { label:"取那柄最利的剑。", hint:"灵石 · 声望",
+        eff: s => { worldRep(s, "qingyun", 2); worldGainStones(s, 200);
+          return "剑锋映出你的眉眼，寒气逼人。\n长老点头：「锐气可用，亦当自持。」"; } }
+    ]
+  },
+
+  duanRen: {
+    title:"断刃谷口",
+    text:"断刃谷口挂着上百把断刀，风一过便叮当作响。\n守门弟子斜睨着你，手按刀柄：「来投我门？先说说，你杀过人没有。」",
+    choices:[
+      { label:"「愿以血立誓。」", hint:"声望 · 血刀门",
+        eff: s => { worldRep(s, "xuedao", 7); worldRep(s, "qingyun", -4); worldGainStones(s, 400);
+          return "弟子大笑，掷来一柄未开锋的刀：「入门礼，先拿这个去开开荤。」"; } },
+      { label:"「只是路过。」", hint:"修为",
+        eff: s => { worldRep(s, "xuedao", -2); worldGainCult(s, 1500);
+          return "「路过？」他嗤笑一声，也不为难。\n谷中刀气逼人，你反而在这股煞气里悟到几分杀伐之意。"; } },
+      { label:"「我来砸这块招牌。」", hint:"修为 · 恶了血刀门",
+        eff: s => { worldRep(s, "xuedao", -8); worldGainCult(s, 4200);
+          return "话落刀起。你连挑七人，断刃谷口一时无人敢上。\n血刀门自此记下了你的名字。"; } }
+    ]
+  },
+
+  shangMeng: {
+    title:"商盟分舵",
+    text:"分舵内算盘声不绝。掌柜头也不抬：「有货出手，还是有货要买？我们只认灵石。」",
+    choices:[
+      { label:"买一枚悟心丹。", hint:"消耗 300 灵石",
+        show: s => s.stones >= 300,
+        eff: s => { s.stones -= 300; worldRep(s, "wanbao", 3); worldGainPill(s, "wuxin", 1);
+          return "掌柜推来一只描金小盒：「客官爽快。」\n盒中丹药温润，丹香清苦回甘。"; } },
+      { label:"卖几条消息。", hint:"灵石 · 声望",
+        eff: s => { worldRep(s, "wanbao", 4); worldGainStones(s, 260);
+          return "你把这些天的见闻说了，掌柜随手记在册子上，推来一袋灵石。\n「往后再有新鲜事，尽管来。」"; } },
+      { label:"只讨碗茶喝。", hint:"修为",
+        eff: s => { worldGainCult(s, 1200);
+          return "掌柜竟真的沏了茶。粗茶入口，你听邻座道人讲了半日闲话，心却静了下来。"; } }
+    ]
+  },
+
+  danFang: {
+    title:"丹霞论丹",
+    text: s => "丹霞谷丹房内烟气氤氲。谷主捏着你的手腕看了半晌：「根骨还行，就是火气太重。」\n"
+      + (s.heroKind === "beast" ? "他瞥了眼你的耳朵：「……兽族修丹道，少见。」" : ""),
+    choices:[
+      { label:"求一枚丹药。", hint:"声望 · 丹霞谷",
+        eff: s => { worldRep(s, "danxia", 6); worldGainPill(s, "lingxi", 1);
+          return "谷主随手取过一枚朱红丹药：「拿去，别浪费了。」\n丹入喉即化，一股热流游走四肢百骸。"; } },
+      { label:"与谷主论丹道。", hint:"修为 · 声望",
+        eff: s => { worldRep(s, "danxia", 5); worldGainCult(s, 9000);
+          return "你二人从火候论到药性，从药性论到天地之炁。\n日影西斜时，谷主抚掌：「孺子可教。」"; } },
+      { label:"趁夜潜入丹库。", hint:"丹药 · 恶了丹霞谷",
+        eff: s => { worldRep(s, "danxia", -10); worldGainPill(s, "lingxi", 2); worldGainPill(s, "wuxin", 2);
+          s.world.flags.danxiaThief = 1;
+          return "你避过两班巡夜，在丹库里挑了最好的几瓶。\n只是天亮时，谷中已贴满了你的画像。"; } }
+    ]
+  },
+
+  anying: {
+    title:"影阁交易",
+    text:"暗巷深处，一道影子递来一纸：「有人出价买一条命。你接，还是不接？」",
+    choices:[
+      { label:"接下这单。", hint:"灵石 · 声望 · 结怨青云",
+        eff: s => { worldRep(s, "youying", 7); worldRep(s, "qingyun", -5); worldGainStones(s, 3000);
+          return "影子点点头，把纸塞进你手里便消失了。\n目标的名字你看过便记下了——从此世上再没有这个人。"; } },
+      { label:"「我修的是道，不是刀。」", hint:"修为",
+        eff: s => { worldRep(s, "youying", -3); worldGainCult(s, 12000);
+          return "影子沉默片刻，收回纸：「少见。」\n转身时又补了一句：「但愿你的道，能一直这么干净。」"; } },
+      { label:"反手擒下这道影子。", hint:"修为 · 恶了幽影阁",
+        eff: s => { worldRep(s, "youying", -10); worldGainCult(s, 26000);
+          return "你出手极快，影子却更快——只留下一片衣角。\n幽影阁的报复，会比你想象的更耐心。"; } }
+    ]
+  },
+
+  wenDao: {
+    title:"问道台上",
+    text:"问道台悬于云海之上。一位老人背对着你，声音却像从四面八方传来：\n「登临至此，所为何来？」",
+    choices:[
+      { label:"「为求长生。」", hint:"修为 · 道宫声望",
+        eff: s => { worldRep(s, "taixu", 4); worldGainCult(s, 60000);
+          return "老人笑了：「长生是果，不是因。」\n他一挥袖，你周身被云气托起，丹田那点灵光忽地亮了一瞬。"; } },
+      { label:"「为护一人。」", hint:"声望 · 道宫",
+        eff: s => { worldRep(s, "taixu", 8); worldGainStones(s, 30000);
+          return "老人终于回头，看了你很久：「有情之人，反而走得远。」\n他赠你一枚玉牌：「道宫不拦有情客。」"; } },
+      { label:"「为看尽这天地。」", hint:"修为",
+        eff: s => { worldRep(s, "taixu", 6); worldGainCult(s, 90000);
+          return "老人仰头大笑，笑声撞在云海上，久久不散。\n「好一个看尽天地。那我且问你——看尽之后呢？」\n你答不上来，却觉得眼前忽然开阔了许多。"; } }
+    ]
+  }
+};
+
+/* ============================================================
+   逻辑层
+   ============================================================ */
+function worldState(s) {
+  if (!s.world || typeof s.world !== "object") s.world = {};
+  const w = s.world;
+  if (!w.rep   || typeof w.rep   !== "object") w.rep   = {};
+  if (!w.seen  || typeof w.seen  !== "object") w.seen  = {};
+  if (!w.flags || typeof w.flags !== "object") w.flags = {};
+  if (!w.cd    || typeof w.cd    !== "object") w.cd    = {};
+  if (!w.counts|| typeof w.counts!== "object") w.counts= {};
+  return w;
+}
+
+function worldRepOf(s, fid) { return worldState(s).rep[fid] || 0; }
+function worldRep(s, fid, n) {
+  const w = worldState(s);
+  w.rep[fid] = Math.max(-100, Math.min(100, (w.rep[fid] || 0) + n));
+  return w.rep[fid];
+}
+/* 声望称谓：分正负两档，界面直接用 */
+function repTitle(v) {
+  if (v >= 40) return "供奉";
+  if (v >= 20) return "上宾";
+  if (v >= 8)  return "熟客";
+  if (v > -8)  return "路人";
+  if (v > -20) return "不受欢迎";
+  if (v > -40) return "仇视";
+  return "死敌";
+}
+
+/* ---------- 奖励：与现有系统口径一致 ---------- */
+function worldGainStones(s, n) { addStones(s, n); }
+/* seconds 秒的挂机收益，直接折进修为 */
+function worldGainCult(s, seconds) { s.cultivation += autoRate(s, Date.now()) * seconds; }
+function worldGainPill(s, id, n) {
+  if (!PILLS[id]) return;
+  s.pills[id] = (s.pills[id] || 0) + (n || 1);
+}
+
+/* ---------- 解锁与冷却 ---------- */
+function worldRegionUnlocked(s, reg) { return s.realm >= reg.unlockRealm; }
+function worldNodeUnlocked(s, node)   { return s.realm >= node.unlockRealm; }
+function worldNodeOf(id) { return WORLD_NODES.find(n => n.id === id) || null; }
+function worldRegionOf(id) { return WORLD_REGIONS.find(r => r.id === id) || null; }
+
+function worldCdLeft(s, node, now) {
+  const t = now === undefined ? Date.now() : now;
+  const until = worldState(s).cd[node.id] || 0;
+  return Math.max(0, (until - t) / 1000);
+}
+function worldNodeReady(s, node, now) { return worldCdLeft(s, node, now) <= 0; }
+
+/* ---------- 剧情可用性 ---------- */
+function worldEventReqOk(s, ev) {
+  if (!ev || !ev.req) return true;
+  const w = worldState(s);
+  if (ev.req.realm !== undefined && s.realm < ev.req.realm) return false;
+  if (ev.req.rep) {
+    for (const fid of Object.keys(ev.req.rep)) {
+      if ((w.rep[fid] || 0) < ev.req.rep[fid]) return false;
+    }
+  }
+  return true;
+}
+/* 该地点下一个可触发的剧情；都走完或条件不足则返回 null */
+function worldNextEvent(s, node) {
+  const w = worldState(s);
+  if (!node.events) return null;
+  for (const id of node.events) {
+    const ev = WORLD_EVENTS[id];
+    if (!ev) continue;
+    if (ev.once !== false && w.seen[id]) continue;
+    if (!worldEventReqOk(s, ev)) continue;
+    return Object.assign({ id }, ev);
+  }
+  return null;
+}
+function worldNodeDone(s, node) { return !!node.events && !worldNextEvent(s, node); }
+
+/* ---------- 探索一次 ---------- */
+function worldExplore(s, node) {
+  const now = Date.now();
+  if (!node || !node.explore) return { ok:false, reason:"noexplore" };
+  if (!worldNodeUnlocked(s, node)) return { ok:false, reason:"locked" };
+  if (!worldNodeReady(s, node, now)) return { ok:false, reason:"cd", cd:worldCdLeft(s, node, now) };
+
+  const w = worldState(s);
+  const stones = rndInt(node.stone[0], node.stone[1]);
+  worldGainStones(s, stones);
+
+  const cult = node.cult ? autoRate(s, now) * rndInt(node.cult[0], node.cult[1]) : 0;
+  if (cult > 0) s.cultivation += cult;
+
+  const got = [];
+  if (node.pills) {
+    const key = pickWeighted(node.pills);
+    if (key && PILLS[key]) {
+      const n = rndInt(1, 2);
+      worldGainPill(s, key, n);
+      got.push({ id:key, n });
+    }
+  }
+
+  w.counts[node.id] = (w.counts[node.id] || 0) + 1;
+  w.cd[node.id] = now + node.cd * 1000;
+
+  const flavor = node.flavor ? node.flavor[Math.floor(Math.random() * node.flavor.length)] : "";
+  return { ok:true, node, stones, cult, pills:got, flavor, cd:node.cd };
+}
+
+/* ---------- 做出抉择 ---------- */
+function worldPick(s, nodeId, eventId, idx) {
+  const node = worldNodeOf(nodeId);
+  let ev = WORLD_EVENTS[eventId];
+  if (!ev) return { ok:false, reason:"noevent" };
+  if (!node || !worldNodeUnlocked(s, node)) return { ok:false, reason:"locked" };
+  if (ev.once !== false && worldState(s).seen[eventId]) return { ok:false, reason:"seen" };
+  if (!worldEventReqOk(s, ev)) return { ok:false, reason:"req" };
+  const ch = ev.choices[idx];
+  if (!ch) return { ok:false, reason:"nochoice" };
+  if (ch.show && !ch.show(s)) return { ok:false, reason:"hidden" };
+
+  const text = ch.eff ? (ch.eff(s) || "") : "";
+  if (ev.once !== false) worldState(s).seen[eventId] = Date.now();
+  return { ok:true, event:ev, choice:ch, text };
+}
+
+/* ---------- 汇总：给界面用的统计 ---------- */
+function worldSeenCount(s) { return Object.keys(worldState(s).seen).length; }
+function worldEventTotal() { return Object.keys(WORLD_EVENTS).length; }
+function worldRepList(s) {
+  return Object.keys(WORLD_FACTIONS).map(id => ({
+    id, info:WORLD_FACTIONS[id], value:worldRepOf(s, id)
+  }));
+}
+
+/* ============================================================
+   存档码打包
+   剧情与声望要能跟存档码一起传给别人。
+   事件 id 是字符串，直接塞进码里太长，这里按「固定顺序」编号：
+   WORLD_EVENT_ORDER 只能往后追加，绝不能重排 —— 否则老存档码
+   解出来的剧情会全部错位。声望同理。
+   ============================================================ */
+const WORLD_EVENT_ORDER   = ["ruMen","qingyunDian","duanRen","shangMeng","danFang","anying","wenDao"];
+const WORLD_FACTION_ORDER = ["qingyun","xuedao","wanbao","danxia","youying","taixu"];
+
+/* state → 精简结构（给 savecode.js 用） */
+function worldPack(s) {
+  const w = worldState(s);
+  let mask = 0;
+  for (const id of Object.keys(w.seen)) {
+    const i = WORLD_EVENT_ORDER.indexOf(id);
+    if (i >= 0) mask |= (1 << i);
+  }
+  const rep = {};
+  for (const fid of WORLD_FACTION_ORDER) {
+    const v = w.rep[fid];
+    if (v) rep[fid] = v | 0;
+  }
+  const flags = Object.keys(w.flags).filter(k => w.flags[k]);
+  return { sn:mask, r:rep, f:flags };
+}
+
+/* 精简结构 → state（校验后返回 {rep,seen,flags,cd,counts}） */
+function worldUnpack(o) {
+  const out = { rep:{}, seen:{}, flags:{}, cd:{}, counts:{} };
+  if (!o || typeof o !== "object") return out;
+  const mask = Number(o.sn) || 0;
+  for (let i = 0; i < WORLD_EVENT_ORDER.length; i++) {
+    if (mask & (1 << i)) out.seen[WORLD_EVENT_ORDER[i]] = 1;
+  }
+  if (o.r && typeof o.r === "object") {
+    for (const fid of WORLD_FACTION_ORDER) {
+      const v = Number(o.r[fid]);
+      if (v) out.rep[fid] = Math.max(-100, Math.min(100, v | 0));
+    }
+  }
+  if (Array.isArray(o.f)) {
+    for (const k of o.f) if (typeof k === "string" && k.length <= 32) out.flags[k] = 1;
+  }
+  return out;
+}
+
+
+/* ===== worldmap.js ===== */
+/* ============================================================
+   worldmap.js —— 寰宇 · 场景地图（纯 SVG 手绘）
+   每个地界一张全景图：地界里的地点就是图上的一处建筑或地形，
+   界面层按 WORLD_MAP_SPOTS 的坐标叠加热区，点哪儿去哪儿。
+   与 avatar.js / techicon.js 同源：全矢量、离线可用、缩放不糊。
+   ============================================================ */
+
+const MAP_W = 1000, MAP_H = 560;
+/* 场景内部仍按 1000x640 作图，最后整体上移 80px 裁掉顶部空天 */
+const MAP_CROP_Y = 80;
+
+/* ---------- 配色：天光渐变 + 山石 + 建筑 + 描金 ---------- */
+const REGION_ART = {
+  qingyun: {
+    sky:[[0,"#0e1c2a"],[.42,"#2a5470"],[.72,"#78a8be"],[1,"#c6dbdf"]],
+    sun:"#ffe9b8", far:"#7ca2b2", mid:"#4a7182", near:"#20323d",
+    top:"#3a5562", deep:"#132029",
+    stone:"#cfd6da", stoneDim:"#93a2ab", roof:"#2a4652", roofHi:"#86b8c8",
+    body:"#9fb0b8", plinth:"#28404a",
+    line:"#d9b76a", glow:"#ffeec2", accent:"#6fd0b0", mist:"#c2dce6", pine:"#1e3b34"
+  },
+  luoxia: {
+    sky:[[0,"#23111f"],[.40,"#6d3039"],[.72,"#c96c49"],[1,"#f5c088"]],
+    sun:"#ffd9a0", far:"#8f5751", mid:"#61363e", near:"#311d24",
+    top:"#4d2d36", deep:"#1e1116",
+    stone:"#d5c1a9", stoneDim:"#9e8266", roof:"#4c2b2f", roofHi:"#dc9a60",
+    body:"#ab856c", plinth:"#3b232a",
+    line:"#d9b76a", glow:"#ffcf94", accent:"#c8503f", mist:"#e2ab7a", pine:"#3c2b21"
+  },
+  guixu: {
+    sky:[[0,"#0b3a4e"],[.42,"#0d2a3c"],[.78,"#12323f"],[1,"#1d4a5b"]],
+    sun:"#9ff0e6", far:"#1f5766", mid:"#174754", near:"#0a1f2b",
+    top:"#12374a", deep:"#05141d",
+    stone:"#accdc9", stoneDim:"#6f9194", roof:"#123a44", roofHi:"#66c9c6",
+    body:"#81a6a7", plinth:"#12313b",
+    line:"#7fd8d0", glow:"#a8f0e8", accent:"#5fbfa0", mist:"#72c8c4", pine:"#123c3c"
+  },
+  tianwai: {
+    sky:[[0,"#07061a"],[.42,"#1a1738"],[.76,"#2e2a5c"],[1,"#4d4784"]],
+    sun:"#d8ccff", far:"#3b3470", mid:"#2d285a", near:"#181543",
+    top:"#272254", deep:"#0d0b26",
+    stone:"#d4cdf2", stoneDim:"#9188c2", roof:"#312c60", roofHi:"#ad9ff2",
+    body:"#9c94ce", plinth:"#221e4c",
+    line:"#c9bdf0", glow:"#e6dcff", accent:"#a98fe8", mist:"#ab9dea", pine:"#242b58"
+  }
+};
+function regionArt(id) { return REGION_ART[id] || REGION_ART.qingyun; }
+
+/* ---------- 地点 → 画布坐标（热区据此换算成百分比） ---------- */
+const WORLD_MAP_SPOTS = {
+  qingyun: { jizhen:[150,480], shimen:[404,340], yanwu:[618,338], yaopu:[846,414] },
+  luoxia:  { gudao:[150,486],  duanren:[412,352], xuechi:[626,508], shangmeng:[878,344] },
+  guixu:   { danfang:[226,460], anying:[522,480], chenchuan:[848,426] },
+  tianwai: { wendao:[330,308], xinggui:[706,294] }
+};
+function worldMapSpot(regionId, nodeId) {
+  const m = WORLD_MAP_SPOTS[regionId];
+  return (m && m[nodeId]) || null;
+}
+
+/* 稳定伪随机：海草、星点每次都长在同一处 */
+function artRng(seed) {
+  let x = seed >>> 0;
+  return function () { x = (x * 1103515245 + 12345) & 0x7fffffff; return x / 0x7fffffff; };
+}
+function r2(n) { return Math.round(n * 10) / 10; }
+
+/* ---------- 远山剪影 ---------- */
+function artRange(pts, yBase, fill, op) {
+  let d = "M0 " + r2(yBase) + " ";
+  for (const p of pts) d += "L" + p[0] + " " + p[1] + " ";
+  d += "L1000 " + r2(yBase) + " L1000 " + MAP_H + " L0 " + MAP_H + " Z";
+  return `<path d="${d}" fill="${fill}" opacity="${op}"/>`;
+}
+
+/* ---------- 台地：斜边 + 圆角顶 + 层理 ---------- */
+function artMesa(x1, x2, yTop, yBot, u, c, strata, inset) {
+  const w = x2 - x1, d = yBot - yTop;
+  const i = inset === undefined ? Math.min(64, w * 0.14) : inset;
+  const p = `M${r2(x1)} ${r2(yBot)}
+    C${r2(x1)} ${r2(yBot - d * 0.42)} ${r2(x1 + i * 0.30)} ${r2(yTop + 8)} ${r2(x1 + i)} ${r2(yTop)}
+    L${r2(x2 - i)} ${r2(yTop)}
+    C${r2(x2 - i * 0.30)} ${r2(yTop + 8)} ${r2(x2)} ${r2(yBot - d * 0.42)} ${r2(x2)} ${r2(yBot)} Z`;
+  let s = `<path d="${p}" fill="url(#${u}-gnd)" stroke="${c.line}" stroke-width=".9"/>`;
+  s += `<path d="M${r2(x1 + i * 1.3)} ${r2(yTop + 1.5)} L${r2(x2 - i * 1.3)} ${r2(yTop + 1.5)}" stroke="${c.roofHi}" stroke-width="1.3" opacity=".3"/>`;
+  s += `<path d="M${r2(x1)} ${r2(yBot)} C${r2(x1)} ${r2(yBot - d * 0.42)} ${r2(x1 + i * 0.30)} ${r2(yTop + 8)} ${r2(x1 + i)} ${r2(yTop)}"
+    fill="none" stroke="#fff" stroke-width="1.2" opacity=".16"/>`;
+  const n = strata === undefined ? 3 : strata;
+  for (let k = 1; k <= n; k++) {
+    const t = k / (n + 1), y = yTop + d * t;
+    const xa = x1 + i * (1 - t) * 0.92, xb = x2 - i * (1 - t) * 0.92;
+    s += `<path d="M${r2(xa)} ${r2(y)} C${r2(xa + (xb - xa) * 0.34)} ${r2(y - 8)} ${r2(xa + (xb - xa) * 0.68)} ${r2(y - 8)} ${r2(xb)} ${r2(y)}"
+      fill="none" stroke="${c.line}" stroke-width=".7" opacity=".14"/>`;
+  }
+  return s;
+}
+
+/* ---------- 土丘 / 岩丘：圆顶小山 ---------- */
+function artMound(cx, cy, rx, ry, u, c, strata) {
+  const top = cy - ry * 1.25;
+  let s = `<path d="M${r2(cx - rx)} ${r2(cy)} C${r2(cx - rx * 0.56)} ${r2(top)} ${r2(cx + rx * 0.56)} ${r2(top)} ${r2(cx + rx)} ${r2(cy)} Z"
+    fill="url(#${u}-gnd)" stroke="${c.line}" stroke-width=".9"/>`;
+  s += `<path d="M${r2(cx - rx * 0.70)} ${r2(cy - ry * 0.62)} C${r2(cx - rx * 0.40)} ${r2(top + ry * 0.10)} ${r2(cx + rx * 0.30)} ${r2(top + ry * 0.04)} ${r2(cx + rx * 0.58)} ${r2(cy - ry * 0.72)}"
+    fill="none" stroke="#fff" stroke-width="1.3" opacity=".18"/>`;
+  const n = strata === undefined ? 2 : strata;
+  for (let k = 1; k <= n; k++) {
+    const t = k / (n + 1);
+    const ry2 = ry * 1.25 * t, rx2 = rx * Math.sqrt(Math.max(0.04, 1 - Math.pow(1 - t, 2)));
+    s += `<path d="M${r2(cx - rx2 * 0.82)} ${r2(cy - ry2 * 0.34)} C${r2(cx - rx2 * 0.4)} ${r2(cy - ry2 * 0.62)} ${r2(cx + rx2 * 0.4)} ${r2(cy - ry2 * 0.62)} ${r2(cx + rx2 * 0.82)} ${r2(cy - ry2 * 0.34)}"
+      fill="none" stroke="${c.line}" stroke-width=".8" opacity=".15"/>`;
+  }
+  return s;
+}
+
+/* ---------- 浮空岛：圆顶岩体 + 收拢的岛底 ---------- */
+function artIsland(cx, cy, rx, ry, depth, u, c) {
+  const top = cy - ry;
+  return `<g>
+    <ellipse cx="${r2(cx)}" cy="${r2(cy + ry * 0.8)}" rx="${r2(rx * 0.9)}" ry="${r2(ry * 0.9)}" fill="#000" opacity=".3"/>
+    <path d="M${r2(cx - rx)} ${r2(cy)}
+      C${r2(cx - rx * 0.62)} ${r2(top - ry * 0.44)} ${r2(cx + rx * 0.62)} ${r2(top - ry * 0.44)} ${r2(cx + rx)} ${r2(cy)}
+      C${r2(cx + rx * 0.90)} ${r2(cy + depth * 0.52)} ${r2(cx + rx * 0.52)} ${r2(cy + depth * 0.90)} ${r2(cx + rx * 0.14)} ${r2(cy + depth)}
+      C${r2(cx)} ${r2(cy + depth * 1.06)} ${r2(cx - rx * 0.14)} ${r2(cy + depth)} ${r2(cx - rx * 0.40)} ${r2(cy + depth * 0.86)}
+      C${r2(cx - rx * 0.70)} ${r2(cy + depth * 0.56)} ${r2(cx - rx * 0.92)} ${r2(cy + depth * 0.28)} ${r2(cx - rx)} ${r2(cy)} Z"
+      fill="url(#${u}-gnd)" stroke="${c.line}" stroke-width="1.1"/>
+    <path d="M${r2(cx - rx * 0.86)} ${r2(cy - ry * 0.10)} C${r2(cx - rx * 0.5)} ${r2(top - ry * 0.20)} ${r2(cx + rx * 0.5)} ${r2(top - ry * 0.20)} ${r2(cx + rx * 0.86)} ${r2(cy - ry * 0.10)}"
+      fill="none" stroke="${c.roofHi}" stroke-width="1.5" opacity=".45"/>
+    <path d="M${r2(cx - rx * 0.52)} ${r2(cy + depth * 0.42)} C${r2(cx - rx * 0.2)} ${r2(cy + depth * 0.7)} ${r2(cx + rx * 0.1)} ${r2(cy + depth * 0.78)} ${r2(cx + rx * 0.2)} ${r2(cy + depth * 0.94)}"
+      fill="none" stroke="#fff" stroke-width="1.1" opacity=".16"/>
+  </g>`;
+}
+/* ---------- 接地投影：让建筑贴住地面 ---------- */
+function artShadow(cx, baseY, rx, ry, op) {
+  return `<ellipse cx="${r2(cx)}" cy="${r2(baseY + ry * 0.5)}" rx="${r2(rx)}" ry="${r2(ry)}" fill="#000" opacity="${op === undefined ? .32 : op}"/>`;
+}/* ---------- 殿宇：石墙 + 飞檐 + 屋脊宝顶 + 描边受光 ---------- */
+function artHouse(cx, baseY, w, bodyH, c, opt) {
+  opt = opt || {};
+  const x1 = cx - w / 2, x2 = cx + w / 2;
+  const bw = w * 0.78, bx1 = cx - bw / 2, bx2 = cx + bw / 2;
+  const bodyTop = baseY - bodyH, roofH = w * (opt.roofRatio || 0.42), ry = bodyTop;
+  const cols = opt.cols === undefined ? 3 : opt.cols;
+  const plinthH = opt.plinth === undefined ? Math.max(4, bodyH * 0.16) : opt.plinth;
+  let colLines = "";
+  for (let i = 1; i < cols; i++) {
+    const x = bx1 + bw * i / cols;
+    colLines += `<line x1="${r2(x)}" y1="${r2(bodyTop)}" x2="${r2(x)}" y2="${r2(baseY - plinthH)}"
+      stroke="${c.stoneDim}" stroke-width="1" opacity=".5"/>`;
+  }
+  const doorW = bw * 0.24, doorH = bodyH * 0.5;
+  const winY = bodyTop + bodyH * 0.22;
+  let wins = "";
+  if (opt.windows !== false && w > 70) {
+    wins = `<rect x="${r2(bx1 + bw * 0.12)}" y="${r2(winY)}" width="${r2(bw * 0.13)}" height="${r2(bodyH * 0.20)}" fill="${c.glow}" opacity=".38"/>` +
+           `<rect x="${r2(bx2 - bw * 0.25)}" y="${r2(winY)}" width="${r2(bw * 0.13)}" height="${r2(bodyH * 0.20)}" fill="${c.glow}" opacity=".38"/>`;
+  }
+  return `<g>
+    <path d="M${r2(x1)} ${r2(baseY)} L${r2(x2)} ${r2(baseY)} L${r2(x2 - w * 0.05)} ${r2(baseY - plinthH - 2)} L${r2(x1 + w * 0.05)} ${r2(baseY - plinthH - 2)} Z"
+      fill="${c.plinth}" stroke="${c.line}" stroke-width=".9"/>
+    <rect x="${r2(bx1)}" y="${r2(bodyTop)}" width="${r2(bw)}" height="${r2(bodyH - plinthH)}" fill="${c.stone}"/>
+    <rect x="${r2(bx1)}" y="${r2(bodyTop)}" width="${r2(bw * 0.15)}" height="${r2(bodyH - plinthH)}" fill="#fff" opacity=".17"/>
+    <rect x="${r2(bx1)}" y="${r2(bodyTop)}" width="${r2(bw)}" height="${r2((bodyH - plinthH) * 0.15)}" fill="#000" opacity=".22"/>
+    <rect x="${r2(bx1)}" y="${r2(bodyTop)}" width="${r2(bw)}" height="${r2(bodyH - plinthH)}" fill="none" stroke="${c.stoneDim}" stroke-width=".8"/>
+    ${colLines}${wins}
+    <rect x="${r2(cx - doorW / 2)}" y="${r2(baseY - plinthH - doorH)}" width="${r2(doorW)}" height="${r2(doorH)}" fill="#0a0f16" opacity=".78"/>
+    <path d="M${r2(x1)} ${r2(ry)} C${r2(x1)} ${r2(ry - roofH * 0.30)} ${r2(x1 + w * 0.16)} ${r2(ry - roofH * 0.84)} ${r2(cx)} ${r2(ry - roofH)}
+             C${r2(x2 - w * 0.16)} ${r2(ry - roofH * 0.84)} ${r2(x2)} ${r2(ry - roofH * 0.30)} ${r2(x2)} ${r2(ry)}
+             C${r2(x2 - w * 0.18)} ${r2(ry + roofH * 0.24)} ${r2(x1 + w * 0.18)} ${r2(ry + roofH * 0.24)} ${r2(x1)} ${r2(ry)} Z"
+      fill="${c.roof}" stroke="${c.line}" stroke-width="1.1"/>
+    <path d="M${r2(x1)} ${r2(ry)} C${r2(x1 + w * 0.18)} ${r2(ry + roofH * 0.24)} ${r2(x2 - w * 0.18)} ${r2(ry + roofH * 0.24)} ${r2(x2)} ${r2(ry)}"
+      fill="none" stroke="${c.roofHi}" stroke-width="1.1" opacity=".6"/>
+    <path d="M${r2(x1)} ${r2(ry)} C${r2(x1)} ${r2(ry - roofH * 0.30)} ${r2(x1 + w * 0.16)} ${r2(ry - roofH * 0.84)} ${r2(cx)} ${r2(ry - roofH)}"
+      fill="none" stroke="#fff" stroke-width="1.1" opacity=".3"/>
+    <path d="M${r2(cx - w * 0.16)} ${r2(ry - roofH * 0.90)} L${r2(cx + w * 0.16)} ${r2(ry - roofH * 0.90)}
+             L${r2(cx + w * 0.10)} ${r2(ry - roofH * 1.06)} L${r2(cx - w * 0.10)} ${r2(ry - roofH * 1.06)} Z"
+      fill="${c.roofHi}" opacity=".92"/>
+    <circle cx="${r2(cx)}" cy="${r2(ry - roofH * 1.14)}" r="${r2(Math.max(1.6, w * 0.03))}" fill="${c.glow}" opacity=".95"/>
+  </g>`;
+}
+
+/* ---------- 楼阁：两层飞檐 ---------- */
+function artPavilion(cx, baseY, w, c) {
+  let s = artHouse(cx, baseY, w, w * 0.30, c, { cols: 2, windows: false });
+  s += artHouse(cx, baseY - w * 0.30 - w * 0.42 * 0.55, w * 0.68, w * 0.20, c, { cols: 2, windows: false });
+  return `<g>${s}</g>`;
+}
+
+/* ---------- 牌坊 / 山门 ---------- */
+function artGate(cx, baseY, w, h, c) {
+  const top = baseY - h, pw = Math.max(5, w * 0.085);
+  const lx = cx - w / 2 + pw * 0.6, rx = cx + w / 2 - pw * 0.6;
+  const roofH = w * 0.30, ry = top;
+  const x1 = cx - w / 2 - pw * 0.5, x2 = cx + w / 2 + pw * 0.5;
+  return `<g>
+    <rect x="${r2(lx - pw / 2)}" y="${r2(top)}" width="${r2(pw)}" height="${r2(h)}" fill="${c.stone}" stroke="${c.line}" stroke-width=".9"/>
+    <rect x="${r2(rx - pw / 2)}" y="${r2(top)}" width="${r2(pw)}" height="${r2(h)}" fill="${c.stoneDim}" stroke="${c.line}" stroke-width=".9"/>
+    <rect x="${r2(cx - w / 2 - 2)}" y="${r2(top + h * 0.26)}" width="${r2(w + 4)}" height="${r2(h * 0.12)}" fill="${c.plinth}" stroke="${c.line}" stroke-width=".9"/>
+    <rect x="${r2(cx - w * 0.18)}" y="${r2(top + h * 0.62)}" width="${r2(w * 0.36)}" height="${r2(h * 0.18)}" fill="#0a0f16" opacity=".7"/>
+    <path d="M${r2(x1)} ${r2(ry)} C${r2(x1)} ${r2(ry - roofH * 0.3)} ${r2(x1 + w * 0.18)} ${r2(ry - roofH * 0.88)} ${r2(cx)} ${r2(ry - roofH)}
+             C${r2(x2 - w * 0.18)} ${r2(ry - roofH * 0.88)} ${r2(x2)} ${r2(ry - roofH * 0.3)} ${r2(x2)} ${r2(ry)}
+             C${r2(x2 - w * 0.18)} ${r2(ry + roofH * 0.26)} ${r2(x1 + w * 0.18)} ${r2(ry + roofH * 0.26)} ${r2(x1)} ${r2(ry)} Z"
+      fill="${c.roof}" stroke="${c.line}" stroke-width="1.1"/>
+    <path d="M${r2(x1)} ${r2(ry)} C${r2(x1 + w * 0.18)} ${r2(ry + roofH * 0.26)} ${r2(x2 - w * 0.18)} ${r2(ry + roofH * 0.26)} ${r2(x2)} ${r2(ry)}"
+      fill="none" stroke="${c.roofHi}" stroke-width="1.1" opacity=".6"/>
+    <path d="M${r2(x1)} ${r2(ry)} C${r2(x1)} ${r2(ry - roofH * 0.3)} ${r2(x1 + w * 0.18)} ${r2(ry - roofH * 0.88)} ${r2(cx)} ${r2(ry - roofH)}"
+      fill="none" stroke="#fff" stroke-width="1" opacity=".28"/>
+    <circle cx="${r2(cx)}" cy="${r2(ry - roofH * 1.12)}" r="2.4" fill="${c.glow}" opacity=".95"/>
+  </g>`;
+}
+
+/* ---------- 石阶 ---------- */
+function artStairs(cx, topY, botY, wTop, wBot, c, n) {
+  n = n || 7;
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    const t = i / n, y0 = topY + (botY - topY) * t, y1 = topY + (botY - topY) * (i + 1) / n;
+    const w0 = wTop + (wBot - wTop) * t, w1 = wTop + (wBot - wTop) * (i + 1) / n;
+    out += `<path d="M${r2(cx - w0 / 2)} ${r2(y0)} L${r2(cx + w0 / 2)} ${r2(y0)} L${r2(cx + w1 / 2)} ${r2(y1)} L${r2(cx - w1 / 2)} ${r2(y1)} Z"
+      fill="${i % 2 ? c.top : c.near}" stroke="${c.line}" stroke-width=".6" opacity="${r2(.95 - t * .18)}"/>`;
+    out += `<path d="M${r2(cx - w0 / 2)} ${r2(y0)} L${r2(cx + w0 / 2)} ${r2(y0)}" stroke="${c.line}" stroke-width=".7" opacity=".35"/>`;
+  }
+  return `<g>${out}</g>`;
+}
+
+/* ---------- 松树 ---------- */
+function artPine(x, y, s, c) {
+  let out = `<rect x="${r2(x - s * 0.05)}" y="${r2(y - s * 0.30)}" width="${r2(s * 0.10)}" height="${r2(s * 0.30)}" fill="#150f0c" opacity=".8"/>`;
+  for (let i = 0; i < 3; i++) {
+    const yy = y - s * 0.30 - i * s * 0.20, ww = s * (0.58 - i * 0.12);
+    out += `<path d="M${r2(x - ww)} ${r2(yy)} L${r2(x)} ${r2(yy - s * 0.34)} L${r2(x + ww)} ${r2(yy)} Z"
+      fill="${c.pine}" stroke="${c.accent}" stroke-width=".8" opacity="${r2(.95 - i * 0.14)}"/>`;
+    out += `<path d="M${r2(x - ww)} ${r2(yy)} L${r2(x)} ${r2(yy - s * 0.34)}" fill="none" stroke="#fff" stroke-width=".7" opacity=".22"/>`;
+  }
+  return `<g>${out}</g>`;
+}
+
+/* ---------- 岩石 ---------- */
+function artRock(x, y, w, h, c) {
+  return `<path d="M${r2(x - w / 2)} ${r2(y)} L${r2(x - w * 0.32)} ${r2(y - h * 0.72)} L${r2(x - w * 0.04)} ${r2(y - h)}
+    L${r2(x + w * 0.28)} ${r2(y - h * 0.78)} L${r2(x + w / 2)} ${r2(y)} Z"
+    fill="${c.deep}" stroke="${c.line}" stroke-width=".8" opacity=".95"/>
+    <path d="M${r2(x - w * 0.32)} ${r2(y - h * 0.72)} L${r2(x - w * 0.04)} ${r2(y - h)} L${r2(x + w * 0.06)} ${r2(y - h * 0.62)}"
+    fill="none" stroke="#fff" stroke-width=".8" opacity=".18"/>`;
+}
+
+/* ---------- 雾带 / 日轮 ---------- */
+function artMist(y, h, u, op) {
+  return `<rect x="-40" y="${r2(y)}" width="1080" height="${r2(h)}" fill="url(#${u}-mist)" opacity="${op}"/>`;
+}
+function artSun(x, y, r, col) {
+  return `<circle cx="${x}" cy="${y}" r="${r * 2.6}" fill="${col}" opacity=".09"/>
+          <circle cx="${x}" cy="${y}" r="${r * 1.6}" fill="${col}" opacity=".13"/>
+          <circle cx="${x}" cy="${y}" r="${r}" fill="${col}" opacity=".40"/>`;
+}
+
+/* ---------- defs ---------- */
+function artDefs(c, u, extra) {
+  let stops = "";
+  for (const s of c.sky) stops += `<stop offset="${s[0]}" stop-color="${s[1]}"/>`;
+  return `<defs>
+    <linearGradient id="${u}-sky" x1="0" y1="0" x2="0" y2="1">${stops}</linearGradient>
+    <linearGradient id="${u}-gnd" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${c.top}"/><stop offset="1" stop-color="${c.deep}"/>
+    </linearGradient>
+    <linearGradient id="${u}-mist" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="${c.mist}" stop-opacity="0"/>
+      <stop offset=".5" stop-color="${c.mist}" stop-opacity=".32"/>
+      <stop offset="1" stop-color="${c.mist}" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="${u}-halo" cx="0.62" cy="0.10" r="0.72">
+      <stop offset="0" stop-color="${c.glow}" stop-opacity=".30"/>
+      <stop offset="1" stop-color="${c.glow}" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="${u}-vig" cx="0.5" cy="0.5" r="0.78">
+      <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".45"/>
+    </radialGradient>
+    ${extra || ""}
+  </defs>`;
+}
+/* ============================================================
+   青云山麓 —— 云海仙山：山门石阶、演武场、后山药圃、山脚集镇
+   ============================================================ */
+function sceneQingyun(c, u) {
+  let s = `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-sky)"/>`;
+  s += artSun(272, 154, 44, c.sun);
+  s += `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-halo)"/>`;
+
+  /* 远山两层，浮在云海之上 */
+  s += artRange([[0,318],[96,206],[186,278],[268,158],[352,262],[438,188],[522,278],[612,198],[700,284],[788,206],[878,282],[966,214],[1000,262]], 470, c.far, .48);
+  s += artMist(246, 108, u, .95);
+  s += artRange([[0,392],[104,296],[206,360],[318,278],[428,370],[540,290],[652,376],[764,296],[876,372],[968,308],[1000,346]], 520, c.mid, .8);
+  s += artMist(326, 100, u, .78);
+
+  /* 山脚集镇：左丘 */
+  s += artMound(140, 604, 210, 108, u, c, 2);
+  /* 主峰台地 */
+  s += artMesa(244, 884, 420, 640, u, c, 4);
+  /* 后山药圃：右丘 */
+  s += artMound(884, 552, 186, 96, u, c, 2);
+
+  /* 山门石阶 + 牌坊 */
+  s += artStairs(404, 422, 566, 52, 150, c, 8);
+  s += artGate(404, 420, 150, 86, c);
+
+  /* 演武场大殿 + 演武坪 */
+  s += `<ellipse cx="628" cy="418" rx="136" ry="20" fill="${c.top}" opacity=".55" stroke="${c.line}" stroke-width=".7"/>`;
+  s += `<ellipse cx="628" cy="418" rx="100" ry="14" fill="none" stroke="${c.line}" stroke-width=".8" opacity=".4"/>`;
+  s += artPavilion(614, 416, 200, c);
+  s += artHouse(722, 418, 92, 40, c, { cols: 2 });
+  for (let i = 0; i < 6; i++) {
+    const x = 548 + i * 32;
+    s += `<line x1="${x}" y1="416" x2="${x}" y2="398" stroke="${c.line}" stroke-width="1.2" opacity=".4"/>`;
+    s += `<circle cx="${x}" cy="396" r="2.4" fill="${c.glow}" opacity=".55"/>`;
+  }
+
+  /* 后山药圃小屋 + 灵草 */
+  s += artHouse(848, 498, 96, 38, c, { cols: 2 });
+  for (let i = 0; i < 9; i++) {
+    const x = 794 + (i % 3) * 46, y = 520 + Math.floor(i / 3) * 22;
+    s += `<circle cx="${x}" cy="${y}" r="3.2" fill="${c.accent}" opacity=".55"/>`;
+    s += `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="${c.accent}" stroke-width=".8" opacity=".25"/>`;
+  }
+
+  /* 山脚集镇：三间屋舍 + 炊烟 */
+  s += artHouse(142, 560, 104, 44, c, { cols: 2 });
+  s += artHouse(216, 588, 70, 30, c, { cols: 1 });
+  s += artHouse(74, 592, 58, 26, c, { cols: 1 });
+  s += `<path d="M152 514 C144 492 160 484 152 462" fill="none" stroke="${c.mist}" stroke-width="2.6" opacity=".3" stroke-linecap="round"/>`;
+
+  /* 松林 */
+  const pines = [[40,604,80],[104,636,66],[190,628,60],[266,640,72],[336,646,62],[500,606,74],[944,588,76],[966,640,66],[26,506,64],[964,528,58],[556,640,64]];
+  for (const p of pines) s += artPine(p[0], p[1], p[2], c);
+
+  /* 仙鹤 */
+  s += `<path d="M226 262 C244 248 260 252 266 262 C274 250 290 248 304 260" fill="none" stroke="#eae3d2" stroke-width="2" opacity=".5" stroke-linecap="round"/>`;
+  s += `<path d="M336 218 C350 206 364 210 370 218 C378 208 392 206 404 216" fill="none" stroke="#eae3d2" stroke-width="1.8" opacity=".38" stroke-linecap="round"/>`;
+
+  /* 云雾 */
+  s += `<ellipse cx="360" cy="472" rx="250" ry="24" fill="${c.mist}" opacity=".13"/>`;
+  s += `<ellipse cx="780" cy="502" rx="200" ry="20" fill="${c.mist}" opacity=".11"/>`;
+  s += artMist(556, 132, u, .92);
+  s += artMist(628, 100, u, .6);
+  s += artRock(70, 570, 104, 52, c);
+  s += artRock(950, 600, 92, 46, c);
+  s += `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-vig)"/>`;
+  return s;
+}
+
+/* ============================================================
+   落霞荒原 —— 血色残阳：荒漠古栈、断刃谷、血池、商盟分舵
+   ============================================================ */
+function sceneLuoxia(c, u) {
+  let s = `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-sky)"/>`;
+  s += artSun(706, 320, 64, c.sun);
+  s += `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-halo)"/>`;
+  s += `<ellipse cx="706" cy="470" rx="430" ry="52" fill="${c.sun}" opacity=".13"/>`;
+  s += `<ellipse cx="706" cy="512" rx="560" ry="40" fill="${c.sun}" opacity=".09"/>`;
+
+  /* 荒原远景 */
+  s += artRange([[0,428],[112,318],[224,396],[336,296],[452,404],[566,314],[678,410],[796,306],[910,402],[1000,334]], 512, c.far, .6);
+  s += artMist(384, 94, u, .7);
+  s += artRange([[0,482],[128,400],[256,466],[392,384],[524,474],[660,398],[796,478],[930,406],[1000,454]], 552, c.mid, .88);
+
+  /* 荒原地面 */
+  s += `<path d="M0 640 L0 548 C170 520 340 506 510 504 C690 502 850 516 1000 544 L1000 640 Z"
+    fill="${c.near}" stroke="${c.line}" stroke-width=".9"/>`;
+  s += `<path d="M0 640 L0 580 C200 558 400 550 600 556 C780 562 900 576 1000 594 L1000 640 Z" fill="${c.deep}" opacity=".85"/>`;
+  for (let i = 0; i < 9; i++) {
+    const x = 40 + i * 112, y = 562 + (i % 3) * 22;
+    s += `<path d="M${x} ${y} C${x + 40} ${y - 8} ${x + 70} ${y + 8} ${x + 110} ${y - 2}" fill="none" stroke="${c.line}" stroke-width=".8" opacity=".14"/>`;
+  }
+  s += artMist(482, 80, u, .78);
+
+  /* 断刃谷：插着巨刃的岩台 */
+  s += artMesa(312, 512, 438, 640, u, c, 4, 40);
+  s += `<g transform="translate(412,428)">
+    <path d="M-5 16 L10 -122 L25 16 L10 38 Z" fill="#c3ccd6" stroke="${c.line}" stroke-width="1"/>
+    <path d="M-5 16 L10 -122 L10 38 Z" fill="#7d8a99" opacity=".7"/>
+    <path d="M10 -122 L25 16" fill="none" stroke="#fff" stroke-width="1.8" opacity=".55"/>
+    <rect x="-34" y="16" width="88" height="11" rx="4" fill="#4a3a24" stroke="${c.line}" stroke-width=".9"/>
+    <ellipse cx="10" cy="32" rx="28" ry="6" fill="#000" opacity=".38"/>
+  </g>`;
+  s += `<path d="M348 476 L376 640 M480 486 L452 640" stroke="${c.line}" stroke-width="1" opacity=".16"/>`;
+
+  /* 血池 */
+  s += `<path d="M470 640 C476 594 522 562 626 556 C742 550 792 584 798 640 Z" fill="${c.deep}" stroke="${c.accent}" stroke-width="1" opacity=".9"/>`;
+  s += `<ellipse cx="628" cy="590" rx="150" ry="46" fill="#3d1219" stroke="${c.accent}" stroke-width="1.2"/>`;
+  s += `<ellipse cx="628" cy="588" rx="120" ry="31" fill="${c.accent}" opacity=".62"/>`;
+  s += `<ellipse cx="606" cy="582" rx="56" ry="13" fill="#ff9b84" opacity=".28"/>`;
+  s += `<path d="M700 572 C746 556 792 564 818 588" fill="none" stroke="#ff9b84" stroke-width="1.6" opacity=".3"/>`;
+  s += `<path d="M488 586 C502 550 530 528 572 520 L578 546 C546 552 524 566 518 592 Z" fill="${c.mid}" stroke="${c.line}" stroke-width=".8"/>`;
+
+  /* 商盟分舵：高台 + 屋舍 + 帐篷 + 商旗 */
+  s += artMesa(800, 1040, 428, 640, u, c, 3, 46);
+  s += `<path d="M788 468 L1004 452" stroke="${c.roofHi}" stroke-width="1.6" opacity=".45"/>`;
+  s += artPavilion(878, 424, 152, c);
+  s += `<g>
+    <path d="M792 490 L870 490 L846 450 L818 450 Z" fill="${c.stoneDim}" stroke="${c.line}" stroke-width=".9"/>
+    <path d="M882 494 L956 494 L934 456 L906 456 Z" fill="${c.stoneDim}" stroke="${c.line}" stroke-width=".9"/>
+    <path d="M818 450 L846 450 L832 434 Z" fill="#000" opacity=".3"/>
+    <path d="M906 456 L934 456 L920 440 Z" fill="#000" opacity=".3"/>
+  </g>`;
+  s += `<line x1="968" y1="420" x2="968" y2="494" stroke="${c.line}" stroke-width="1.6"/>
+        <path d="M968 420 L1010 434 L968 448 Z" fill="${c.accent}" opacity=".9" stroke="${c.line}" stroke-width=".8"/>`;
+  s += `<line x1="798" y1="446" x2="798" y2="504" stroke="${c.line}" stroke-width="1.4"/>
+        <path d="M798 446 L832 456 L798 466 Z" fill="${c.accent}" opacity=".7"/>`;
+
+  /* 荒漠古栈：塌了半边的土屋 + 断墙 */
+  s += artMound(148, 616, 208, 104, u, c, 2);
+  s += artHouse(150, 570, 116, 46, c, { cols: 2 });
+  s += `<path d="M80 532 C118 496 168 506 192 532 L188 546 L84 546 Z" fill="${c.mid}" stroke="${c.line}" stroke-width=".8" opacity=".95"/>`;
+  s += `<path d="M70 574 L92 540 M212 570 L238 536" stroke="${c.line}" stroke-width="1.3" opacity=".4"/>`;
+  s += `<path d="M36 592 C68 574 104 578 124 598" fill="none" stroke="${c.mid}" stroke-width="7" stroke-linecap="round" opacity=".9"/>`;
+  s += `<path d="M258 596 L282 560 M282 560 L306 592" fill="none" stroke="${c.mid}" stroke-width="6" stroke-linecap="round" opacity=".8"/>`;
+
+  /* 枯木 */
+  for (const t of [[62,616,1.05],[268,624,.85],[452,610,.7],[722,624,.95],[560,572,.6],[950,634,.8]]) {
+    const x = t[0], y = t[1], sc = t[2];
+    s += `<g opacity=".9">
+      <path d="M${x} ${y} L${x} ${r2(y - 54 * sc)}" stroke="#3d2a20" stroke-width="${r2(4 * sc)}" stroke-linecap="round"/>
+      <path d="M${x} ${r2(y - 34 * sc)} L${r2(x - 26 * sc)} ${r2(y - 54 * sc)} M${x} ${r2(y - 26 * sc)} L${r2(x + 24 * sc)} ${r2(y - 48 * sc)}"
+        stroke="#3d2a20" stroke-width="${r2(2.4 * sc)}" stroke-linecap="round"/>
+      <path d="M${x} ${r2(y - 46 * sc)} L${r2(x - 14 * sc)} ${r2(y - 62 * sc)}" stroke="#3d2a20" stroke-width="${r2(1.8 * sc)}" stroke-linecap="round"/>
+    </g>`;
+  }
+  s += artMist(596, 100, u, .48);
+  s += artRock(772, 606, 118, 54, c);
+  s += `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-vig)"/>`;
+  return s;
+}
+
+/* ============================================================
+   归墟海 —— 海底遗秘：丹房重地、影阁暗巷、沉船海域
+   ============================================================ */
+function sceneGuixu(c, u) {
+  const rng = artRng(88888);
+  let s = `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-sky)"/>`;
+
+  /* 水面光柱 */
+  for (let i = 0; i < 8; i++) {
+    const x = 40 + i * 128 + rng() * 40, w = 40 + rng() * 56;
+    s += `<path d="M${r2(x)} 0 L${r2(x + w)} 0 L${r2(x + w * 2.3)} 640 L${r2(x - w * 1.1)} 640 Z"
+      fill="${c.mist}" opacity="${r2(.05 + rng() * .07)}"/>`;
+  }
+  /* 水面波纹 */
+  for (let i = 0; i < 5; i++) {
+    const y = 10 + i * 16, ph = rng() * 40;
+    s += `<path d="M0 ${y} C${120 + ph} ${y - 10} ${280 + ph} ${y + 10} ${420 + ph} ${y} C${580 + ph} ${y - 10} ${760 + ph} ${y + 10} ${1000} ${y}"
+      fill="none" stroke="#ffffff" stroke-width="1.6" opacity=".12"/>`;
+  }
+
+  /* 海床 */
+  s += `<path d="M0 640 L0 516 C140 496 300 484 460 486 C640 488 812 502 1000 522 L1000 640 Z"
+    fill="${c.near}" stroke="${c.line}" stroke-width=".9"/>`;
+  s += `<path d="M0 640 L0 570 C180 548 360 542 540 548 C720 554 880 568 1000 584 L1000 640 Z"
+    fill="${c.deep}" opacity=".9"/>`;
+  /* 远处礁体 */
+  s += artRange([[0,508],[88,392],[160,466],[226,418],[306,510]], 522, c.far, .72);
+  s += artRange([[650,490],[736,382],[806,458],[870,412],[964,496],[1010,478]], 518, c.far, .62);
+
+  /* 丹房重地：洞窟 + 丹炉火光 */
+  s += artMound(228, 620, 196, 116, u, c, 3);
+  s += `<path d="M160 640 L176 496 C202 464 262 464 288 496 L304 640 Z" fill="#04121a" opacity=".92"/>`;
+  s += `<ellipse cx="232" cy="558" rx="78" ry="46" fill="${c.glow}" opacity=".19"/>`;
+  s += `<ellipse cx="232" cy="558" rx="44" ry="24" fill="${c.glow}" opacity=".16"/>`;
+  s += `<g>
+    <path d="M196 570 L266 570 L252 616 L210 616 Z" fill="#2d2618" stroke="${c.glow}" stroke-width="1.1"/>
+    <ellipse cx="231" cy="570" rx="35" ry="10" fill="${c.glow}" opacity=".72"/>
+    <path d="M231 562 C217 540 231 526 223 506 M231 562 C246 542 233 526 244 508"
+      stroke="${c.glow}" stroke-width="2.6" fill="none" opacity=".6" stroke-linecap="round"/>
+    <path d="M186 594 L276 594" stroke="${c.line}" stroke-width="1" opacity=".3"/>
+  </g>`;
+  s += artHouse(120, 462, 80, 32, c, { cols: 2 });
+
+  /* 影阁暗巷 */
+  s += artMound(524, 630, 172, 100, u, c, 3);
+  s += `<path d="M472 640 L486 524 L588 518 L602 640 Z" fill="#020a10" opacity=".95"/>`;
+  for (let i = 0; i < 4; i++) {
+    const x = 470 + i * 36, y = 520 + i * 3;
+    s += `<path d="M${r2(x)} ${r2(y)} L${r2(x - 12)} 640" stroke="${c.line}" stroke-width="1" opacity=".17"/>`;
+  }
+  s += `<circle cx="538" cy="556" r="3.4" fill="${c.accent}" opacity=".95"/>`;
+  s += `<ellipse cx="538" cy="564" rx="46" ry="11" fill="${c.accent}" opacity=".14"/>`;
+  s += `<path d="M418 508 L452 640 M622 516 L596 640" stroke="${c.line}" stroke-width="1" opacity=".18"/>`;
+
+  /* 沉船海域 */
+  s += artMound(862, 604, 208, 112, u, c, 3);
+  s += `<g transform="translate(856,512) rotate(-10)">
+    <path d="M-140 0 C-78 -42 78 -48 144 -8 L168 32 C88 10 -78 14 -164 36 Z"
+      fill="#2a1d15" stroke="${c.line}" stroke-width="1.2"/>
+    <path d="M-140 0 C-78 -42 78 -48 144 -8 L140 12 C74 -24 -78 -20 -144 18 Z" fill="#43301f" opacity=".85"/>
+    <line x1="-140" y1="0" x2="-164" y2="36" stroke="${c.line}" stroke-width="1" opacity=".5"/>
+    <line x1="10" y1="-36" x2="10" y2="-178" stroke="${c.line}" stroke-width="2.6"/>
+    <line x1="10" y1="-170" x2="-76" y2="-114" stroke="${c.line}" stroke-width="1" opacity=".6"/>
+    <line x1="10" y1="-148" x2="84" y2="-100" stroke="${c.line}" stroke-width="1" opacity=".6"/>
+    <path d="M10 -164 L-76 -114 L10 -100 Z" fill="${c.mist}" opacity=".3" stroke="${c.line}" stroke-width=".8"/>
+    <path d="M10 -148 L84 -100 L10 -84 Z" fill="${c.mist}" opacity=".24" stroke="${c.line}" stroke-width=".8"/>
+    <circle cx="10" cy="-178" r="4" fill="${c.glow}" opacity=".8"/>
+  </g>`;
+  s += `<path d="M752 604 C792 580 844 576 882 592" fill="none" stroke="#241a14" stroke-width="7" stroke-linecap="round" opacity=".6"/>`;
+
+  /* 珊瑚与海草 */
+  for (let i = 0; i < 22; i++) {
+    const x = 30 + rng() * 950, y = 556 + rng() * 74, h = 24 + rng() * 54;
+    s += `<path d="M${r2(x)} ${r2(y)} C${r2(x - 12)} ${r2(y - h * .7)} ${r2(x + 14)} ${r2(y - h)} ${r2(x + 4)} ${r2(y - h * 1.35)}"
+      fill="none" stroke="${c.accent}" stroke-width="${r2(1.4 + rng() * 1.2)}" opacity="${r2(.2 + rng() * .3)}" stroke-linecap="round"/>`;
+  }
+  for (let i = 0; i < 8; i++) {
+    const x = 60 + rng() * 900, y = 572 + rng() * 62, r = 10 + rng() * 18;
+    s += `<path d="M${r2(x)} ${r2(y)} C${r2(x - r)} ${r2(y - r * .8)} ${r2(x - r * 1.1)} ${r2(y - r * 1.6)} ${r2(x)} ${r2(y - r * 1.9)}
+      C${r2(x + r * 1.1)} ${r2(y - r * 1.6)} ${r2(x + r)} ${r2(y - r * .8)} ${r2(x)} ${r2(y)} Z"
+      fill="${c.accent}" opacity="${r2(.14 + rng() * .16)}"/>`;
+  }
+
+  /* 鱼群与气泡 */
+  for (let i = 0; i < 18; i++) {
+    const x = rng() * 1000, y = 110 + rng() * 400, sc = .6 + rng() * .9;
+    s += `<g transform="translate(${r2(x)},${r2(y)}) scale(${r2(sc)})" opacity="${r2(.25 + rng() * .32)}">
+      <path d="M-12 0 C-4 -7 6 -7 12 0 C6 7 -4 7 -12 0 Z" fill="${c.mist}"/>
+      <path d="M-12 0 L-19 -6 L-19 6 Z" fill="${c.mist}"/>
+    </g>`;
+  }
+  for (let i = 0; i < 36; i++) {
+    const x = rng() * 1000, y = rng() * 620, r = .9 + rng() * 2.8;
+    s += `<circle cx="${r2(x)}" cy="${r2(y)}" r="${r2(r)}" fill="${c.glow}" opacity="${r2(.1 + rng() * .24)}"/>`;
+  }
+  s += artMist(464, 96, u, .55);
+  s += `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-vig)"/>`;
+  return s;
+}
+
+/* ============================================================
+   天外天 —— 星河浮岛：问道台、星轨回廊
+   ============================================================ */
+function sceneTianwai(c, u) {
+  const rng = artRng(31415);
+  let s = `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-sky)"/>`;
+
+  /* 星云 */
+  s += `<ellipse cx="268" cy="228" rx="330" ry="150" fill="${c.accent}" opacity=".12"/>`;
+  s += `<ellipse cx="792" cy="164" rx="250" ry="118" fill="${c.mist}" opacity=".10"/>`;
+  s += `<ellipse cx="600" cy="300" rx="420" ry="110" fill="#4a6fd0" opacity=".08"/>`;
+
+  /* 星点 */
+  for (let i = 0; i < 200; i++) {
+    const x = rng() * 1000, y = rng() * 570, r = .5 + rng() * 1.8;
+    s += `<circle cx="${r2(x)}" cy="${r2(y)}" r="${r2(r)}" fill="#ffffff" opacity="${r2(.15 + rng() * .6)}"/>`;
+  }
+  /* 星河 */
+  s += `<path d="M0 150 C220 104 420 210 640 168 C800 138 900 190 1000 162" fill="none" stroke="${c.mist}" stroke-width="44" opacity=".10"/>`;
+  s += `<path d="M0 150 C220 104 420 210 640 168 C800 138 900 190 1000 162" fill="none" stroke="#ffffff" stroke-width="1.4" opacity=".2"/>`;
+
+  /* 星座 */
+  s += `<path d="M120 92 L172 66 L226 96 L262 60" fill="none" stroke="${c.accent}" stroke-width="1" opacity=".3"/>`;
+  s += `<path d="M862 96 L904 62 L946 92" fill="none" stroke="${c.accent}" stroke-width="1" opacity=".26"/>`;
+  for (const p of [[120,92],[172,66],[226,96],[262,60],[862,96],[904,62],[946,92]]) {
+    s += `<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="${c.glow}" opacity=".85"/>`;
+  }
+
+  /* 远岛 */
+  s += `<g opacity=".5">
+    <ellipse cx="126" cy="428" rx="72" ry="14" fill="${c.mid}"/>
+    <path d="M54 428 C76 402 176 402 198 428 C160 452 92 452 54 428 Z" fill="${c.near}"/>
+  </g>`;
+  s += `<g opacity=".42">
+    <ellipse cx="920" cy="510" rx="62" ry="12" fill="${c.mid}"/>
+    <path d="M858 510 C878 490 962 490 982 510 C950 530 890 530 858 510 Z" fill="${c.near}"/>
+  </g>`;
+
+  /* 问道台：浮空岛 + 道纹 + 石坊 */
+  s += artIsland(330, 392, 216, 54, 168, u, c);
+  s += `<ellipse cx="330" cy="378" rx="156" ry="36" fill="${c.top}" stroke="${c.line}" stroke-width="1" opacity=".95"/>`;
+  s += `<ellipse cx="330" cy="376" rx="110" ry="25" fill="none" stroke="${c.line}" stroke-width="1.3" opacity=".6"/>`;
+  s += `<ellipse cx="330" cy="374" rx="66" ry="15" fill="none" stroke="${c.accent}" stroke-width="1.3" opacity=".6"/>`;
+  s += `<circle cx="330" cy="374" r="6" fill="${c.glow}" opacity=".95"/>`;
+  s += artGate(330, 370, 112, 64, c);
+  for (let i = 0; i < 5; i++) {
+    const a = i / 5 * Math.PI * 2 - 1.3;
+    s += `<circle cx="${r2(330 + Math.cos(a) * 136)}" cy="${r2(376 + Math.sin(a) * 30)}" r="3.2" fill="${c.glow}" opacity=".7"/>`;
+  }
+
+  /* 星轨回廊 */
+  s += artIsland(706, 380, 196, 48, 152, u, c);
+  s += `<ellipse cx="706" cy="368" rx="144" ry="32" fill="${c.top}" stroke="${c.line}" stroke-width="1" opacity=".95"/>`;
+  for (let i = 0; i < 7; i++) {
+    const t = i / 6, x = 586 + t * 240, y = 350 - Math.sin(t * Math.PI) * 16;
+    s += `<rect x="${r2(x - 4.5)}" y="${r2(y - 42)}" width="9" height="48" rx="2.5" fill="${c.stone}" stroke="${c.line}" stroke-width=".9"/>`;
+    s += `<circle cx="${r2(x)}" cy="${r2(y - 46)}" r="4.6" fill="${c.glow}" opacity=".85"/>`;
+    s += `<circle cx="${r2(x)}" cy="${r2(y - 46)}" r="9" fill="none" stroke="${c.glow}" stroke-width="1" opacity=".3"/>`;
+  }
+  s += `<path d="M586 350 C640 314 772 314 826 350" fill="none" stroke="${c.roofHi}" stroke-width="1.9" opacity=".5"/>`;
+  s += `<ellipse cx="706" cy="330" rx="196" ry="48" fill="none" stroke="${c.accent}" stroke-width="1.3" opacity=".32" stroke-dasharray="7 8" transform="rotate(-6 706 330)"/>`;
+  s += `<ellipse cx="706" cy="330" rx="244" ry="64" fill="none" stroke="${c.accent}" stroke-width="1" opacity=".19" stroke-dasharray="4 11" transform="rotate(-6 706 330)"/>`;
+
+  s += artMist(486, 130, u, .5);
+  s += `<rect width="${MAP_W}" height="${MAP_H}" fill="url(#${u}-vig)"/>`;
+  return s;
+}
+
+/* ============================================================
+   组装
+   ============================================================ */
+const SCENE_FN = { qingyun: sceneQingyun, luoxia: sceneLuoxia, guixu: sceneGuixu, tianwai: sceneTianwai };
+
+function worldMapSVG(regionId) {
+  const c = regionArt(regionId);
+  const u = "wm-" + regionId;
+  const fn = SCENE_FN[regionId];
+  const body = fn ? fn(c, u) : "";
+  return `<svg class="world-map-svg" viewBox="0 0 ${MAP_W} ${MAP_H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    ${artDefs(c, u)}
+    <g transform="translate(12.5,-${MAP_CROP_Y}) scale(.975)">${body}</g>
+  </svg>`;
 }
 
 
@@ -2636,6 +3830,17 @@ const el = {
   daoFeats:    $("#daoFeats"),
   pickModal:   $("#pickModal"),
   pickList:    $("#pickList"),
+  worldRegionTabs: $("#worldRegionTabs"),
+  worldStage:  $("#worldStage"),
+  worldList:   $("#worldList"),
+  storyModal:  $("#storyModal"),
+  storyTitle:  $("#storyTitle"),
+  storyBody:   $("#storyBody"),
+  storyChoices:$("#storyChoices"),
+  storyResult: $("#storyResult"),
+  btnStoryClose:$("#btnStoryClose"),
+  repModal:    $("#repModal"),
+  repList:     $("#repList"),
   codeModal:   $("#codeModal"),
   codeOut:     $("#codeOut"),
   codeIn:      $("#codeIn")
@@ -2924,6 +4129,7 @@ function drawAll(s) {
     case "technique":   drawTech(s); break;
     case "bag":         drawPills(s); break;
     case "secret":      drawSecret(s); break;
+    case "world":       drawWorld(s); break;
     case "achievement": drawAch(s); break;
     case "rank":        drawRank(s); break;
   }
@@ -2936,6 +4142,7 @@ function drawFast(s, dt) {
   drawTop(s);
   if (lastPanel === "cultivate") drawCultivate(s);
   if (lastPanel === "secret")    drawSecret(s);
+  if (lastPanel === "world")     drawWorldFast(s);   // 探索冷却与「可前往」状态要走字
   if (lastPanel === "achievement") drawPartner(s);   // 双修冷却要走字
   if (lastPanel === "rank") {                        // 榜单状态约 2 次/秒
     rankAcc += dt;
@@ -3282,6 +4489,223 @@ function drawRank(s) {
 
 /* 后端已内置（见 leaderboard.js 的 LB_BUILTIN_GH），此页不再需要设置界面。 */
 
+/* ============================================================
+   寰宇：地界 → 地点 → 剧情
+   ============================================================ */
+let worldRegion = null;     // 当前查看的地界（运行时状态，不进存档）
+let storyCurrent = null;    // 正在展示的剧情 { nodeId, ev }
+
+/* 每个地点的热区文案：图标 + 状态类 */
+function spotInfo(s, node) {
+  const unlocked = worldNodeUnlocked(s, node);
+  if (!unlocked) return { cls:"locked", icon:"🔒", title:"需 " + REALMS[node.unlockRealm].label };
+
+  const ev = worldNextEvent(s, node);
+  if (ev) return { cls:"ready", icon:"✦", title:"前往「" + node.name + "」" };
+
+  if (node.explore) {
+    const left = worldCdLeft(s, node);
+    if (left <= 0) return { cls:"ready", icon:"✦", title:"探索「" + node.name + "」" };
+    return { cls:"cd", icon:"◌", title:"「" + node.name + "」冷却中 " + fmtTime(left) };
+  }
+  return { cls:"done", icon:"○", title: node.doneText || "此处已无新的见闻。" };
+}
+
+/* 场景地图：把该地界的地点画成可点的热区 */
+function drawWorldMap(s, reg) {
+  if (!el.worldStage) return;
+  const spot = typeof worldMapSpot === "function" ? worldMapSpot : function(){ return null; };
+  const svg = typeof worldMapSVG === "function" ? worldMapSVG(reg.id) : "";
+  let hot = "";
+  for (const id of reg.nodes) {
+    const node = worldNodeOf(id);
+    const p = spot(reg.id, id);
+    if (!node || !p) continue;
+    const info = spotInfo(s, node);
+    hot += '<button class="world-spot ' + info.cls + '" data-spot="' + node.id + '"' +
+      ' style="left:' + (p[0] / 10) + '%;top:' + (p[1] / 6.4) + '%"' +
+      ' title="' + info.title + '" aria-label="' + info.title + '">' +
+      '<span class="spot-dot">' + info.icon + "</span>" +
+      '<span class="spot-name">' + node.name + "</span>" +
+      "</button>";
+  }
+  /* 地图只在 SVG 变化时重建，避免每帧重排 */
+  if (el.worldStage.dataset.region !== reg.id || !el.worldStage.querySelector(".world-map-svg")) {
+    el.worldStage.dataset.region = reg.id;
+    el.worldStage.innerHTML = svg + '<div class="world-spots"></div>' +
+      '<p class="world-stage-cap"></p>';
+  }
+  const spots = el.worldStage.querySelector(".world-spots");
+  if (spots) spots.innerHTML = hot;
+  const cap = el.worldStage.querySelector(".world-stage-cap");
+  if (cap) cap.textContent = reg.desc;
+}
+
+function drawWorld(s) {
+  if (!el.worldList) return;
+
+  /* 地界页签：未解锁的置灰但仍可见，让玩家知道后面还有什么 */
+  const okRegions = WORLD_REGIONS;
+  if (!worldRegion || !WORLD_REGIONS.some(r => r.id === worldRegion)) {
+    const first = WORLD_REGIONS.find(r => worldRegionUnlocked(s, r)) || WORLD_REGIONS[0];
+    worldRegion = first.id;
+  }
+  el.worldRegionTabs.innerHTML = okRegions.map(r => {
+    const ok = worldRegionUnlocked(s, r);
+    return '<div class="world-region' + (r.id === worldRegion ? " on" : "") + (ok ? "" : " locked") +
+      '" data-region="' + r.id + '">' + r.name + (ok ? "" : " 🔒") + "</div>";
+  }).join("");
+
+  const reg = worldRegionOf(worldRegion);
+  if (!reg) { el.worldList.innerHTML = ""; return; }
+
+  if (!worldRegionUnlocked(s, reg)) {
+    if (el.worldStage) el.worldStage.innerHTML = "";
+    delete el.worldStage.dataset.region;
+    el.worldList.innerHTML = '<div class="world-desc">此地需「' +
+      REALMS[reg.unlockRealm].label + '」方可踏入。</div>';
+    return;
+  }
+
+  drawWorldMap(s, reg);
+
+  const nodes = reg.nodes.map(worldNodeOf).filter(Boolean);
+  el.worldList.innerHTML = nodes.map(node => {
+      const unlocked = worldNodeUnlocked(s, node);
+      if (!unlocked) {
+        return '<div class="world-item locked">' +
+          '<div class="world-head"><span class="world-name">' + node.name + "</span></div>" +
+          '<div class="world-meta">需 ' + REALMS[node.unlockRealm].label + "</div></div>";
+      }
+
+      const fac = node.faction ? WORLD_FACTIONS[node.faction] : null;
+      const facTag = fac
+        ? '<span class="world-fac" style="color:' + fac.color + '">' + fac.name + "</span>"
+        : '<span class="world-fac" style="color:rgba(234,227,210,.4)">无主</span>';
+
+      const ev = worldNextEvent(s, node);
+      const cnt = (worldState(s).counts[node.id] || 0);
+      const reps = fac ? " · 声望 " + worldRepOf(s, node.faction) : "";
+
+      /* 有剧情待触发 → 显著的剧情按钮 */
+      if (ev) {
+        return '<div class="world-item story">' +
+          '<div class="world-head"><span class="world-name">' + node.name + "</span>" + facTag + "</div>" +
+          '<div class="world-meta">' + (ev.title || "机缘") + reps + "</div>" +
+          '<button class="world-btn story" data-node="' + node.id + '">前 往</button>' +
+        "</div>";
+      }
+
+      /* 探索型地点 */
+      if (node.explore) {
+        const left = worldCdLeft(s, node);
+        const ready = left <= 0;
+        const reward = "灵石 " + fmtInt(node.stone[0]) + "~" + fmtInt(node.stone[1]);
+        return '<div class="world-item">' +
+          '<div class="world-head"><span class="world-name">' + node.name + "</span>" + facTag + "</div>" +
+          '<div class="world-meta">' + reward + " · 已探 " + cnt + " 次" + reps + "</div>" +
+          '<button class="world-btn" data-explore="' + node.id + '"' + (ready ? "" : " disabled") + ">" +
+            (ready ? "探 索" : fmtTime(left)) + "</button>" +
+        "</div>";
+      }
+
+      /* 剧情走完的纯叙事地点 */
+      return '<div class="world-item">' +
+        '<div class="world-head"><span class="world-name">' + node.name + "</span>" + facTag + "</div>" +
+        '<div class="world-meta flavor">' + (node.doneText || "此处已无新的见闻。") + "</div>" +
+      "</div>";
+    }).join("");
+}
+
+/* 局部刷新：只改状态类与倒计时文字，不重建 DOM（保住 hover / 焦点） */
+function drawWorldFast(s) {
+  if (!el.worldStage) return;
+  el.worldStage.querySelectorAll(".world-spot").forEach(b => {
+    const node = worldNodeOf(b.dataset.spot);
+    if (!node) return;
+    const info = spotInfo(s, node);
+    if (b.dataset.cls === info.cls) return;
+    b.dataset.cls = info.cls;
+    b.className = "world-spot " + info.cls;
+    const dot = b.querySelector(".spot-dot");
+    if (dot) dot.textContent = info.icon;
+    b.title = info.title;
+    b.setAttribute("aria-label", info.title);
+  });
+  if (el.worldList) {
+    el.worldList.querySelectorAll("[data-explore]").forEach(btn => {
+      const node = worldNodeOf(btn.dataset.explore);
+      if (!node) return;
+      const left = worldCdLeft(s, node);
+      const ready = left <= 0;
+      if (btn.disabled === ready) btn.disabled = !ready;
+      const want = ready ? "探 索" : fmtTime(left);
+      if (btn.textContent !== want) btn.textContent = want;
+    });
+  }
+}
+
+/* ---------- 剧情弹窗 ---------- */
+function openStory(s, nodeId) {
+  const node = worldNodeOf(nodeId);
+  if (!node || !el.storyModal) return;
+  const ev = worldNextEvent(s, node);
+  if (!ev) return;
+
+  storyCurrent = { nodeId, ev };
+  setText(el.storyTitle, ev.title || "机 缘");
+  const body = typeof ev.text === "function" ? ev.text(s) : ev.text;
+  el.storyBody.textContent = body || "";
+  el.storyResult.hidden = true;
+  el.storyResult.textContent = "";
+  el.btnStoryClose.hidden = true;
+
+  el.storyChoices.hidden = false;
+  el.storyChoices.innerHTML = (ev.choices || []).map((ch, i) => {
+    if (ch.show && !ch.show(s)) return "";
+    return '<button class="story-choice" data-story="' + i + '">' + ch.label +
+      (ch.hint ? '<span class="hint">' + ch.hint + "</span>" : "") + "</button>";
+  }).join("");
+  el.storyModal.classList.add("show");
+}
+function closeStory() {
+  if (el.storyModal) el.storyModal.classList.remove("show");
+  storyCurrent = null;
+}
+
+/* 展示抉择结果；有后续则由调用方再开一段 */
+function showStoryResult(text) {
+  el.storyChoices.hidden = true;
+  el.storyChoices.innerHTML = "";
+  el.storyResult.hidden = false;
+  el.storyResult.textContent = text || "";
+  el.btnStoryClose.hidden = false;
+}
+
+/* ---------- 声望弹窗 ---------- */
+function openRepModal(s) {
+  if (!el.repModal || !el.repList) return;
+  el.repList.innerHTML = worldRepList(s).map(r => {
+    const v = r.value;
+    /* 中线向两侧展开：|声望| 50 即为满格（对称于「供奉/死敌」两档） */
+    const w = Math.min(50, Math.abs(v));       // 半条轨道 = 100%，故 50 已是满格
+    const neg = v < 0;
+    return '<div class="rep-item">' +
+      '<div class="rep-top">' +
+        '<span class="rep-name" style="color:' + r.info.color + '">' + r.info.name +
+          ' <span style="font-size:11px;color:rgba(234,227,210,.4)">' + r.info.type + "</span></span>" +
+        '<span class="rep-val" style="color:' + (neg ? "#e88a7a" : "var(--jade)") + '">' +
+          (v > 0 ? "+" : "") + v + " · " + repTitle(v) + "</span>" +
+      "</div>" +
+      '<div class="rep-bar"><i class="' + (neg ? "neg" : "") + '" style="width:' + w + "%;" +
+        (neg ? "left:auto;right:50%;" : "") + '"></i></div>' +
+      '<div class="rep-desc">' + r.info.desc + "</div>" +
+    "</div>";
+  }).join("");
+  el.repModal.classList.add("show");
+}
+function closeRepModal() { if (el.repModal) el.repModal.classList.remove("show"); }
+
 
 /* ===== savecode.js ===== */
 /* ============================================================
@@ -3358,7 +4782,9 @@ function encodeSave(s) {
       s: s.partner.seal || "道",
       g: s.partner.stage | 0,
       c: s.partner.code || ""
-    } : null
+    } : null,
+    /* 寰宇：剧情进度 + 势力声望，一起带走 */
+    wd: worldPack(s)
   };
   const json = JSON.stringify(packed);
   return CODE_PREFIX + "." + b64urlEncode(json) + "." + hash32(json);
@@ -3434,6 +4860,10 @@ function decodeSave(code) {
     demons: Math.max(0, (c.st && c.st.dm) | 0),
     demonFails: 0
   };
+
+  /* 寰宇：剧情与声望 */
+  const wd = worldUnpack(c.wd);
+  s.world = wd;
 
   return { ok: true, state: migrate(s) };
 }
@@ -4062,6 +5492,83 @@ function bindEvents() {
 
   /* 换本相 */
   document.getElementById("btnChangeHero").addEventListener("click", () => openPickModal());
+
+  /* ============================================================
+     寰宇：地界切换 / 探索 / 剧情
+     ============================================================ */
+  if (el.worldRegionTabs) {
+    el.worldRegionTabs.addEventListener("click", ev => {
+      const t = ev.target.closest("[data-region]");
+      if (!t) return;
+      const reg = worldRegionOf(t.dataset.region);
+      if (!reg || !worldRegionUnlocked(S, reg)) {
+        if (reg) toast("此地需「" + REALMS[reg.unlockRealm].label + "」方可踏入", "bad");
+        return;
+      }
+      worldRegion = reg.id;
+      drawWorld(S);
+    });
+  }
+
+  /* 场景热区：点建筑即前往（剧情）或探索 */
+  function worldSpotTap(nodeId) {
+    const node = worldNodeOf(nodeId);
+    if (!node) return;
+    if (!worldNodeUnlocked(S, node)) {
+      toast("此地需「" + REALMS[node.unlockRealm].label + "」方可踏入", "bad");
+      return;
+    }
+    if (worldNextEvent(S, node)) { openStory(S, node.id); return; }
+    if (!node.explore) { toast(node.doneText || "此处已无新的见闻。", "good"); return; }
+    const r = worldExplore(S, node);
+    if (!r.ok) {
+      if (r.reason === "cd") toast("尚需 " + fmtTime(r.cd), "bad");
+      else if (r.reason === "locked") toast("境界不足", "bad");
+      return;
+    }
+    if (r.flavor) pushLog(S, r.flavor, false);
+    const parts = ["得灵石 " + fmtInt(r.stones)];
+    if (r.cult > 0) parts.push("修为 +" + fmtInt(r.cult));
+    pushLog(S, "探索「" + node.name + "」：" + parts.join("，") + "。", true);
+    toast(r.flavor || ("探索 " + node.name), "good");
+    drawWorld(S);
+    drawTop(S);
+  }
+
+  if (el.worldStage) {
+    el.worldStage.addEventListener("click", ev => {
+      const b = ev.target.closest("[data-spot]");
+      if (b) worldSpotTap(b.dataset.spot);
+    });
+  }
+
+  if (el.worldList) {
+    el.worldList.addEventListener("click", ev => {
+      const storyBtn = ev.target.closest("[data-node]");
+      const expBtn = ev.target.closest("[data-explore]");
+      const which = storyBtn || expBtn;
+      if (which) worldSpotTap(which.dataset.node || which.dataset.explore);
+    });
+  }
+
+  /* 剧情抉择 */
+  if (el.storyChoices) {
+    el.storyChoices.addEventListener("click", ev => {
+      const b = ev.target.closest("[data-story]");
+      if (!b || !storyCurrent) return;
+      const idx = Number(b.dataset.story);
+      const r = worldPick(S, storyCurrent.nodeId, storyCurrent.ev.id, idx);
+      if (!r.ok) { toast("缘分已尽", "bad"); closeStory(); return; }
+      pushLog(S, "「" + r.event.title + "」" + r.choice.label.replace(/[「」]/g, ""), true);
+      showStoryResult(r.text);
+      drawAll(S);
+      doSave(true);
+    });
+  }
+
+  if (el.btnStoryClose) el.btnStoryClose.addEventListener("click", () => { closeStory(); drawWorld(S); });
+  document.getElementById("btnWorldMap").addEventListener("click", () => openRepModal(S));
+  document.getElementById("btnCloseRep").addEventListener("click", () => closeRepModal());
 
   /* 功法 / 丹药 / 成就 —— 事件委托 */
   document.addEventListener("click", ev => {
