@@ -2791,7 +2791,11 @@ function lbSetMode(m) {
    部署者把配置填在这里，所有玩家打开游戏就能直接看榜、上传，
    不用各自填令牌。留 null 表示「由玩家自己设置」。
    由 lbSetBuiltinGh() 注入。 */
-let LB_BUILTIN_GH = null;
+let LB_BUILTIN_GH = {
+  owner: "secularize1", repo: "my_coding_test",
+  path: "leaderboard.json", branch: "main",
+  token: ""            /* 绝不要在这里写令牌：这个文件是公开的 */
+};
 function lbSetBuiltinGh(cfg) { LB_BUILTIN_GH = cfg || null; }
 
 /* 支持用网址参数直接指定榜单，方便分享给朋友：
@@ -3696,6 +3700,17 @@ function switchTab(name) {
   drawAll(S);
 }
 
+/* 切页签；进仙榜时如果榜单还没拉过，自动拉一次
+   —— 分享链接给朋友，打开就能直接看到榜，不用手动点刷新。 */
+let lbAutoLoaded = false;
+function openTab(name) {
+  switchTab(name);
+  if (name !== "rank" || lbAutoLoaded || !lbReady()) return;
+  lbAutoLoaded = true;
+  lbDrawnKey = "";
+  lbRefresh().then(() => { lbDrawnKey = ""; drawRank(S); });
+}
+
 /* ============================================================
    事件绑定
    ============================================================ */
@@ -3703,12 +3718,12 @@ function bindEvents() {
 
   /* 页签切换 */
   document.querySelectorAll(".tab").forEach(btn => {
-    btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    btn.addEventListener("click", () => openTab(btn.dataset.tab));
   });
 
   /* 允许用网址尾巴直达某页，例如 index.html#secret */
   const hash = (location.hash || "").replace("#", "");
-  if (hash && document.querySelector('.tab[data-tab="' + hash + '"]')) switchTab(hash);
+  if (hash && document.querySelector('.tab[data-tab="' + hash + '"]')) openTab(hash);
 
   /* 打坐 */
   el.btnMeditate.addEventListener("click", () => {
