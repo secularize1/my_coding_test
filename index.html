@@ -176,6 +176,19 @@ body{
   flex-direction:column; gap:7px; transition:.2s; }
 .up-item:hover{ border-color:rgba(217,183,106,.38); }
 .up-item.maxed{ opacity:.7; }
+
+/* 功法图鉴：左侧小图 + 右侧文字 */
+.up-main{ display:flex; align-items:flex-start; gap:10px; flex:1 1 auto; }
+.up-art{ flex:0 0 auto; width:52px; height:52px; border-radius:10px; overflow:hidden;
+  border:1px solid rgba(217,183,106,.2); background:rgba(0,0,0,.3); }
+.up-art svg{ display:block; width:100%; height:100%; }
+.up-body{ flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:5px; }
+.up-bar{ height:3px; border-radius:2px; background:rgba(0,0,0,.45); overflow:hidden; }
+.up-bar i{ display:block; height:100%; background:linear-gradient(90deg,var(--jade-deep),var(--jade));
+  transition:width .25s ease; }
+.up-item.maxed .up-art{ border-color:rgba(217,183,106,.5); }
+.up-item.maxed .up-bar i{ background:linear-gradient(90deg,#8a6f38,var(--gold)); }
+.up-item.maxed .up-art svg{ filter:saturate(.75) brightness(1.05); }
 .up-head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
 .up-name{ font-size:14px; color:var(--paper); letter-spacing:1px; }
 .up-lv{ font-size:11px; color:var(--jade); font-family:system-ui,sans-serif; }
@@ -1028,6 +1041,229 @@ function heroAvatarSVG(kind, ringId, seal, uid) {
   </svg>`;
 }
 
+/* ===== techicon.js ===== */
+/* ============================================================
+   techicon.js —— 功法图鉴
+   每个功法一幅纯 SVG 小图，风格与 avatar.js 一致：
+   墨底、青玉/鎏金描边、可缩放不糊、离线可用。
+   techIconSVG(id, uid) 返回字符串，uid 用于区分渐变 id。
+   ============================================================ */
+
+/* 每个功法的主题色：主色 + 辅色 + 墨底 */
+const TECH_ART = {
+  yinqi:   { main:"#5fbfa0", sub:"#2f7f68", bg:"#0e1a19" },  // 青玉 —— 引气归元
+  jingxin: { main:"#d9b76a", sub:"#a8556f", bg:"#1a1420" },  // 鎏金荷花 —— 静心
+  juqi:    { main:"#8fa8e8", sub:"#5fbfa0", bg:"#111725" },  // 寒青阵纹 —— 聚气
+  tuna:    { main:"#7fd8d0", sub:"#3f7f8f", bg:"#0e1a20" },  // 水色吐纳
+  wuxing:  { main:"#e0c07f", sub:"#c8503f", bg:"#181410" },  // 五行五色
+  lianxin: { main:"#c8503f", sub:"#d9b76a", bg:"#1d1113" },  // 朱砂道心
+  tiandao: { main:"#a98fe8", sub:"#eae3d2", bg:"#120f1e" }   // 紫气天眼
+};
+function techArt(id) { return TECH_ART[id] || TECH_ART.yinqi; }
+
+/* ---------- 1. 引气诀：漩涡引气 ---------- */
+function artYinqi(a) {
+  let dots = "";
+  const pts = [[50,12],[54,20],[12,42],[16,50],[52,52],[46,56],[10,22],[56,34]];
+  for (let i = 0; i < pts.length; i++) {
+    const [x, y] = pts[i];
+    dots += `<circle cx="${x}" cy="${y}" r="${1.5 + (i % 3) * 0.5}" fill="${a.main}" opacity="${0.35 + (i % 4) * 0.15}"/>`;
+  }
+  return `
+    <circle cx="32" cy="32" r="22" fill="url(#tglow)" opacity=".85"/>
+    <g fill="none" stroke-linecap="round">
+      <path d="M32,32 C32,24 39,20 45,24 C52,28 52,40 43,45 C33,51 20,45 17,33
+               C14,20 24,11 37,11" stroke="${a.main}" stroke-width="2.6" opacity=".95"/>
+      <path d="M32,32 C30,27 34,24 38,26 C43,29 43,36 37,39 C30,42 24,38 24,32"
+            stroke="${a.sub}" stroke-width="2" opacity=".9"/>
+    </g>
+    <circle cx="32" cy="32" r="4.2" fill="${a.main}"/>
+    <circle cx="32" cy="32" r="7.5" fill="none" stroke="${a.main}" stroke-width="1" opacity=".5"/>
+    ${dots}`;
+}
+
+/* ---------- 2. 静心咒：莲花吐露 ---------- */
+function artJingxin(a) {
+  let petals = "";
+  for (let i = -1; i <= 1; i++) {
+    const rot = i * 34;
+    petals += `<path d="M32,44 C32,32 26,22 32,12 C38,22 32,32 32,44 Z" fill="url(#tpetal)" 
+      transform="rotate(${rot} 32 44)" opacity="${i === 0 ? 1 : 0.75}"/>`;
+  }
+  let outer = "";
+  for (let i = 0; i < 2; i++) {
+    const rot = i === 0 ? -58 : 58;
+    outer += `<path d="M32,44 C32,36 28,29 32,21 C36,29 32,36 32,44 Z" fill="${a.sub}"
+      transform="rotate(${rot} 32 44)" opacity=".6"/>`;
+  }
+  return `
+    <circle cx="32" cy="30" r="22" fill="url(#tglow)" opacity=".8"/>
+    ${outer}${petals}
+    <circle cx="32" cy="38" r="3" fill="${a.main}"/>
+    <ellipse cx="32" cy="52" rx="20" ry="4.5" fill="none" stroke="${a.main}" stroke-width="1.3" opacity=".55"/>
+    <path d="M16,57 C24,53 40,53 48,57" fill="none" stroke="${a.main}" stroke-width="1" opacity=".3"/>
+    <circle cx="32" cy="6" r="1.6" fill="${a.main}" opacity=".8"/>`;
+}
+
+/* ---------- 3. 聚气阵：阵盘方城 ---------- */
+function artJuqi(a) {
+  let runes = "";
+  for (let i = 0; i < 12; i++) {
+    const ang = (i / 12) * Math.PI * 2;
+    const r1 = 25, r2 = 28.5;
+    runes += `<line x1="${(32 + Math.cos(ang) * r1).toFixed(1)}" y1="${(32 + Math.sin(ang) * r1).toFixed(1)}"
+      x2="${(32 + Math.cos(ang) * r2).toFixed(1)}" y2="${(32 + Math.sin(ang) * r2).toFixed(1)}"
+      stroke="${a.main}" stroke-width="${i % 3 === 0 ? 2 : 1}" opacity="${i % 3 === 0 ? .9 : .45}"/>`;
+  }
+  /* 天圆地方：外圆内方，四角各一枚阵钉 */
+  let pins = "";
+  for (const [x, y] of [[18,18],[46,18],[18,46],[46,46]]) {
+    pins += `<circle cx="${x}" cy="${y}" r="2.2" fill="${a.sub}" opacity=".85"/>`;
+  }
+  return `
+    <circle cx="32" cy="30" r="23" fill="url(#tglow)" opacity=".85"/>
+    <circle cx="32" cy="30" r="21" fill="none" stroke="${a.main}" stroke-width="1.8" opacity=".8"/>
+    ${runes}
+    <rect x="19" y="17" width="26" height="26" fill="none" stroke="${a.sub}" stroke-width="1.5" opacity=".8" transform="rotate(45 32 30)"/>
+    <rect x="23.5" y="21.5" width="17" height="17" fill="none" stroke="${a.main}" stroke-width="1.2" opacity=".6"/>
+    <path d="M32,13 L36,26 L32,30 L28,26 Z" fill="${a.main}" opacity=".55"/>
+    <path d="M32,47 L28,34 L32,30 L36,34 Z" fill="${a.main}" opacity=".55"/>
+    <path d="M15,30 L28,26 L32,30 L28,34 Z" fill="${a.main}" opacity=".35"/>
+    <path d="M49,30 L36,34 L32,30 L36,26 Z" fill="${a.main}" opacity=".35"/>
+    ${pins}
+    <circle cx="32" cy="30" r="3.6" fill="${a.main}"/>
+    <circle cx="32" cy="30" r="7" fill="none" stroke="${a.main}" stroke-width="1" opacity=".5" stroke-dasharray="3 4"/>`;
+}
+
+/* ---------- 4. 吐纳法：一呼一吸 ---------- */
+function artTuna(a) {
+  return `
+    <circle cx="32" cy="32" r="22" fill="url(#tglow)" opacity=".8"/>
+    <ellipse cx="32" cy="32" rx="14" ry="19" fill="none" stroke="${a.sub}" stroke-width="1.2" opacity=".6"/>
+    <path d="M32,50 C20,50 13,41 13,32 C13,23 20,14 32,14" fill="none"
+          stroke="${a.main}" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M32,50 C44,50 51,41 51,32 C51,23 44,14 32,14" fill="none"
+          stroke="${a.main}" stroke-width="2.4" stroke-linecap="round" opacity=".45"/>
+    <path d="M9,27 L13,32 L9,37 Z" fill="${a.main}"/>
+    <path d="M55,27 L51,32 L55,37 Z" fill="${a.main}" opacity=".45"/>
+    <path d="M26,30 C29,32 35,32 38,30" fill="none" stroke="${a.sub}" stroke-width="1.6" stroke-linecap="round"/>
+    <path d="M26,36 C29,34 35,34 38,36" fill="none" stroke="${a.sub}" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>
+    <circle cx="32" cy="32" r="2.6" fill="${a.main}" opacity=".9"/>
+    <circle cx="32" cy="21" r="1.3" fill="${a.main}" opacity=".7"/>
+    <circle cx="32" cy="43" r="1.3" fill="${a.main}" opacity=".7"/>`;
+}
+
+/* ---------- 5. 五行诀：五色环星 ---------- */
+function artWuxing(a) {
+  const five = [
+    { c: "#e0c07f", n: "金" }, { c: "#5fbfa0", n: "木" }, { c: "#8fa8e8", n: "水" },
+    { c: "#c8503f", n: "火" }, { c: "#c9a06a", n: "土" }
+  ];
+  let star = "", orbs = "";
+  const R = 19;
+  for (let i = 0; i < 5; i++) {
+    const ang = -Math.PI / 2 + (i / 5) * Math.PI * 2;
+    const x = 32 + Math.cos(ang) * R, y = 32 + Math.sin(ang) * R;
+    const ang2 = -Math.PI / 2 + ((i + 2) / 5) * Math.PI * 2;
+    star += `M${x.toFixed(1)},${y.toFixed(1)} L${(32 + Math.cos(ang2) * R).toFixed(1)},${(32 + Math.sin(ang2) * R).toFixed(1)} `;
+    orbs += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.4" fill="${five[i].c}" opacity=".22"/>
+             <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6" fill="${five[i].c}"/>`;
+  }
+  return `
+    <circle cx="32" cy="32" r="23" fill="url(#tglow)" opacity=".8"/>
+    <circle cx="32" cy="32" r="21" fill="none" stroke="${a.main}" stroke-width="1" opacity=".35"/>
+    <path d="${star}" fill="none" stroke="${a.main}" stroke-width="1.6" stroke-linejoin="round" opacity=".85"/>
+    ${orbs}
+    <circle cx="32" cy="32" r="3.4" fill="${a.sub}" opacity=".9"/>
+    <circle cx="32" cy="32" r="6.5" fill="none" stroke="${a.main}" stroke-width="1" opacity=".4"/>`;
+}
+
+/* ---------- 6. 炼心术：朱砂丹心 ---------- */
+function artLianxin(a) {
+  return `
+    <circle cx="32" cy="31" r="23" fill="url(#tglow)" opacity=".9"/>
+    <circle cx="32" cy="31" r="20" fill="none" stroke="${a.main}" stroke-width="0.9" opacity=".28" stroke-dasharray="2 5"/>
+    <g>
+      <path d="M32,47 C32,47 15,38 15,27 C15,20 20,16 25,17 C29,18 32,22 32,22
+               C32,22 35,18 39,17 C44,16 49,20 49,27 C49,38 32,47 32,47 Z"
+            fill="url(#theart)" stroke="${a.sub}" stroke-width="1.4"/>
+      <path d="M32,43 C32,43 19.5,35.5 19.5,27.2 C19.5,22.5 22.6,20 26,20.8
+               C28.6,21.5 30.6,23.6 32,25.4 C33.4,23.6 35.4,21.5 38,20.8
+               C41.4,20 44.5,22.5 44.5,27.2 C44.5,35.5 32,43 32,43 Z"
+            fill="none" stroke="${a.main}" stroke-width="1" opacity=".75"/>
+      <path d="M32,36 C32,36 25,31.6 25,27.4 C25,25.2 26.4,24 28.2,24.4
+               C29.6,24.7 30.8,26 32,27.4 C33.2,26 34.4,24.7 35.8,24.4
+               C37.6,24 39,25.2 39,27.4 C39,31.6 32,36 32,36 Z"
+            fill="${a.main}" opacity=".22"/>
+    </g>
+    <path d="M32,51 L32,58" stroke="${a.main}" stroke-width="1.6" opacity=".6" stroke-linecap="round"/>
+    <path d="M22,58 L42,58" stroke="${a.main}" stroke-width="1.6" opacity=".6" stroke-linecap="round"/>
+    <path d="M32,60 m-4.5,0 a4.5,2.6 0 1,0 9,0 a4.5,2.6 0 1,0 -9,0" fill="none" stroke="${a.sub}" stroke-width="1" opacity=".5"/>
+    <circle cx="32" cy="9" r="1.6" fill="${a.main}" opacity=".75"/>`;
+}
+
+/* ---------- 7. 天道感应：天眼星轨 ---------- */
+function artTiandao(a) {
+  let stars = "";
+  const sp = [[12,14],[52,11],[9,38],[56,44],[20,8],[46,55],[8,26],[57,26],[26,57]];
+  for (let i = 0; i < sp.length; i++) {
+    stars += `<circle cx="${sp[i][0]}" cy="${sp[i][1]}" r="${1 + (i % 3) * 0.45}" fill="${a.sub}" opacity="${0.4 + (i % 3) * 0.2}"/>`;
+  }
+  return `
+    <circle cx="32" cy="32" r="23" fill="url(#tglow)" opacity=".9"/>
+    ${stars}
+    <ellipse cx="32" cy="32" rx="22" ry="8.5" fill="none" stroke="${a.main}" stroke-width="1.4" opacity=".65"/>
+    <ellipse cx="32" cy="32" rx="8.5" ry="22" fill="none" stroke="${a.main}" stroke-width="1.4" opacity=".4"/>
+    <g>
+      <path d="M32,22 C40,22 46,27 48,32 C46,37 40,42 32,42 C24,42 18,37 16,32 C18,27 24,22 32,22 Z"
+            fill="url(#teye)" stroke="${a.main}" stroke-width="1.3" opacity=".95"/>
+      <circle cx="32" cy="32" r="6" fill="#100c1a"/>
+      <circle cx="32" cy="32" r="4.2" fill="${a.main}"/>
+      <circle cx="32" cy="32" r="1.8" fill="#100c1a"/>
+      <circle cx="30" cy="30" r="1" fill="${a.sub}" opacity=".9"/>
+    </g>
+    <circle cx="32" cy="32" r="26" fill="none" stroke="${a.main}" stroke-width="0.9" opacity=".3" stroke-dasharray="1 6"/>`;
+}
+
+const TECH_ART_FN = {
+  yinqi: artYinqi, jingxin: artJingxin, juqi: artJuqi, tuna: artTuna,
+  wuxing: artWuxing, lianxin: artLianxin, tiandao: artTiandao
+};
+
+/* 统一外壳：墨底圆盘 + 边框 + 光晕，再叠加各功法的画面 */
+function techIconSVG(id, uid) {
+  const a = techArt(id);
+  const fn = TECH_ART_FN[id] || artYinqi;
+  const u = uid || id;
+  return `
+  <svg class="tech-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="tglow${u}" cx="50%" cy="42%" r="62%">
+        <stop offset="0%" stop-color="${a.main}" stop-opacity=".30"/>
+        <stop offset="62%" stop-color="${a.main}" stop-opacity=".07"/>
+        <stop offset="100%" stop-color="${a.main}" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="tpetal${u}" x1="0" y1="1" x2="0" y2="0">
+        <stop offset="0%" stop-color="${a.sub}"/>
+        <stop offset="55%" stop-color="${a.main}"/>
+        <stop offset="100%" stop-color="#fff" stop-opacity=".82"/>
+      </linearGradient>
+      <linearGradient id="theart${u}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${a.main}"/>
+        <stop offset="100%" stop-color="${a.sub}"/>
+      </linearGradient>
+      <linearGradient id="teye${u}" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${a.sub}" stop-opacity=".95"/>
+        <stop offset="100%" stop-color="${a.main}" stop-opacity=".55"/>
+      </linearGradient>
+    </defs>
+    <circle cx="32" cy="32" r="31" fill="${a.bg}"/>
+    <circle cx="32" cy="32" r="30.2" fill="none" stroke="${a.main}" stroke-width="1" stroke-opacity=".28"/>
+    ${fn(a).replace(/url\(#t(\w+)\)/g, (m, n) => "url(#t" + n + u + ")")}
+  </svg>`;
+}
+
+
 /* ===== config.js ===== */
 /* ============================================================
    config.js —— 纯数据层
@@ -1083,13 +1319,16 @@ const REALMS = (() => {
      全部收益                        → 最终的独立乘数
      突破成功率 / 失败保留修为        → 特殊项 */
 const TECHNIQUES = [
-  { id:"yinqi",  name:"引气诀",   desc:"吞吐天地灵气的根本法门，自动与打坐收益同增", max:30, costBase:10,   costMult:1.25, gain:0.05, unit:"引气效率" },
-  { id:"jingxin",name:"静心咒",   desc:"心无杂念，打坐一次抵他人三次",               max:30, costBase:18,   costMult:1.28, gain:0.05, unit:"每次打坐" },
-  { id:"juqi",   name:"聚气阵",   desc:"阵纹流转，自动汲取周遭灵气",                 max:25, costBase:45,   costMult:1.30, gain:0.04, unit:"自动灵气" },
-  { id:"tuna",   name:"吐纳法",   desc:"一呼一吸间，灵气自入丹田",                   max:25, costBase:120,  costMult:1.32, gain:0.03, unit:"引气效率" },
-  { id:"wuxing", name:"五行诀",   desc:"理顺五行，突破之时水到渠成",                 max:15, costBase:400,  costMult:1.38, gain:0.012,unit:"突破成功率" },
-  { id:"lianxin",name:"炼心术",   desc:"道心坚固，失败亦不至于伤本",                 max:10, costBase:700,  costMult:1.42, gain:0.02, unit:"失败保留修为" },
-  { id:"tiandao",name:"天道感应", desc:"冥冥之中与天道共鸣，一切收益俱增",           max:10, costBase:3000, costMult:1.50, gain:0.03, unit:"全部收益" }
+  /* gain 是「每层」加成，层数翻倍后单层收益同步减半，
+     所以满级的总额外收益与旧版基本持平（通关节奏不变），
+     但成长曲线被拉长到整局，前期不再一口气点满。 */
+  { id:"yinqi",  name:"引气诀",   desc:"吞吐天地灵气的根本法门，自动与打坐收益同增", max:60, costBase:10,   costMult:1.20, gain:0.029, unit:"引气效率" },
+  { id:"jingxin",name:"静心咒",   desc:"心无杂念，打坐一次抵他人三次",               max:60, costBase:18,   costMult:1.21, gain:0.028, unit:"每次打坐" },
+  { id:"juqi",   name:"聚气阵",   desc:"阵纹流转，自动汲取周遭灵气",                 max:50, costBase:45,   costMult:1.21, gain:0.022, unit:"自动灵气" },
+  { id:"tuna",   name:"吐纳法",   desc:"一呼一吸间，灵气自入丹田",                   max:50, costBase:120,  costMult:1.22, gain:0.017, unit:"引气效率" },
+  { id:"wuxing", name:"五行诀",   desc:"理顺五行，突破之时水到渠成",                 max:30, costBase:400,  costMult:1.23, gain:0.0065,unit:"突破成功率" },
+  { id:"lianxin",name:"炼心术",   desc:"道心坚固，失败亦不至于伤本",                 max:20, costBase:700,  costMult:1.24, gain:0.011, unit:"失败保留修为" },
+  { id:"tiandao",name:"天道感应", desc:"冥冥之中与天道共鸣，一切收益俱增",           max:20, costBase:3000, costMult:1.26, gain:0.018, unit:"全部收益" }
 ];
 
 /* 丹药：由秘境掉落 */
@@ -1119,16 +1358,25 @@ const ACHIEVEMENTS = [
   { id:"click100",name:"勤修不辍", desc:"累计打坐 100 次",      reward:120 },
   { id:"exp10",   name:"初探秘境", desc:"完成 10 次秘境探索",   reward:150 },
   { id:"rich",    name:"家财万贯", desc:"累计获得 10000 灵石",  reward:500 },
-  { id:"tuna",    name:"功法小成", desc:"任意功法达到 10 级",   reward:300 },
+  { id:"tuna",    name:"功法小成", desc:"任意功法达到 20 级",   reward:300 },
   { id:"yuanying",name:"元婴出窍", desc:"踏入元婴期",           reward:6000 },
   { id:"immortal",name:"羽化登仙", desc:"达到仙人境界",         reward:100000 }
 ];
 
 /* 存档 */
 const SAVE_KEY = "xiuxian_save_v1";
-const SAVE_VERSION = 1;
+const SAVE_VERSION = 2;
 const AUTOSAVE_MS = 5000;
 
+
+/* ---------- 旧档换算（SAVE_VERSION 1 → 2） ----------
+   当年功法层数少、每层加成高；现在层数翻倍、单层减半。
+   老玩家按下面的比例把旧等级折算成新等级，保持加成不变，
+   这样更新之后既不会变弱，也不会因为「等级没满」而困惑。 */
+const LEGACY_TECH_SCALE = {
+  yinqi:0.050/0.029, jingxin:0.050/0.028, juqi:0.040/0.022, tuna:0.030/0.017,
+  wuxing:0.012/0.0065, lianxin:0.020/0.011, tiandao:0.030/0.018
+};
 
 /* ---------- 道牌：头像纹样与道印 ---------- */
 const AVATAR_RINGS = [
@@ -1264,14 +1512,28 @@ function defaultState() {
   };
 }
 
+/* 老档功法等级折算：v1 的等级 × 换算比 → v2 等级（封顶） */
+function scaleLegacyTechs(techs) {
+  const out = {};
+  if (!techs || typeof techs !== "object") return out;
+  for (const t of TECHNIQUES) {
+    const lv = Math.floor(Number(techs[t.id]) || 0);
+    if (lv <= 0) continue;
+    const k = LEGACY_TECH_SCALE[t.id] || 1;
+    out[t.id] = Math.max(1, Math.min(t.max, Math.round(lv * k)));
+  }
+  return out;
+}
+
 /* 补齐字段：老存档缺的键用默认值补上 */
 function migrate(s) {
+  const fromVersion = Number(s.version) || 1;
   const d = defaultState();
   const out = Object.assign({}, d, s);
   out.stats = Object.assign({}, d.stats, s.stats || {});
   out.explore = Object.assign({}, d.explore, s.explore || {});
   out.explore.counts = (s.explore && s.explore.counts) || {};
-  out.techniques = s.techniques || {};
+  out.techniques = (fromVersion < 2) ? scaleLegacyTechs(s.techniques) : (s.techniques || {});
   out.pills = s.pills || {};
   out.achievements = s.achievements || {};
   out.buffs = Array.isArray(s.buffs) ? s.buffs : [];
@@ -1569,7 +1831,7 @@ const ACH_TEST = {
   click100: s => s.totalClicks >= 100,
   exp10:    s => s.explore.total >= 10,
   rich:     s => s.totalStones >= 10000,
-  tuna:     s => Object.values(s.techniques).some(v => v >= 10)
+  tuna:     s => Object.values(s.techniques).some(v => v >= 20)
 };
 function achDone(s, a) { return !!(ACH_TEST[a.id] && ACH_TEST[a.id](s)); }
 function achClaimed(s, a) { return !!s.achievements[a.id]; }
@@ -1732,13 +1994,20 @@ function drawTech(s) {
     const total = t.gain * lv;
     const isSpecial = (t.unit === "突破成功率" || t.unit === "失败保留修为");
     const totalText = isSpecial ? "+" + pct(total, 1) : "+" + (total * 100).toFixed(0) + "%";
+    const pctLv = Math.round(lv / t.max * 100);
     return [
       '<div class="up-item' + (maxed ? " maxed" : "") + '">',
-        '<div class="up-head">',
-          '<span class="up-name">' + t.name + '</span>',
-          '<span class="up-lv">' + lv + " / " + t.max + "</span>",
+        '<div class="up-main">',
+          '<div class="up-art">' + techIconSVG(t.id, "t" + t.id) + '</div>',
+          '<div class="up-body">',
+            '<div class="up-head">',
+              '<span class="up-name">' + t.name + '</span>',
+              '<span class="up-lv">' + lv + " / " + t.max + "</span>",
+            "</div>",
+            '<div class="up-desc">' + t.desc + "<br>当前 " + t.unit + " " + totalText + "</div>",
+            '<div class="up-bar"><i style="width:' + pctLv + '%"></i></div>',
+          "</div>",
         "</div>",
-        '<div class="up-desc">' + t.desc + "<br>当前 " + t.unit + " " + totalText + "</div>",
         '<div class="up-foot">',
           '<span class="up-cost">' + (maxed ? "已圆满" : "灵石 " + fmtInt(techCost(s, t))) + "</span>",
           '<button class="up-btn" data-buy="' + t.id + '"' + (can ? "" : " disabled") + ">" +
@@ -2320,7 +2589,7 @@ function decodeSave(code) {
 
   /* 还原成完整 state，并做范围校验，防止改档改坏 */
   const s = defaultState();
-  s.version = SAVE_VERSION;
+  s.version = Number(c.v) || 1;
   s.heroKind = HERO_KINDS.indexOf(c.h) >= 0 ? c.h : "male";
   s.realm = Math.max(0, Math.min(REALMS.length - 1, c.r | 0));
   s.cultivation = Math.max(0, Number(c.c) || 0);
