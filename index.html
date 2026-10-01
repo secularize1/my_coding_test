@@ -474,6 +474,20 @@ body{
 #lbModal .modal-card::-webkit-scrollbar{ width:6px; }
 #lbModal .modal-card::-webkit-scrollbar-thumb{ background:rgba(217,183,106,.25); border-radius:3px; }
 .lb-step .lb-link{ color:var(--jade); }
+/* ---------- 仙榜：GitHub 模式表单 ---------- */
+.lb-ghrow{ display:flex; gap:10px; margin-bottom:10px; }
+.lb-ghrow .lb-gh-in{ flex:1; min-width:0; }
+#lbGhFields{ margin-bottom:14px; }
+#lbGhToken{ letter-spacing:0; font-size:12.5px; text-align:left; }
+.lb-ghrow .name-input{ text-align:left; letter-spacing:0; font-size:13px; }
+.lb-ghlink{ margin-top:9px; }
+.lb-ghlink a{ font-size:11.5px; color:var(--jade); text-decoration:none;
+  font-family:system-ui,sans-serif; }
+.lb-ghlink a:hover{ text-decoration:underline; }
+.lb-share{ margin-top:16px; padding-top:14px; border-top:1px solid rgba(217,183,106,.16); }
+.lb-share-tip{ font-size:11px; line-height:1.7; color:rgba(234,227,210,.45);
+  font-family:system-ui,sans-serif; margin-bottom:10px; }
+.lb-import-in{ letter-spacing:0; font-size:12px; text-align:left; margin-top:9px; }
 </style>
 </head>
 <body>
@@ -634,6 +648,7 @@ body{
           <div class="lb-btns">
             <button id="btnLbSetup" class="mini-btn">设置后端</button>
             <button id="btnLbSubmit" class="mini-btn">上传我的进度</button>
+            <button id="btnLbRemove" class="mini-btn danger">从榜单移除</button>
           </div>
         </div>
 
@@ -772,30 +787,63 @@ body{
     <div class="modal-sub">一次性设置，之后所有人共用这一个后端</div>
 
     <div class="lb-tabs lb-be-tabs">
-      <button class="lb-tab on" data-be="cloudflare">Cloudflare（推荐）</button>
-      <button class="lb-tab" data-be="deno">Deno Deploy</button>
+      <button class="lb-tab on" data-be="github">GitHub 仓库（推荐）</button>
+      <button class="lb-tab" data-be="cloudflare">Cloudflare</button>
+      <button class="lb-tab" data-be="deno">Deno</button>
     </div>
     <div id="lbBeTag" class="lb-subtag"></div>
 
     <div id="lbSteps" class="lb-steps"></div>
 
-    <textarea id="lbCode" class="code-area lb-code" readonly spellcheck="false"></textarea>
-    <div class="code-btns">
-      <button id="btnLbCopyCode" class="up-btn">复制后端代码</button>
+    <div id="lbGhFields">
+      <div class="lb-ghrow">
+        <input id="lbGhOwner" class="name-input lb-gh-in" placeholder="GitHub 用户名" spellcheck="false">
+        <input id="lbGhRepo"  class="name-input lb-gh-in" placeholder="仓库名，如 xiuxian" spellcheck="false">
+      </div>
+      <div class="lb-ghrow">
+        <input id="lbGhPath"  class="name-input lb-gh-in" placeholder="文件路径（默认 leaderboard.json）" spellcheck="false">
+        <input id="lbGhBranch" class="name-input lb-gh-in" placeholder="分支（默认 main）" spellcheck="false">
+      </div>
+      <input id="lbGhToken" class="name-input" placeholder="粘贴令牌（只存你自己浏览器里）" spellcheck="false">
+      <div class="lb-ghlink">
+        <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">
+          点这里打开「创建令牌」页面 ↗
+        </a>
+      </div>
     </div>
 
-    <div class="code-label" style="margin-top:14px">后端网址</div>
-    <input id="lbEndpoint" class="name-input" placeholder="https://xxx.workers.dev" spellcheck="false">
+    <div id="lbCodeWrap">
+      <textarea id="lbCode" class="code-area lb-code" readonly spellcheck="false"></textarea>
+      <div class="code-btns">
+        <button id="btnLbCopyCode" class="up-btn">复制后端代码</button>
+      </div>
+      <div class="code-label" style="margin-top:14px">后端网址</div>
+      <input id="lbEndpoint" class="name-input" placeholder="https://xxx.workers.dev" spellcheck="false">
+    </div>
 
     <div class="code-btns">
       <button id="btnLbSave" class="up-btn">保存</button>
       <button id="btnLbTest" class="mini-btn">测试连接</button>
       <button id="btnLbClose" class="mini-btn">关闭</button>
     </div>
-    <div class="modal-hint">网址只存在你自己浏览器里。设好后点「上传我的进度」即可上榜</div>
+    <div class="modal-hint">设置只存在你自己浏览器里。设好后点「上传我的进度」即可上榜</div>
+
+    <div class="lb-share">
+      <div class="code-label">分享给好友（可选）</div>
+      <p class="lb-share-tip">
+        导出这一行「配置码」发给好友，他们粘贴后点导入即可，不用自己申请令牌；
+        也可以把它发给开发者写进游戏文件，这样所有人打开就能直接用。
+      </p>
+      <div class="code-btns">
+        <button id="btnLbExport" class="up-btn">导出配置码</button>
+      </div>
+      <input id="lbImport" class="name-input lb-import-in" placeholder="粘贴好友发来的配置码" spellcheck="false">
+      <div class="code-btns">
+        <button id="btnLbImport" class="mini-btn">导入配置码</button>
+      </div>
+    </div>
   </div>
 </div>
-
 <input type="file" id="importFile" accept=".json" hidden>
 <div id="toast" class="toast"></div>
 
@@ -2165,15 +2213,31 @@ Object.assign(el, {
   lbCode:    $("#lbCode"),
   lbEndpoint:$("#lbEndpoint"),
   lbSteps:   $("#lbSteps"),
-  lbBeTag:   $("#lbBeTag")
+  lbBeTag:   $("#lbBeTag"),
+  lbCodeWrap:$("#lbCodeWrap"),
+  lbGhFields:$("#lbGhFields"),
+  lbGhOwner: $("#lbGhOwner"),
+  lbGhRepo:  $("#lbGhRepo"),
+  lbGhPath:  $("#lbGhPath"),
+  lbGhBranch:$("#lbGhBranch"),
+  lbGhToken: $("#lbGhToken")
 });
 
 function lbStatusText() {
-  if (!lbGetEndpoint()) return { cls:"", txt:"尚未设置后端" };
-  if (lbState.loading)  return { cls:"",    txt:"正在拉取…" };
-  if (lbState.error)    return { cls:"err", txt:"连接异常 · " + lbState.error };
+  const gh = lbGetMode() === "github";
+  if (!lbReady()) return { cls:"", txt:"尚未设置后端" };
+
+  const where = gh
+    ? (function () {
+        const c = lbGhGetConfig();
+        return c.owner + "/" + c.repo + " · " + c.path;
+      })()
+    : lbGetEndpoint();
+
+  if (lbState.loading) return { cls:"", txt:"正在拉取… · " + where };
+  if (lbState.error)   return { cls:"err", txt:"连接异常 · " + where };
   const when = lbState.lastAt ? new Date(lbState.lastAt).toLocaleTimeString("zh-CN", { hour12:false }) : "—";
-  return { cls:"on", txt:"已连接 · 共 " + lbState.list.length + " 位道友 · 更新于 " + when };
+  return { cls:"on", txt:"已连接 · " + where + " · 共 " + lbState.list.length + " 位道友 · 更新于 " + when };
 }
 
 /* 一行的长相 */
@@ -2233,25 +2297,44 @@ function drawRank(s) {
 }
 
 /* ---------- 后端设置弹窗 ---------- */
-let lbBeDraft = "cloudflare";
+let lbBeDraft = "github";
 
 function paintLbBackend() {
   const be = lbBackend(lbBeDraft);
-  if (el.lbCode) el.lbCode.value = be.code;
+  const isGh = be.kind === "github";
+
+  if (el.lbCode)  el.lbCode.value = be.code || "";
+  if (el.lbCodeWrap) el.lbCodeWrap.style.display = isGh ? "none" : "block";
+  if (el.lbGhFields) el.lbGhFields.style.display = isGh ? "block" : "none";
   if (el.lbBeTag) el.lbBeTag.textContent = be.name + " · " + be.tag;
+
   if (el.lbSteps) {
     el.lbSteps.innerHTML = be.steps.map((t, i) =>
       '<div class="lb-step"><b>' + (i + 1) + '</b> ' + escapeHtml(t) + "</div>").join("");
   }
   document.querySelectorAll("[data-be]").forEach(b =>
     b.classList.toggle("on", b.dataset.be === lbBeDraft));
+
   if (el.lbEndpoint) {
     el.lbEndpoint.placeholder = lbBeDraft === "deno" ? "https://xxx.deno.dev" : "https://xxx.workers.dev";
+  }
+
+  /* 回填已保存的 GitHub 设置；没存过就试着从当前网址猜 */
+  if (isGh) {
+    const c = lbGhGetConfig();
+    let guess = null;
+    if (!c.owner && !c.repo) guess = lbGhGuessFromLocation();
+    if (el.lbGhOwner)  el.lbGhOwner.value  = c.owner || (guess ? guess.owner : "");
+    if (el.lbGhRepo)   el.lbGhRepo.value   = c.repo  || (guess ? guess.repo  : "");
+    if (el.lbGhPath)   el.lbGhPath.value   = c.path === "leaderboard.json" ? "" : c.path;
+    if (el.lbGhBranch) el.lbGhBranch.value = c.branch === "main" ? "" : c.branch;
+    if (el.lbGhToken)  el.lbGhToken.value  = c.token;
   }
 }
 
 function openLbModal(s) {
   if (!el.lbModal) return;
+  lbBeDraft = "github";   // 默认走 GitHub：不需域名、国内可连
   el.lbEndpoint.value = lbGetEndpoint();
   paintLbBackend();
   el.lbModal.classList.add("show");
@@ -2506,7 +2589,8 @@ function inviteShareText(s, code) {
 const LB_EP_KEY   = "xiuxian_lb_ep_v1";     // 后端网址（独立存，重开游戏也不丢）
 const LB_ID_KEY   = "xiuxian_lb_id_v1";     // 本机标识，用于「更新我自己的那条」
 const LB_TOP_N    = 50;
-const LB_TIMEOUT  = 12000;
+const LB_TIMEOUT  = 12000;   // JSONP 等待上限
+const LB_FETCH_TIMEOUT = 6000;   // fetch 等待上限（超过就直接转 JSONP）
 
 /* ---------- 榜单设置（存在浏览器里，不占存档） ---------- */
 function lbGetEndpoint() {
@@ -2582,18 +2666,64 @@ function lbJsonp(url, timeoutMs) {
   });
 }
 
-/* 先 fetch，失败再 JSONP；两种都不行才算断网 */
+/* 带超时的 fetch。
+   没有超时是致命的：网络被墙/半死不活时连接会一直挂着，
+   Promise 永远不 resolve 也不 reject，于是既不报错也不走 JSONP 兜底，
+   表现就是「一直转圈」。所以这里必须主动掐断。 */
+function lbFetchTimeout(url, ms) {
+  return new Promise((resolve, reject) => {
+    let ctl = null, timer = null, done = false;
+
+    const finish = (fn, arg) => { if (done) return; done = true; clearTimeout(timer); fn(arg); };
+
+    timer = setTimeout(() => {
+      try { if (ctl) ctl.abort(); } catch (e) {}
+      finish(reject, new Error("timeout"));
+    }, ms);
+
+    try {
+      ctl = new AbortController();
+    } catch (e) {
+      ctl = null;   // 极老浏览器：退化成无超时，靠 JSONP 兜底
+    }
+
+    const opts = { method: "GET", cache: "no-store" };
+    if (ctl) opts.signal = ctl.signal;
+
+    fetch(url, opts).then(
+      res => {
+        if (!res.ok) return finish(reject, new Error("http " + res.status));
+        res.json().then(
+          j => finish(resolve, j),
+          () => finish(reject, new Error("badjson"))
+        );
+      },
+      err => finish(reject, new Error(err && err.name === "AbortError" ? "timeout" : "network"))
+    );
+  });
+}
+
+/* 拉取策略：
+   1) 先 fetch（带超时）—— 正常情况最快
+   2) 再 JSONP —— 跨域被拦时用 script 标签绕开
+   两条都不行，就把「更像原因」的那个错误报上去 */
 function lbRequest(params) {
+  if (lbGetMode() === "github") return lbGhRequest(params);
   const ep = lbGetEndpoint();
   if (!ep) return Promise.reject(new Error("noendpoint"));
   const url = ep + (ep.indexOf("?") >= 0 ? "&" : "?") + lbQ(params);
 
-  return fetch(url, { method: "GET", cache: "no-store" })
-    .then(res => {
-      if (!res.ok) throw new Error("http " + res.status);
-      return res.json();
-    })
-    .catch(() => lbJsonp(url, LB_TIMEOUT));
+  return lbFetchTimeout(url, LB_FETCH_TIMEOUT)
+    .catch(err => {
+      const first = err && err.message ? err.message : "network";
+      /* HTTP 状态码已经说明后端活着，不必再试 JSONP */
+      if (first.indexOf("http ") === 0) throw err;
+      return lbJsonp(url, LB_TIMEOUT).catch(e2 => {
+        /* JSONP 也失败：如果是超时，说明域名整个不通（多半被墙） */
+        const second = e2 && e2.message ? e2.message : "network";
+        throw new Error(second === "timeout" || first === "timeout" ? "timeout" : "network");
+      });
+    });
 }
 
 /* ---------- 上传自己的进度 ---------- */
@@ -2617,9 +2747,321 @@ function lbSubmit(s) {
   return lbRequest(lbBuildPayload(s));
 }
 
+/* 把自己从榜单上撤下来 */
+function lbRemove() {
+  return lbRequest({ action: "remove", syncId: lbGetSyncId() });
+}
+/* ============================================================
+   GitHub 仓库后端（不需要域名）
+   榜单存成仓库里一个 JSON 文件，读写都走 api.github.com。
+   你的游戏本来就托管在 GitHub，这条路你那边能连上。
+   ============================================================ */
+const LB_MODE_KEY = "xiuxian_lb_mode_v1";     // "http" | "github"
+const LB_GH_KEY   = "xiuxian_lb_gh_v1";       // { owner, repo, path, branch, token }
+const LB_GITHUB_TIMEOUT = 12000;
+const LB_MAX_ROWS = 800;
+
+/* 当前用哪种后端。
+   没显式存过时：已经填了网址的（老用户）按网址走，否则默认 GitHub
+   —— GitHub 不需要域名，是更省事的那条路。 */
+function lbGetMode() {
+  try {
+    const m = localStorage.getItem(LB_MODE_KEY);
+    if (m === "github") return "github";
+    if (m === "http")   return "http";
+  } catch (e) {}
+  try { return lbGetEndpoint() ? "http" : "github"; }
+  catch (e) { return "github"; }
+}
+function lbSetMode(m) {
+  try { localStorage.setItem(LB_MODE_KEY, m === "github" ? "github" : "http"); } catch (e) {}
+}
+
+/* ---------- 内置默认后端 ----------
+   部署者把配置填在这里，所有玩家打开游戏就能直接看榜、上传，
+   不用各自填令牌。留 null 表示「由玩家自己设置」。
+   由 lbSetBuiltinGh() 注入。 */
+let LB_BUILTIN_GH = null;
+function lbSetBuiltinGh(cfg) { LB_BUILTIN_GH = cfg || null; }
+
+/* 把当前设置打包成一行文本，便于贴给朋友或写进文件 */
+function lbExportConfig() {
+  let j;
+  if (lbGetMode() === "github") {
+    const c = lbGhGetConfig();
+    j = { m:"github", o:c.owner, r:c.repo, p:c.path, b:c.branch, t:c.token };
+  } else {
+    j = { m:"http", e:lbGetEndpoint() };
+  }
+  const json = JSON.stringify(j);
+  return "WENDAOLB1." + lbB64Enc(json) + "." + lbHashId(json);
+}
+
+/* 读取上面那种一行配置（带杂字、换行都能认） */
+function lbImportConfig(text) {
+  const raw = String(text == null ? "" : text).replace(/[\s\u3000]+/g, "");
+  const at = raw.indexOf("WENDAOLB1");
+  if (at < 0) return { ok:false, reason:"noprefix" };
+  const m = raw.slice(at).match(/^WENDAOLB1\.([A-Za-z0-9_\-+/=]+)\.([0-9a-z]+)/);
+  if (!m) return { ok:false, reason:"format" };
+
+  let j;
+  try { j = JSON.parse(lbB64Dec(m[1])); }
+  catch (e) { return { ok:false, reason:"corrupt" }; }
+  if (lbHashId(JSON.stringify(j)) !== m[2]) return { ok:false, reason:"checksum" };
+  if (!j || typeof j !== "object") return { ok:false, reason:"corrupt" };
+
+  if (j.m === "github") {
+    if (!j.o || !j.r) return { ok:false, reason:"corrupt" };
+    lbGhSetConfig({ owner:j.o, repo:j.r, path:j.p || "leaderboard.json", branch:j.b || "main", token:j.t || "" });
+    lbSetMode("github");
+    return { ok:true, mode:"github", summary:j.o + "/" + j.r };
+  }
+  lbSetEndpoint(j.e || "");
+  lbSetMode("http");
+  return { ok:true, mode:"http", summary:j.e || "(空)" };
+}
+function lbGhGetConfig() {
+  /* 没有本地设置时，回落到文件里内置的默认后端 */
+  const builtin = LB_BUILTIN_GH;
+  let c = null;
+  try { c = JSON.parse(localStorage.getItem(LB_GH_KEY) || "null"); } catch (e) { c = null; }
+  if (!c || typeof c !== "object") c = {};
+  if ((!c || !c.owner) && builtin) c = builtin;
+  return {
+    owner:  String(c.owner  || "").trim(),
+    repo:   String(c.repo   || "").trim(),
+    path:   String(c.path   || "leaderboard.json").trim() || "leaderboard.json",
+    branch: String(c.branch || "main").trim() || "main",
+    token:  String(c.token  || "").trim()
+  };
+}
+function lbGhSetConfig(cfg) {
+  try { localStorage.setItem(LB_GH_KEY, JSON.stringify(cfg)); return true; }
+  catch (e) { return false; }
+}
+function lbGhReady() { const c = lbGhGetConfig(); return !!(c.owner && c.repo && c.token); }
+
+/* 如果游戏正跑在 GitHub Pages 上，直接从网址猜出用户名和仓库名，
+   这样玩家只需要再填一个令牌即可。 */
+function lbGhGuessFromLocation() {
+  try {
+    const host = String(location.hostname || "");
+    const m = host.match(/^([A-Za-z0-9-]+)\.github\.io$/);
+    if (!m) return null;
+    const owner = m[1];
+    const seg = String(location.pathname || "").split("/").filter(Boolean)[0] || "";
+    return { owner: owner, repo: seg || (owner + ".github.io") };
+  } catch (e) { return null; }
+}
+/* 允许直接粘贴仓库网页地址，这里拆出 owner/repo */
+function lbParseOwnerRepo(str) {
+  let t = String(str == null ? "" : str).trim();
+  t = t.replace(/^https?:\/\/github\.com\//i, "").replace(/\.git$/i, "").replace(/^\/+|\/+$/g, "");
+  const parts = t.split("/").filter(Boolean);
+  if (parts.length >= 2) return { owner: parts[0], repo: parts[1] };
+  if (parts.length === 1) return { owner: "", repo: parts[0] };
+  return { owner: "", repo: "" };
+}
+/* 这个后端是否已经配好 */
+function lbReady() {
+  return lbGetMode() === "github" ? lbGhReady() : !!lbGetEndpoint();
+}
+
+/* ---------- UTF-8 安全的 base64（GitHub contents API 要用） ---------- */
+function lbB64Enc(str) {
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function lbB64Dec(b64) {
+  const bin = atob(String(b64).replace(/\s+/g, ""));
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+/* 带超时的原始请求，返回 { status, ok, data } */
+function lbRawFetch(url, options, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    let ctl = null, timer = null, done = false;
+    const finish = (fn, arg) => { if (done) return; done = true; clearTimeout(timer); fn(arg); };
+    timer = setTimeout(() => {
+      try { if (ctl) ctl.abort(); } catch (e) {}
+      finish(reject, new Error("timeout"));
+    }, timeoutMs || LB_GITHUB_TIMEOUT);
+
+    try { ctl = new AbortController(); } catch (e) { ctl = null; }
+    const opts = Object.assign({ cache: "no-store" }, options || {});
+    if (ctl) opts.signal = ctl.signal;
+
+    fetch(url, opts).then(
+      res => res.text().then(
+        txt => {
+          let d = null;
+          try { d = txt ? JSON.parse(txt) : null; } catch (e) {}
+          finish(resolve, { status: res.status, ok: res.ok, data: d });
+        },
+        () => finish(reject, new Error("network"))
+      ),
+      err => finish(reject, new Error(err && err.name === "AbortError" ? "timeout" : "network"))
+    );
+  });
+}
+
+function lbGhHeaders(withBody) {
+  const c = lbGhGetConfig();
+  const h = {
+    "Authorization": "Bearer " + c.token,
+    "Accept": "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+  if (withBody) h["Content-Type"] = "application/json";
+  return h;
+}
+function lbGhUrl() {
+  const c = lbGhGetConfig();
+  const path = c.path.split("/").filter(Boolean).map(encodeURIComponent).join("/");
+  return "https://api.github.com/repos/" + encodeURIComponent(c.owner) + "/" +
+         encodeURIComponent(c.repo) + "/contents/" + path;
+}
+function lbGhMapStatus(r) {
+  if (r.status === 401) throw new Error("token401");
+  if (r.status === 403) throw new Error("token403");
+  if (r.status === 404) throw new Error("repo404");
+  if (!r.ok) throw new Error("http " + r.status);
+}
+
+/* 仓库本身是否可访问（用来区分「仓库不存在」和「文件还没建」） */
+function lbGhCheckRepo() {
+  const c = lbGhGetConfig();
+  const url = "https://api.github.com/repos/" + encodeURIComponent(c.owner) + "/" + encodeURIComponent(c.repo);
+  return lbRawFetch(url, { headers: lbGhHeaders(false) }).then(r => {
+    lbGhMapStatus(r);   // 401/403/404 都会在这里抛出确切原因
+    return true;
+  });
+}
+
+function lbGhRead() {
+  const c = lbGhGetConfig();
+  return lbRawFetch(lbGhUrl() + "?ref=" + encodeURIComponent(c.branch), { headers: lbGhHeaders(false) })
+    .then(r => {
+      /* 404 有两种可能：文件还没建（正常）或仓库/分支写错了（要报错）。
+         所以再查一次仓库，避免把「仓库不存在」误当成「空榜单」。 */
+      if (r.status === 404) {
+        return lbGhCheckRepo().then(() => ({ list: [], sha: null }));
+      }
+      lbGhMapStatus(r);
+      let list = [];
+      try {
+        const txt = (r.data && r.data.content) ? lbB64Dec(r.data.content) : "[]";
+        const j = JSON.parse(txt || "[]");
+        if (Array.isArray(j)) list = j;
+      } catch (e) { list = []; }
+      return { list: list, sha: (r.data && r.data.sha) || null };
+    });
+}
+
+function lbGhWrite(list, sha) {
+  const c = lbGhGetConfig();
+  const body = {
+    message: "leaderboard " + new Date().toISOString(),
+    content: lbB64Enc(JSON.stringify(list)),
+    branch: c.branch
+  };
+  if (sha) body.sha = sha;
+  return lbRawFetch(lbGhUrl(), { method: "PUT", headers: lbGhHeaders(true), body: JSON.stringify(body) })
+    .then(r => {
+      if (r.status === 409) throw new Error("conflict");   // 别人同时改了，重试
+      lbGhMapStatus(r);
+      return true;
+    });
+}
+
+/* 读-改-写；撞车就重试几次（两个玩家同时上传时） */
+function lbGhMutate(mutator) {
+  let attempt = 0;
+  const run = () => lbGhRead().then(res => {
+    const out = mutator(res.list.slice());
+    return lbGhWrite(out.list, res.sha).then(() => out.meta);
+  }).catch(err => {
+    if (err && err.message === "conflict" && attempt < 4) {
+      attempt++;
+      return new Promise(r => setTimeout(r, 300 * attempt)).then(run);
+    }
+    throw err;
+  });
+  return run();
+}
+
+/* ---------- 客户端侧清洗（和后端同一套规则，保证文件干净） ---------- */
+const LB_HERO_IDS = ["male", "female", "beast"];
+const LB_RING_IDS = ["jade", "gold", "cinn", "ice", "moon", "violet"];
+
+function lbClean(v, max) {
+  return String(v == null ? "" : v).replace(/[\u0000-\u001f<>]/g, "").trim().slice(0, max);
+}
+function lbClampInt(v, lo, hi, dft) {
+  const n = parseInt(v, 10);
+  return isNaN(n) ? dft : Math.max(lo, Math.min(hi, n));
+}
+function lbClampNum(v, lo, hi, dft) {
+  const n = parseFloat(v);
+  return isFinite(n) ? Math.max(lo, Math.min(hi, n)) : dft;
+}
+function lbRowOf(payload) {
+  return {
+    hid: lbHashId(String(payload.syncId || "")),
+    name: lbClean(payload.name, 12) || "无名散人",
+    heroKind: LB_HERO_IDS.indexOf(payload.heroKind) >= 0 ? payload.heroKind : "male",
+    ring: LB_RING_IDS.indexOf(payload.ring) >= 0 ? payload.ring : "jade",
+    seal: lbClean(payload.seal, 1) || "道",
+    realm: lbClampInt(payload.realm, 0, REALMS.length - 1, 0),
+    cultivation: lbClampNum(payload.cultivation, 0, 1e30, 0),
+    totalClicks: lbClampInt(payload.totalClicks, 0, 1e12, 0),
+    totalStones: lbClampNum(payload.totalStones, 0, 1e30, 0),
+    clearMs: lbClampNum(payload.clearMs, 0, 1e13, 0),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+/* ---------- GitHub 模式的请求分发 ---------- */
+function lbGhRequest(params) {
+  const action = params && params.action;
+
+  if (action === "list") {
+    return lbGhRead().then(res => ({ ok: true, count: res.list.length, list: res.list }));
+  }
+
+  if (action === "submit") {
+    const row = lbRowOf(params);
+    return lbGhMutate(list => {
+      let at = -1;
+      for (let i = 0; i < list.length; i++) if (list[i].hid === row.hid) { at = i; break; }
+      if (at >= 0) list[at] = row;
+      else {
+        if (list.length >= LB_MAX_ROWS) throw new Error("full");
+        list.push(row);
+      }
+      return { list: list, meta: { ok: true, updated: at >= 0, hid: row.hid } };
+    });
+  }
+
+  if (action === "remove") {
+    const hid = lbHashId(String(params.syncId || ""));
+    return lbGhMutate(list => {
+      const next = list.filter(r => r.hid !== hid);
+      return { list: next, meta: { ok: true, removed: list.length - next.length } };
+    });
+  }
+
+  return Promise.reject(new Error("badaction"));
+}
+
 /* ---------- 拉榜单 ---------- */
 function lbRefresh() {
-  if (!lbGetEndpoint()) {
+  if (!lbReady()) {
     lbState.error = "noendpoint";
     lbState.list = [];
     return Promise.resolve(lbState);
@@ -2715,6 +3157,7 @@ export default {
     let out;
     try {
       if (p.action === 'submit') out = await handleSubmit(env, p);
+      else if (p.action === 'remove') out = await handleRemove(env, p);
       else                       out = await handleList(env);
     } catch (e) {
       out = { ok: false, error: String(e) };
@@ -2774,6 +3217,17 @@ async function handleSubmit(env, p) {
   return { ok: true, updated: at >= 0, hid: row.hid };
 }
 
+async function handleRemove(env, p) {
+  const syncId = str(p.syncId, 40);
+  if (!syncId) return { ok: false, error: '缺少 syncId' };
+  const hid = hashId(syncId);
+  const list = await readBoard(env);
+  const next = list.filter(function (r) { return r.hid !== hid; });
+  if (next.length === list.length) return { ok: false, error: '榜单上没有你' };
+  await writeBoard(env, next);
+  return { ok: true, removed: list.length - next.length };
+}
+
 async function handleList(env) {
   const list = await readBoard(env);
   return { ok: true, count: list.length, list: list };
@@ -2822,6 +3276,7 @@ Deno.serve(async (request) => {
   let out;
   try {
     if (p.action === 'submit') out = await handleSubmit(p);
+    else if (p.action === 'remove') out = await handleRemove(p);
     else                       out = await handleList();
   } catch (e) {
     out = { ok: false, error: String(e) };
@@ -2878,6 +3333,17 @@ async function handleSubmit(p) {
   return { ok: true, updated: at >= 0, hid: row.hid };
 }
 
+async function handleRemove(p) {
+  const syncId = str(p.syncId, 40);
+  if (!syncId) return { ok: false, error: '缺少 syncId' };
+  const hid = hashId(syncId);
+  const list = await readBoard();
+  const next = list.filter(function (r) { return r.hid !== hid; });
+  if (next.length === list.length) return { ok: false, error: '榜单上没有你' };
+  await writeBoard(next);
+  return { ok: true, removed: list.length - next.length };
+}
+
 async function handleList() {
   const list = await readBoard();
   return { ok: true, count: list.length, list: list };
@@ -2897,6 +3363,20 @@ function hashId(s) {
 `;
 
 const LB_BACKENDS = {
+  github: {
+    id: "github",
+    name: "GitHub 仓库",
+    tag: "推荐 · 不用域名 · 你已有账号",
+    kind: "github",
+    code: "",
+    steps: [
+      "点下面的「创建令牌」链接（或手动打开 github.com/settings/personal-access-tokens/new），名字随便填。",
+      "Repository access 选「Only select repositories」，只勾选你放游戏的那个仓库。",
+      "展开 Repository permissions，把「Contents」设为 Read and write，其余都保持 No access。",
+      "点「Generate token」，复制那串以 github_pat_ 开头的令牌（只显示一次）。",
+      "把用户名、仓库名、令牌填到下面，点「保存」。榜单文件由游戏自动创建，不用手动建。"
+    ]
+  },
   cloudflare: {
     id: "cloudflare",
     name: "Cloudflare Worker",
@@ -2908,7 +3388,8 @@ const LB_BACKENDS = {
       "左侧点「计算 → Workers 和 Pages」，新建一个 Worker，起个名字，进「编辑代码」。",
       "把下面这段代码整段粘进去覆盖原内容，先点一次「部署」。",
       "回到该 Worker 的「设置 → 绑定」，添加 KV 命名空间绑定：变量名填 LB，选中刚建的命名空间，保存。",
-      "再点一次「部署」，然后复制 Worker 地址（形如 https://xxx.workers.dev），粘到下面那栏保存。"
+      "再点一次「部署」，然后复制 Worker 地址（形如 https://xxx.workers.dev），粘到下面那栏保存。",
+      "【重要】如果连不上/一直超时：workers.dev 在国内常被 DNS 污染。给这个 Worker 加一个自定义域名即可解决：先把自己域名接入 Cloudflare，再到 Worker 的「设置 → 域和路由 → 添加 → 自定义域」把域名绑上，用新域名填到下面。"
     ]
   },
   deno: {
@@ -2926,8 +3407,8 @@ const LB_BACKENDS = {
   }
 };
 
-const LB_BACKEND_ORDER = ["cloudflare", "deno"];
-function lbBackend(id) { return LB_BACKENDS[id] || LB_BACKENDS.cloudflare; }
+const LB_BACKEND_ORDER = ["github", "cloudflare", "deno"];
+function lbBackend(id) { return LB_BACKENDS[id] || LB_BACKENDS.github; }
 
 /* ===== game.js ===== */
 /* ============================================================
@@ -3457,9 +3938,23 @@ function bindEvents() {
 
   function lbToastErr(err) {
     const m = String(err && err.message ? err.message : err);
-    if (m === "noendpoint") toast("还没设置后端，先点「设置后端」", "bad");
-    else if (m === "timeout") toast("连接超时，稍后再试", "bad");
-    else toast("连不上后端：" + m, "bad");
+    const gh = lbGetMode() === "github";
+    const map = {
+      noendpoint: "还没设置后端，先点「设置后端」",
+      timeout:    gh ? "超时：连不上 api.github.com，检查网络" : "超时：打不开这个网址，换个网络或改用 GitHub 模式",
+      network:    gh ? "连不上 GitHub，检查网络或令牌" : "连不上：网址可能不对，或部署还没生效",
+      badjson:    "后端返回的不是榜单数据，检查代码是否粘贴完整",
+      badaction:  "后端不认识这个操作",
+      full:       "榜单已满（800 条）",
+      repo404:    "找不到仓库或文件：检查用户名、仓库名、分支，以及令牌权限",
+      token401:   "令牌无效或已过期，请重新生成",
+      token403:   "令牌权限不足：Contents 必须设为 Read and write",
+      conflict:   "有人同时在改榜单，稍后再试",
+      nouser:     "请先填 GitHub 用户名和仓库名"
+    };
+    if (map[m]) toast(map[m], "bad");
+    else if (m.indexOf("http ") === 0) toast("后端报错（" + m + "）", "bad");
+    else toast("操作失败：" + m, "bad");
   }
 
   function lbLoad() {
@@ -3472,7 +3967,7 @@ function bindEvents() {
   document.getElementById("btnLbRefresh").addEventListener("click", lbLoad);
 
   document.getElementById("btnLbSubmit").addEventListener("click", () => {
-    if (!lbGetEndpoint()) { toast("请先设置后端", "bad"); openLbModal(S); return; }
+    if (!lbReady()) { toast("请先设置后端", "bad"); openLbModal(S); return; }
     if (!S.daoName) { toast("建议先取个道号，榜上更好认", "bad"); }
     toast("上传中…", "good");
     lbSubmit(S)
@@ -3485,6 +3980,20 @@ function bindEvents() {
       .catch(err => { toast("上传失败：" + String(err.message || err), "bad"); });
   });
 
+  document.getElementById("btnLbRemove").addEventListener("click", () => {
+    if (!lbReady()) { toast("请先设置后端", "bad"); return; }
+    if (!confirm("把自己从仙榜上撤下？重新上传即可再上榜。")) return;
+    lbRemove()
+      .then(r => {
+        if (!r || !r.ok) throw new Error(r && r.error ? r.error : "操作失败");
+        /* 老版本后端不认识 remove，会原样返回榜单，这里必须识别出来 */
+        if (typeof r.removed !== "number") throw new Error("后端不认识这个操作，请重新部署最新后端代码");
+        toast(r.removed > 0 ? "已从榜单移除" : "榜单上本来就没有你", "good");
+        lbLoad();
+      })
+      .catch(lbToastErr);
+  });
+
   document.getElementById("btnLbSetup").addEventListener("click", () => openLbModal(S));
   document.getElementById("btnLbClose").addEventListener("click", closeLbModal);
   lbModalEl.addEventListener("click", ev => { if (ev.target === lbModalEl) closeLbModal(); });
@@ -3493,15 +4002,49 @@ function bindEvents() {
     copyText(el.lbCode.value, "后端代码已复制，粘到部署页面即可");
   });
 
-  /* 切换后端方案（Cloudflare / Deno） */
+  /* 切换后端方案（GitHub / Cloudflare / Deno） */
   document.querySelectorAll("[data-be]").forEach(b => {
     b.addEventListener("click", () => { lbBeDraft = b.dataset.be; paintLbBackend(); });
   });
 
+  /* 从输入框收集 GitHub 设置；校验不过则返回 null */
+  function lbCollectGh() {
+    const raw = (el.lbGhRepo.value || "").trim();
+    let owner = (el.lbGhOwner.value || "").trim();
+    let repo  = raw;
+    /* 允许直接把仓库网页地址粘进「仓库名」那一栏 */
+    if (raw.indexOf("github.com") >= 0 || raw.indexOf("/") >= 0) {
+      const p = lbParseOwnerRepo(raw);
+      if (p.owner) owner = p.owner;
+      if (p.repo)  repo  = p.repo;
+    }
+    owner = lbClean(owner, 60);
+    repo  = lbClean(repo, 100).replace(/\.git$/i, "");
+    const path   = lbClean(el.lbGhPath.value, 120) || "leaderboard.json";
+    const branch = lbClean(el.lbGhBranch.value, 60) || "main";
+    const token  = (el.lbGhToken.value || "").trim();
+    if (!owner || !repo) { toast("请填写 GitHub 用户名和仓库名", "bad"); return null; }
+    return { owner: owner, repo: repo, path: path, branch: branch, token: token };
+  }
+
   document.getElementById("btnLbSave").addEventListener("click", () => {
+    if (lbBeDraft === "github") {
+      const cfg = lbCollectGh();
+      if (!cfg) return;
+      if (!cfg.token) { toast("请填写令牌", "bad"); return; }
+      lbGhSetConfig(cfg);
+      lbSetMode("github");
+      closeLbModal();
+      lbDrawnKey = "";
+      drawRank(S);
+      toast("已保存，正在拉取…", "good");
+      lbLoad();
+      return;
+    }
     const url = (el.lbEndpoint.value || "").trim();
     if (url && !/^https?:\/\//i.test(url)) { toast("网址要以 http(s):// 开头", "bad"); return; }
     lbSetEndpoint(url);
+    lbSetMode("http");
     closeLbModal();
     lbDrawnKey = "";
     drawRank(S);
@@ -3509,15 +4052,58 @@ function bindEvents() {
     else toast("已清空后端设置", "good");
   });
 
+  /* 导出 / 导入配置码（方便把设置分享给好友或写进文件） */
+  document.getElementById("btnLbExport").addEventListener("click", () => {
+    if (!lbReady()) { toast("请先设置好并保存后端", "bad"); return; }
+    const code = lbExportConfig();
+    el.lbImport.value = code;
+    copyText(code, "配置码已复制，发给好友即可");
+  });
+
+  document.getElementById("btnLbImport").addEventListener("click", () => {
+    const raw = el.lbImport.value;
+    if (!raw.trim()) { toast("请先粘贴配置码", "bad"); return; }
+    const r = lbImportConfig(raw);
+    if (!r.ok) {
+      const msg = { noprefix:"没找到配置码，请确认复制完整",
+                    format:"配置码格式不对，可能发断行了",
+                    corrupt:"配置码已损坏",
+                    checksum:"配置码抄错了一处" }[r.reason] || "配置码无效";
+      toast(msg, "bad");
+      return;
+    }
+    closeLbModal();
+    lbDrawnKey = "";
+    drawRank(S);
+    toast("已导入（" + r.summary + "），正在拉取…", "good");
+    lbLoad();
+  });
+
   document.getElementById("btnLbTest").addEventListener("click", () => {
+    if (lbBeDraft === "github") {
+      const cfg = lbCollectGh();
+      if (!cfg) return;
+      if (!cfg.token) { toast("请填写令牌", "bad"); return; }
+      lbGhSetConfig(cfg);
+      lbSetMode("github");
+      toast("测试中…", "good");
+      lbRequest({ action: "list" })
+        .then(r => {
+          if (r && r.ok) toast("连接成功 · 榜单 " + (r.count | 0) + " 条（设置已生效）", "good");
+          else toast("连上了，但返回异常", "bad");
+        })
+        .catch(lbToastErr);
+      return;
+    }
     const url = (el.lbEndpoint.value || "").trim();
     if (!url) { toast("请先填入网址", "bad"); return; }
     lbSetEndpoint(url);
+    lbSetMode("http");
     toast("测试中…", "good");
     lbRequest({ action: "list" })
       .then(r => {
         if (r && r.ok) toast("连接成功 · 榜单 " + (r.count | 0) + " 条", "good");
-        else toast("连上了，但返回异常", "bad");
+        else toast("连上了，但返回异常：" + (r && r.error ? r.error : "未知"), "bad");
       })
       .catch(lbToastErr);
   });
