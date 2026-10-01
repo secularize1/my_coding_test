@@ -408,6 +408,16 @@ body{
 .hero-col .meditate-btn{ width:100%; padding:14px 10px; }
 .hero-col .seal{ font-size:80px; }
 
+/* 境界提升时，形象焕新的一次闪光 */
+.hero-stage.stage-up .hero-svg{ animation:stageUp .62s ease-out; }
+@keyframes stageUp{
+  0%   { filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0)); transform:scale(1); }
+  28%  { filter:brightness(1.7) drop-shadow(0 0 22px rgba(255,240,200,.95)); transform:scale(1.05); }
+  100% { filter:brightness(1) drop-shadow(0 0 0 rgba(255,255,255,0)); transform:scale(1); }
+}
+/* 灵光随境界增强 */
+.hero-stage .hero-aura{ mix-blend-mode:screen; }
+
 /* ---------- 弹窗 ---------- */
 .modal{ position:fixed; inset:0; z-index:60; display:none;
   align-items:center; justify-content:center;
@@ -940,41 +950,308 @@ const HERO_INFO = {
 };
 const HERO_KINDS = ["male", "female", "beast"];
 
-/* ---------- 躯干 ---------- */
-function heroBodyCore(k, robe) {
+/* ---------- 色相偏移：女修在男修衣色基础上偏紫 ---------- */
+function shiftHue(hex, deg) {
+  const m = /^#([0-9a-f]{6})$/i.exec(String(hex));
+  if (!m) return hex;
+  let r = parseInt(m[1].slice(0,2),16)/255, g = parseInt(m[1].slice(2,4),16)/255, b = parseInt(m[1].slice(4,6),16)/255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), d = mx - mn;
+  let h = 0, s = 0, l = (mx + mn) / 2;
+  if (d > 0) {
+    s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    if (mx === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (mx === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
+  }
+  h = (h + deg / 360 + 1) % 1;
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = t => { t = (t + 1) % 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p; };
+  const to = v => ("0" + Math.round(v * 255).toString(16)).slice(-2);
+  return "#" + to(f(h + 1/3)) + to(f(h)) + to(f(h - 1/3));
+}
+
+/* 取某一境界的衣饰配色（女修偏紫） */
+function stagePalette(kind, st) {
+  const p = {
+    outer: st.outer.slice(),
+    inner: st.inner,
+    trim: st.trim, gem: st.gem, aura: st.aura, auraA: st.auraA
+  };
+  if (kind === "female") {
+    p.outer = p.outer.map(c => shiftHue(c, 26));
+    p.inner = shiftHue(p.inner, 14);
+    p.trim  = shiftHue(p.trim, 18);
+  } else if (kind === "beast") {
+    p.outer = p.outer.map(c => shiftHue(c, -14));
+    p.inner = shiftHue(p.inner, -10);
+  }
+  return p;
+}
+
+/* ---------- 头发：分三层画 ----------
+   披发(heroHairBack)  在身体之后、最底层，从肩后垂到腰
+   颅顶(heroHairCap)   拱形盖住头顶，中间镂空露出面部
+   鬓发(heroHairSide)  脸侧两缕细发，盖住脸颊边缘
+   ============================================================ */
+
+/* 墨发三色：底色 / 暗部 / 高光 */
+const HAIR_DARK = "#141a24";
+const HAIR_MID  = "#212b3a";
+const HAIR_HI   = "#3e4d63";
+
+/* 披发：女修长发垂腰；男修束发，只留齐肩短缕 */
+function heroHairBack(k) {
+  const fem = (k === "female");
+  if (fem) {
+    return `
+    <path d="M100,50 C79,50 65,67 63,94 C61,122 55,156 47,184
+             C43,199 44,210 55,206 C68,201 79,172 83,140
+             C86,114 90,100 100,100 C110,100 114,114 117,140
+             C121,172 132,201 145,206 C156,210 157,199 153,184
+             C145,156 139,122 137,94 C135,67 121,50 100,50 Z"
+          fill="${HAIR_DARK}"/>
+    <path d="M71,104 C66,134 59,166 51,190" fill="none" stroke="${HAIR_MID}"
+          stroke-width="8" stroke-linecap="round" opacity=".9"/>
+    <path d="M129,104 C134,134 141,166 149,190" fill="none" stroke="${HAIR_MID}"
+          stroke-width="8" stroke-linecap="round" opacity=".9"/>
+    <path d="M74,108 C69,138 62,168 55,192" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.9" stroke-linecap="round" opacity=".4"/>
+    <path d="M126,108 C131,138 138,168 145,192" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.9" stroke-linecap="round" opacity=".4"/>
+    <path d="M88,104 C84,130 80,158 74,182" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.2" stroke-linecap="round" opacity=".22"/>
+    <path d="M112,104 C116,130 120,158 126,182" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.2" stroke-linecap="round" opacity=".22"/>
+    <path d="M100,52 C88,52 79,60 75,74" fill="none" stroke="${HAIR_HI}"
+          stroke-width="2" stroke-linecap="round" opacity=".28"/>`;
+  }
+  /* 男修：束发，脑后半长，发尾只到肩胛 */
   return `
-    <path d="M100,99 C87,99 77,106 73,119 C65,143 57,173 55,191
-             C54,202 63,208 78,208 L122,208 C137,208 146,202 145,191
-             C143,173 135,143 127,119 C123,106 113,99 100,99 Z"
+    <path d="M100,48 C82,48 69,63 67,88
+             C65,110 63,132 62,146
+             C61,155 67,160 74,156 C85,150 91,131 94,113
+             C96,100 97,92 100,92 C103,92 104,100 106,113
+             C109,131 115,150 126,156 C133,160 139,155 138,146
+             C137,132 135,110 133,88 C131,63 118,48 100,48 Z"
+          fill="${HAIR_DARK}"/>
+    <path d="M74,100 C69,122 65,140 64,152" fill="none" stroke="${HAIR_MID}"
+          stroke-width="6.5" stroke-linecap="round" opacity=".8"/>
+    <path d="M126,100 C131,122 135,140 136,152" fill="none" stroke="${HAIR_MID}"
+          stroke-width="6.5" stroke-linecap="round" opacity=".8"/>
+    <path d="M76,104 C71,126 68,142 67,154" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.6" stroke-linecap="round" opacity=".32"/>
+    <path d="M124,104 C129,126 132,142 133,154" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.6" stroke-linecap="round" opacity=".32"/>
+    <path d="M88,100 C86,120 84,138 82,152" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".2"/>
+    <path d="M112,100 C114,120 116,138 118,152" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".2"/>
+    <path d="M100,50 C90,50 82,57 78,70" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.8" stroke-linecap="round" opacity=".26"/>`;
+}
+/* 颅顶：拱形覆盖头顶，下缘沿发际线收，中间露出面部 */
+function heroHairCap(k) {
+  const fem = (k === "female");
+  const r = fem ? 19 : 19.5;
+  return `
+    <path d="M${100 - r - 2.5},88
+             C${100 - r - 4},56 ${100 - r + 3},42 100,42
+             C${100 + r - 3},42 ${100 + r + 4},56 ${100 + r + 2.5},88
+             C${100 + r},78 ${100 + r - 5},68 ${100 + r - 9},63
+             C${100 + r - 14},57 100,54.5 ${100 - r + 14},57
+             C${100 - r + 9},63 ${100 - r},78 ${100 - r - 2.5},88 Z"
+          fill="${HAIR_DARK}"/>
+    <path d="M${100 - r + 1},60 C${100 - r - 1},70 ${100 - r - 2},78 ${100 - r - 1.5},86"
+          fill="none" stroke="${HAIR_MID}" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
+    <path d="M${100 + r - 1},60 C${100 + r + 1},70 ${100 + r + 2},78 ${100 + r + 1.5},86"
+          fill="none" stroke="${HAIR_MID}" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
+    <path d="M88,47 C93,44.5 100,44 106,46" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.8" stroke-linecap="round" opacity=".4"/>`;
+}
+
+/* 鬓发：自两鬓垂下。女修长发过胸，男修短鬓收在颌线以上 */
+function heroHairSide(k) {
+  const fem = (k === "female");
+  if (fem) {
+    return `
+    <path d="M84.4,62 C78,75 74.6,90 75.2,126
+             C75.4,130.6 80.4,131.4 81.2,124.2
+             C82.4,105 86,80 88.6,64 Z" fill="${HAIR_DARK}"/>
+    <path d="M115.6,62 C122,75 125.4,90 124.8,126
+             C124.6,130.6 119.6,131.4 118.8,124.2
+             C117.6,105 114,80 111.4,64 Z" fill="${HAIR_DARK}"/>
+    <path d="M87.4,66 C83.4,80 81.6,96 82.2,114" fill="none" stroke="${HAIR_DARK}"
+          stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M112.6,66 C116.6,80 118.4,96 117.8,114" fill="none" stroke="${HAIR_DARK}"
+          stroke-width="2.8" stroke-linecap="round"/>
+    <path d="M80.6,74 C77.4,88 76.6,101 77.4,117" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.2" stroke-linecap="round" opacity=".24"/>
+    <path d="M119.4,74 C122.6,88 123.4,101 122.6,117" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.2" stroke-linecap="round" opacity=".24"/>`;
+  }
+  return `
+    <path d="M86,62 C81.6,72 79.8,82 80.4,93.6
+             C80.6,98.2 84.8,98.8 85.4,94.2
+             C86.2,83.6 87.6,72 89.6,63 Z" fill="${HAIR_DARK}"/>
+    <path d="M114,62 C118.4,72 120.2,82 119.6,93.6
+             C119.4,98.2 115.2,98.8 114.6,94.2
+             C113.8,83.6 112.4,72 110.4,63 Z" fill="${HAIR_DARK}"/>
+    <path d="M83.6,71 C81.4,80 80.6,88 81,94" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".26"/>
+    <path d="M116.4,71 C118.6,80 119.4,88 119,94" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".26"/>`;
+}
+
+/* 额前碎发：中分，自发旋向两侧扫出，几缕发须落在额上 */
+function heroHairFront(k) {
+  const fem = (k === "female");
+  const E = fem ? 3 : 0;
+  const wave = (x0, y0, cx, cy, x1, y1, w) =>
+    `<path d="M${x0},${y0} Q${cx},${cy} ${x1},${y1}" fill="none"
+           stroke="${HAIR_DARK}" stroke-width="${w}" stroke-linecap="round"/>`;
+  const thin = (x0, y0, cx, cy, x1, y1, w) =>
+    `<path d="M${x0},${y0} Q${cx},${cy} ${x1},${y1}" fill="none"
+           stroke="${HAIR_HI}" stroke-width="${w}" stroke-linecap="round" opacity=".26"/>`;
+  return `
+    ${wave(100, 54.2, 92.6, 56.6, 87.2, 64.4, 4.2)}
+    ${wave(99.2, 56.2, 90.8, 60.4, 86.4, 71.6 + E, 3.4)}
+    ${wave(97.8, 58, 89.4, 64.6, 87.8, 74.4 + E, 2.2)}
+    ${wave(100, 54.2, 107.4, 56.6, 112.8, 64.4, 4.2)}
+    ${wave(100.8, 56.2, 109.2, 60.4, 113.6, 71.6 + E, 3.4)}
+    ${wave(102.2, 58, 110.6, 64.6, 112.2, 74.4 + E, 2.2)}
+    ${wave(99.6, 53.6, 98.4, 58.4, 98.2, 62.6 + E, 1.5)}
+    ${wave(100.4, 53.6, 101.6, 58.6, 101.9, 63.4 + E, 1.5)}
+    ${thin(93.6, 58.4, 88.4, 63.4, 87.4, 70.4 + E, .9)}
+    ${thin(106.4, 58.4, 111.6, 63.4, 112.6, 70.4 + E, .9)}
+    ${thin(98.6, 57.4, 97.6, 61.4, 97.6, 65.4 + E, .8)}
+    ${thin(101.4, 57.4, 102.4, 61.4, 102.4, 65.4 + E, .8)}
+    ${fem ? wave(94.8, 56.6, 90, 62, 88.4, 68, 1.8) + wave(105.2, 56.6, 110, 62, 111.6, 68, 1.8) : ""}
+  `;
+}
+/* ---------- 躯干：交领右衽 + 外袍 ---------- */
+function heroBodyCore(k, pal) {
+  const o = pal.outer, t = pal.trim;
+  return `
+    <path d="M100,96 C84,96 73,104 69,120 C61,147 54,177 52,197
+             C51,208 61,214 78,214 L122,214 C139,214 149,208 148,197
+             C146,177 139,147 131,120 C127,104 116,96 100,96 Z"
           fill="url(#robe-${k})"/>
-    <path d="M100,108 C93,108 87,114 84,125 C80,146 76,174 74,192
-             C73,199 80,203 90,203 L110,203 C120,203 127,199 126,192
-             C124,174 120,146 116,125 C113,114 107,108 100,108 Z"
-          fill="${robe[0]}" opacity=".40"/>
-    <path d="M84,108 L100,142 L97,146 L80,114 Z" fill="${robe[2]}" opacity=".92"/>
-    <path d="M116,108 L100,142 L103,146 L120,114 Z" fill="${robe[1]}" opacity=".92"/>
-    <path d="M78,154 C89,161 111,161 122,154 L124,166 C111,173 89,173 76,166 Z"
-          fill="${robe[0]}" opacity=".5"/>
+    <path d="M86,100 L100,152 L114,100 C110,98 105,97 100,97 C95,97 90,98 86,100 Z"
+          fill="url(#inner-${k})"/>
+    <path d="M100,152 L114,100 L121,103 L104,157 Z" fill="${o[0]}" opacity=".95"/>
+    <path d="M100,152 L114,100" stroke="${t}" stroke-width="1.7" stroke-linecap="round"/>
+    <path d="M100,152 L86,100" stroke="${t}" stroke-width="1.2" stroke-linecap="round" opacity=".55"/>
   `;
 }
 
+/* ---------- 束带：腰间星饰与垂穗 ---------- */
+function heroSash(idx, pal) {
+  const t = pal.trim, g = pal.gem;
+  if (idx < 1) {
+    return `<path d="M76,152 C89,159 111,159 124,152" fill="none"
+              stroke="${t}" stroke-width="2" opacity=".55"/>`;
+  }
+  let s = `
+    <path d="M74,150 C88,158 112,158 126,150 L128,169 C113,177 87,177 72,169 Z"
+          fill="#0e1219" opacity=".9"/>
+    <path d="M74,150 C88,158 112,158 126,150" fill="none" stroke="${t}" stroke-width="1.5" opacity=".9"/>
+    <path d="M72,169 C87,177 113,177 128,169" fill="none" stroke="${t}" stroke-width="1.1" opacity=".5"/>`;
+  if (idx >= 2) {
+    s += `
+    <path d="M100,157 L102.6,163 L109,163.3 L104,167.4 L105.7,173.6 L100,170.2
+             L94.3,173.6 L96,167.4 L91,163.3 L97.4,163 Z" fill="${g}"/>
+    <path d="M100,175 L100,188" stroke="${t}" stroke-width="1.9" opacity=".8"/>
+    <path d="M100,188 l-2.6,4.5 M100,188 l2.6,4.5" stroke="${t}" stroke-width="1.3" opacity=".7"
+          stroke-linecap="round"/>
+    <circle cx="100" cy="195" r="1.9" fill="${g}" opacity=".85"/>`;
+  }
+  return s;
+}
+
+/* ---------- 衣上纹样：逐档加饰 ---------- */
+function heroOrnaments(idx, pal) {
+  const t = pal.trim, g = pal.gem;
+  let out = "";
+  /* 下摆云纹（注：外袍下沿在 y≈214，纹样贴在其上） */
+  if (idx >= 3) {
+    for (let i = 0; i < 3; i++) {
+      const x = 70 + i * 24;
+      out += `<path d="M${x},200 q6,-8 12,-1 q6,-7 12,1" fill="none" stroke="${t}"
+        stroke-width="1.4" opacity=".55" stroke-linecap="round"/>`;
+    }
+  }
+  /* 星点 */
+  if (idx >= 4) {
+    const pts = [[80,128],[120,128],[88,182],[112,182],[100,118],[70,166],[130,166]];
+    for (let i = 0; i < pts.length; i++) {
+      out += `<circle cx="${pts[i][0]}" cy="${pts[i][1]}" r="${(1 + (i % 2) * 0.6).toFixed(1)}"
+        fill="${t}" opacity="${(0.38 + (i % 3) * 0.18).toFixed(2)}"/>`;
+    }
+  }
+  /* 披帛飘带 */
+  if (idx >= 5) {
+    out += `
+    <path d="M68,124 C56,146 54,176 58,202" fill="none" stroke="${t}" stroke-width="2.8"
+          opacity=".4" stroke-linecap="round"/>
+    <path d="M132,124 C144,146 146,176 142,202" fill="none" stroke="${t}" stroke-width="2.8"
+          opacity=".4" stroke-linecap="round"/>
+    <path d="M68,124 C56,146 54,176 58,202" fill="none" stroke="${g}" stroke-width="1"
+          opacity=".26" stroke-linecap="round"/>
+    <path d="M132,124 C144,146 146,176 142,202" fill="none" stroke="${g}" stroke-width="1"
+          opacity=".26" stroke-linecap="round"/>`;
+  }
+  /* 金线织纹 */
+  if (idx >= 7) {
+    for (let i = 0; i < 4; i++) {
+      const y = 152 + i * 13;
+      out += `<path d="M68,${y} C84,${y + 6} 116,${y + 6} 132,${y}" fill="none"
+        stroke="${t}" stroke-width=".9" opacity=".36"/>`;
+    }
+  }
+  /* 雷纹 */
+  if (idx >= 8) {
+    out += `
+    <path d="M86,110 L92,126 L85,128 L94,145" fill="none" stroke="${t}" stroke-width="1.7"
+          opacity=".8" stroke-linejoin="round"/>
+    <path d="M114,110 L108,126 L115,128 L106,145" fill="none" stroke="${t}" stroke-width="1.7"
+          opacity=".8" stroke-linejoin="round"/>`;
+  }
+  /* 仙光勾边 */
+  if (idx >= 9) {
+    out += `
+    <path d="M100,96 C84,96 73,104 69,120 C61,147 54,177 52,197 C51,208 61,214 78,214
+             L122,214 C139,214 149,208 148,197 C146,177 139,147 131,120 C127,104 116,96 100,96 Z"
+          fill="none" stroke="${t}" stroke-width="1.1" opacity=".45"/>`;
+  }
+  return out;
+}
+
 /* ---------- 广袖 ---------- */
-function heroSleeves(k, robe) {
+function heroSleeves(k, pal) {
+  const inn = pal.inner, t = pal.trim;
   return `
-    <path d="M81,104 C67,116 57,141 53,165 C50,182 61,193 72,190
-             C83,187 87,172 85,156 C83,140 89,122 97,113 Z"
+    <path d="M82,102 C66,116 55,143 51,168 C48,186 60,198 72,194
+             C84,190 88,174 86,157 C84,140 90,120 98,110 Z"
           fill="url(#sleeve-${k})"/>
-    <path d="M119,104 C133,116 143,141 147,165 C150,182 139,193 128,190
-             C117,187 113,172 115,156 C117,140 111,122 103,113 Z"
+    <path d="M118,102 C134,116 145,143 149,168 C152,186 140,198 128,194
+             C116,190 112,174 114,157 C116,140 110,120 102,110 Z"
           fill="url(#sleeve-${k})"/>
-    <path d="M84,110 C74,122 67,141 64,159" fill="none"
-          stroke="rgba(234,227,210,.10)" stroke-width="1.4" stroke-linecap="round"/>
-    <path d="M116,110 C126,122 133,141 136,159" fill="none"
-          stroke="rgba(234,227,210,.10)" stroke-width="1.4" stroke-linecap="round"/>
-    <path d="M55,171 C59,185 71,191 83,188" fill="none"
-          stroke="rgba(234,227,210,.24)" stroke-width="1.5" stroke-linecap="round"/>
-    <path d="M145,171 C141,185 129,191 117,188" fill="none"
-          stroke="rgba(234,227,210,.24)" stroke-width="1.5" stroke-linecap="round"/>
+    <path d="M54,174 C59,188 70,194 82,190" fill="none" stroke="${inn}"
+          stroke-width="2" opacity=".3" stroke-linecap="round"/>
+    <path d="M146,174 C141,188 130,194 118,190" fill="none" stroke="${inn}"
+          stroke-width="2" opacity=".3" stroke-linecap="round"/>
+    <path d="M84,110 C74,124 66,145 63,164" fill="none" stroke="${inn}"
+          stroke-width="1.2" opacity=".16" stroke-linecap="round"/>
+    <path d="M116,110 C126,124 134,145 137,164" fill="none" stroke="${inn}"
+          stroke-width="1.2" opacity=".16" stroke-linecap="round"/>
+    <path d="M55,177 C60,189 71,194 83,191" fill="none" stroke="${t}"
+          stroke-width="1.4" opacity=".45" stroke-linecap="round"/>
+    <path d="M145,177 C140,189 129,194 117,191" fill="none" stroke="${t}"
+          stroke-width="1.4" opacity=".45" stroke-linecap="round"/>
   `;
 }
 
@@ -987,37 +1264,28 @@ function heroHands(k) {
   `;
 }
 
-/* ---------- 男修 ---------- */
+/* ---------- 男修面容与鬓发 ---------- */
 function heroHeadMale() {
   return `
     <rect x="93" y="90" width="14" height="13" rx="5" fill="url(#skin-male)"/>
     <circle cx="100" cy="77" r="18.5" fill="url(#skin-male)"/>
     <path d="M82,78 C80,52 90,43 100,43 C110,43 120,52 118,78
-             C114,62 107,57 100,57 C93,57 86,62 82,78 Z" fill="#151c27"/>
-    <ellipse cx="100" cy="38" rx="9.5" ry="8.5" fill="#151c27"/>
-    <line x1="86" y1="36" x2="114" y2="40" stroke="#d9b76a" stroke-width="2.5" stroke-linecap="round"/>
-    <circle cx="114" cy="40" r="2.7" fill="#d9b76a"/>
+             C114,62 107,57 100,57 C93,57 86,62 82,78 Z" fill="#161b24"/>
     <path d="M88,78 q4.5,3.3 9,0" stroke="#0d1219" stroke-width="2.2" fill="none" stroke-linecap="round"/>
     <path d="M103,78 q4.5,3.3 9,0" stroke="#0d1219" stroke-width="2.2" fill="none" stroke-linecap="round"/>
   `;
 }
 
-/* ---------- 女修 ---------- */
+/* ---------- 女修面容与鬓发 ---------- */
 function heroHeadFemale() {
   return `
-    <path d="M82,80 C81,52 90,43 100,43 C110,43 119,52 118,80 L117,116
-             C116,126 110,130 104,127 L105,102 L95,102 L96,127
-             C90,130 84,126 83,116 Z" fill="#1b2431"/>
     <rect x="93" y="90" width="14" height="13" rx="5" fill="url(#skin-female)"/>
     <circle cx="100" cy="77" r="18" fill="url(#skin-female)"/>
     <path d="M84,77 C84,58 91,50 100,50 C109,50 116,58 116,77
-             C112,64 106,60 100,60 C94,60 88,64 84,77 Z" fill="#1b2431"/>
-    <ellipse cx="100" cy="35" rx="10" ry="9" fill="#1b2431"/>
-    <path d="M91,33 q9,-5.5 18,0" stroke="#d9b76a" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <circle cx="100" cy="28" r="2.9" fill="#d9b76a"/>
+             C112,64 106,60 100,60 C94,60 88,64 84,77 Z" fill="#161b24"/>
     <path d="M88,78 q4.5,3.3 9,0" stroke="#0d1219" stroke-width="2.2" fill="none" stroke-linecap="round"/>
     <path d="M103,78 q4.5,3.3 9,0" stroke="#0d1219" stroke-width="2.2" fill="none" stroke-linecap="round"/>
-    <circle cx="100" cy="65" r="2.2" fill="#c8503f"/>
+    <path d="M100,64.5 l1.8,2.6 l-1.8,2.6 l-1.8,-2.6 Z" fill="#c8503f" opacity=".9"/>
   `;
 }
 
@@ -1067,58 +1335,225 @@ function heroHeadBeast() {
   `;
 }
 
-function heroSVG(kind, uid) {
-  const k = HERO_KINDS.indexOf(kind) >= 0 ? kind : "male";
-  const info = HERO_INFO[k];
-  const c = info.color, robe = info.robe;
+/* ---------- 发饰：高束发髻 + 随境界升级的小冠 ----------
+   发髻中心约 (100,31)；冠只罩髻的上半，髻下沿与鬓角要露出来才像「束发」。 */
+function heroCrown(idx, pal, kind) {
+  const t = pal.trim, g = pal.gem;
+  const fem = (kind === "female");
 
-  const skin = k === "beast"
+  /* 束发：两鬓头发向髻根收拢 */
+  const gather = `
+    <path d="M85,46 C85.6,40 89,36.4 93.6,35" fill="none" stroke="${HAIR_DARK}"
+          stroke-width="6" stroke-linecap="round"/>
+    <path d="M115,46 C114.4,40 111,36.4 106.4,35" fill="none" stroke="${HAIR_DARK}"
+          stroke-width="6" stroke-linecap="round"/>
+    <path d="M86.6,45 C87.2,40.4 90,37.6 93.4,36.4" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".26"/>
+    <path d="M113.4,45 C112.8,40.4 110,37.6 106.6,36.4" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".26"/>`;
+
+  /* 发髻本体 */
+  const bun = `
+    <ellipse cx="100" cy="31" rx="${fem ? 12.4 : 12}" ry="9.6" fill="${HAIR_DARK}"/>
+    <path d="M88.6,30 C89.6,23.6 94.4,21 100,21 C105.6,21 110.4,23.6 111.4,30
+             C108,25.4 104.4,24 100,24 C95.6,24 92,25.4 88.6,30 Z" fill="${HAIR_MID}" opacity=".85"/>
+    <path d="M92.4,24.6 C95.6,22.2 104.4,22.2 107.6,24.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.5" stroke-linecap="round" opacity=".42"/>
+    <path d="M95,38.4 C99,40.6 101,40.6 105,38.4" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.1" stroke-linecap="round" opacity=".28"/>`;
+
+  /* 冠壳：罩住发髻上半，下缘随髻面微垂 */
+  function shell(hw, top, fill, edge, ew, op) {
+    const d = `M${100 - hw},32 C${100 - hw - 0.6},${top + 5.4} ${100 - hw * 0.55},${top} 100,${top}
+               C${100 + hw * 0.55},${top} ${100 + hw + 0.6},${top + 5.4} ${100 + hw},32
+               C${100 + hw * 0.5},${35.4} ${100 - hw * 0.5},${35.4} ${100 - hw},32 Z`;
+    return `<path d="${d}" fill="${fill}" opacity="${op == null ? 1 : op}"/>
+            <path d="${d}" fill="none" stroke="${edge}" stroke-width="${ew}" stroke-linejoin="round"
+                  opacity=".9"/>`;
+  }
+  const hw0 = fem ? 9.9 : 10.5;   /* 女修冠略窄 */
+
+  let orn = "";
+  switch (idx) {
+    case 0:  /* 布巾：一条布带绕住髻根 */
+      orn = `<path d="M87.4,34.6 C91,37.4 109,37.4 112.6,34.6 L112.6,39.4
+                       C109,42.2 91,42.2 87.4,39.4 Z" fill="#48566e"/>
+             <path d="M87.4,34.6 C91,37.4 109,37.4 112.6,34.6" fill="none"
+                   stroke="${t}" stroke-width="1.1" opacity=".8"/>
+             <path d="M112.4,36.6 C117.4,34.6 120.6,37 119,41.4 C117,40.4 114.6,39.6 112.4,39 Z"
+                   fill="#48566e"/>
+             <path d="M112.4,36.6 C116.4,35 119.4,36.6 119,41.4" fill="none"
+                   stroke="${t}" stroke-width=".9" opacity=".55"/>`;
+      break;
+    case 1:  /* 玉簪：横簪穿过发髻 */
+      orn = `<line x1="85" y1="33.4" x2="115" y2="29.4" stroke="${t}"
+                   stroke-width="2.3" stroke-linecap="round"/>
+             <line x1="86" y1="32.9" x2="114" y2="29" stroke="#ffffff"
+                   stroke-width=".7" stroke-linecap="round" opacity=".35"/>
+             <circle cx="115.6" cy="29" r="2.7" fill="${g}"/>
+             <circle cx="114.9" cy="28.3" r=".9" fill="#fff" opacity=".75"/>
+             <path d="M84.4,33.6 l-3.6,0.8 M84.4,33.6 l-3.2,2" stroke="${t}"
+                   stroke-width="1.1" stroke-linecap="round" opacity=".85"/>`;
+      break;
+    case 2:  /* 金线小冠 */
+      orn = shell(hw0 - 0.6, 24.2, t, g, 1.3) + `
+            <path d="M91.6,29.6 C95.6,27 104.4,27 108.4,29.6" fill="none"
+                  stroke="${g}" stroke-width="1.2" opacity=".85"/>
+            <circle cx="100" cy="28.6" r="2.1" fill="${g}"/>`;
+      break;
+    case 3:  /* 玉冠 + 玉牌 */
+      orn = shell(hw0, 23.4, t, g, 1.4) + `
+            <path d="M100,25.6 L103.2,30.2 L100,34.8 L96.8,30.2 Z" fill="${g}"/>
+            <circle cx="100" cy="30.2" r="1.3" fill="#fff" opacity=".85"/>`;
+      break;
+    case 4:  /* 云纹冠 */
+      orn = shell(hw0, 22.6, t, g, 1.5) + `
+            <path d="M90,26.4 c1.6,-3.2 5.2,-3.6 6,0.4 c1.6,-3.2 5.2,-3.6 6,0.4" fill="none"
+                  stroke="${g}" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M98,26.8 c1.4,-2.8 4.4,-3.2 5.2,0.4" fill="none"
+                  stroke="${g}" stroke-width="1.2" stroke-linecap="round" opacity=".7"/>
+            <circle cx="100" cy="23.6" r="2.3" fill="${g}"/>`;
+      break;
+    case 5:  /* 星冠 */
+      orn = shell(hw0 + 0.4, 23, t, g, 1.5) + `
+            <path d="M100,20.6 L102.1,25.7 L107.5,26 L103.4,29.4 L104.8,34.6 L100,31.8
+                     L95.2,34.6 L96.6,29.4 L92.5,26 L97.9,25.7 Z" fill="${g}"/>
+            <circle cx="100" cy="27.6" r="1.2" fill="#fff" opacity=".7"/>`;
+      break;
+    case 6:  /* 华冠垂珠 */
+      orn = shell(hw0 + 0.8, 22.4, t, g, 1.6) + `
+            <path d="M88.4,27.6 C93.4,23.6 106.6,23.6 111.6,27.6" fill="none"
+                  stroke="${g}" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="100" cy="22.2" r="2.8" fill="${g}"/>
+            <path d="M88.6,32 L88.6,38 M111.4,32 L111.4,38" stroke="${t}"
+                  stroke-width="1.1" opacity=".85"/>
+            <circle cx="88.6" cy="39.6" r="1.9" fill="${g}"/>
+            <circle cx="111.4" cy="39.6" r="1.9" fill="${g}"/>`;
+      break;
+    case 7:  /* 大乘金冠：冠角上翘 */
+      orn = shell(hw0 + 1.2, 21.6, t, g, 1.8) + `
+            <path d="M89.4,23.6 C92,17.6 96,16.4 100,16.4 C104,16.4 108,17.6 110.6,23.6"
+                  fill="none" stroke="${g}" stroke-width="2" stroke-linecap="round"/>
+            <path d="M88.4,23.4 C84.4,21 81.4,21.4 80.4,24.4 C83,24.6 86,25 88.4,26.4 Z" fill="${g}"/>
+            <path d="M111.6,23.4 C115.6,21 118.6,21.4 119.6,24.4 C117,24.6 114,25 111.6,26.4 Z" fill="${g}"/>
+            <circle cx="100" cy="19.4" r="3.1" fill="${g}"/>
+            <path d="M92.4,30.4 L107.6,30.4" stroke="${g}" stroke-width="1.2" opacity=".75"/>`;
+      break;
+    case 8:  /* 雷纹冠 */
+      orn = shell(hw0 + 1.2, 21.2, t, g, 1.8) + `
+            <path d="M94.4,26.6 L99.6,32.4 L93.6,34.2 L101.2,41.4" fill="none"
+                  stroke="${g}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+            <path d="M105.6,24.6 L99.4,21.4" stroke="${g}" stroke-width="1.6" stroke-linecap="round"/>
+            <circle cx="100" cy="19.6" r="2.6" fill="${g}"/>
+            <path d="M88.4,22.6 C92,17.4 96.4,15.6 100,15.6 C103.6,15.6 108,17.4 111.6,22.6"
+                  fill="none" stroke="${g}" stroke-width="1.7" stroke-linecap="round"/>`;
+      break;
+    default: /* 仙冠：环光 + 高冠 + 垂珠 */
+      orn = `<ellipse cx="100" cy="29" rx="27" ry="8.6" fill="none" stroke="${g}"
+                      stroke-width="1.2" opacity=".38"/>
+             <ellipse cx="100" cy="29" rx="27" ry="8.6" fill="none" stroke="#ffffff"
+                      stroke-width=".6" opacity=".18"/>`
+          + shell(hw0 + 1.4, 20.4, t, g, 2) + `
+            <path d="M89,22.6 C91.8,16.4 96,14.8 100,14.8 C104,14.8 108.2,16.4 111,22.6"
+                  fill="none" stroke="${g}" stroke-width="2.1" stroke-linecap="round"/>
+            <ellipse cx="100" cy="18.6" rx="4.2" ry="3.4" fill="${g}"/>
+            <circle cx="100" cy="18" r="1.5" fill="#fff" opacity=".8"/>
+            <path d="M86.6,33 L86.6,39.4 M113.4,33 L113.4,39.4" stroke="${t}"
+                  stroke-width="1.2" opacity=".85"/>
+            <circle cx="86.6" cy="41" r="2.1" fill="${g}"/>
+            <circle cx="113.4" cy="41" r="2.1" fill="${g}"/>
+            <path d="M92.6,30.6 L107.4,30.6" stroke="${g}" stroke-width="1.1" opacity=".7"/>`;
+      break;
+  }
+
+  /* 低境界女修：髻边一支花簪 */
+  const flower = (fem && idx <= 2)
+    ? `<circle cx="86.6" cy="42.4" r="2.9" fill="${g}" opacity=".95"/>
+       <circle cx="83.6" cy="40.4" r="2" fill="${t}" opacity=".78"/>
+       <circle cx="89.6" cy="40.4" r="2" fill="${t}" opacity=".78"/>
+       <circle cx="86.6" cy="38.6" r="2" fill="${t}" opacity=".7"/>
+       <circle cx="86.6" cy="42.4" r="1.1" fill="#fff" opacity=".85"/>`
+    : "";
+
+  return gather + bun + orn + flower;
+}
+/* ============================================================
+   人物全身像
+   层级：灵光 → 身后长发 → 外袍 → 束带 → 纹样 → 广袖 → 手 → 面容 → 发饰
+   ============================================================ */
+function heroSVG(kind, stage, uid) {
+  const k = HERO_KINDS.indexOf(kind) >= 0 ? kind : "male";
+  const idx = Math.max(0, Math.min(HERO_STAGES.length - 1, (stage | 0) || 0));
+  const st = HERO_STAGES[idx];
+  const pal = stagePalette(k, st);
+  const isBeast = (k === "beast");
+  const c = pal.aura;
+
+  const skin = isBeast
     ? '<stop offset="0%" stop-color="#5f7599"/><stop offset="100%" stop-color="#3b4b64"/>'
     : k === "female"
       ? '<stop offset="0%" stop-color="#f5e9d7"/><stop offset="100%" stop-color="#d5c0a4"/>'
       : '<stop offset="0%" stop-color="#eee2ce"/><stop offset="100%" stop-color="#cbb599"/>';
 
-  const head = k === "beast" ? heroHeadBeast()
+  const head = isBeast ? heroHeadBeast()
              : k === "female" ? heroHeadFemale()
              : heroHeadMale();
 
   const svg = `
-    <svg class="hero-svg" viewBox="0 0 200 224" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <svg class="hero-svg" viewBox="0 0 200 224" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"
+         data-stage="${idx}" data-look="${st.look}">
       <defs>
         <radialGradient id="halo-${k}" cx="50%" cy="38%" r="58%">
-          <stop offset="0%" stop-color="${c}" stop-opacity=".30"/>
-          <stop offset="60%" stop-color="${c}" stop-opacity=".07"/>
+          <stop offset="0%" stop-color="${c}" stop-opacity="${(st.auraA * 0.24).toFixed(3)}"/>
+          <stop offset="60%" stop-color="${c}" stop-opacity="${(st.auraA * 0.06).toFixed(3)}"/>
+          <stop offset="100%" stop-color="${c}" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="aura-${k}" cx="50%" cy="74%" r="56%">
+          <stop offset="0%" stop-color="${c}" stop-opacity="${(st.auraA * 0.62).toFixed(3)}"/>
+          <stop offset="65%" stop-color="${c}" stop-opacity="${(st.auraA * 0.16).toFixed(3)}"/>
           <stop offset="100%" stop-color="${c}" stop-opacity="0"/>
         </radialGradient>
         <linearGradient id="robe-${k}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${robe[0]}"/>
-          <stop offset="55%" stop-color="${robe[1]}"/>
-          <stop offset="100%" stop-color="${robe[2]}"/>
+          <stop offset="0%" stop-color="${pal.outer[0]}"/>
+          <stop offset="55%" stop-color="${pal.outer[1]}"/>
+          <stop offset="100%" stop-color="${pal.outer[2]}"/>
+        </linearGradient>
+        <linearGradient id="inner-${k}" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="${pal.inner}"/>
+          <stop offset="100%" stop-color="${pal.inner}" stop-opacity=".72"/>
         </linearGradient>
         <linearGradient id="sleeve-${k}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="${robe[1]}"/>
-          <stop offset="100%" stop-color="${robe[0]}"/>
+          <stop offset="0%" stop-color="${pal.outer[1]}"/>
+          <stop offset="100%" stop-color="${pal.outer[0]}"/>
         </linearGradient>
         <linearGradient id="skin-${k}" x1="0" y1="0" x2="0" y2="1">${skin}</linearGradient>
       </defs>
 
       <circle class="hero-halo" cx="100" cy="82" r="76" fill="url(#halo-${k})"/>
+      <ellipse class="hero-aura" cx="100" cy="180" rx="74" ry="48" fill="url(#aura-${k})"/>
       <ellipse cx="100" cy="212" rx="62" ry="11" fill="#05080d" opacity=".8"/>
       <ellipse cx="100" cy="206" rx="53" ry="9" fill="#1b2735"/>
 
-      ${heroBodyCore(k, robe)}
-      ${heroSleeves(k, robe)}
+      ${isBeast ? "" : heroHairBack(k)}
+      ${heroBodyCore(k, pal)}
+      ${isBeast ? "" : heroSash(idx, pal)}
+      ${isBeast ? "" : heroOrnaments(idx, pal)}
+      ${heroSleeves(k, pal)}
       ${heroHands(k)}
+      ${isBeast ? "" : heroHairCap(k)}
       ${head}
+      ${isBeast ? "" : heroHairFront(k)}
+      ${isBeast ? "" : heroHairSide(k)}
+      ${isBeast ? "" : heroCrown(idx, pal, k)}
     </svg>
   `;
   /* 同一页面里若出现多份形象，用 uid 区分渐变 id，避免定义互相覆盖 */
   return uid ? svg.replace(new RegExp("-" + k + "([\"\\)])", "g"), "-" + k + uid + "$1") : svg;
 }
 
-function renderHero(container, kind) {
+function renderHero(container, kind, stage) {
   if (!container) return;
-  container.innerHTML = heroSVG(HERO_KINDS.indexOf(kind) >= 0 ? kind : "male");
+  container.innerHTML = heroSVG(HERO_KINDS.indexOf(kind) >= 0 ? kind : "male", stage || 0);
 }
 
 /* ============================================================
@@ -1130,12 +1565,12 @@ function avatarRing(id) {
   return AVATAR_RINGS.find(r => r.id === id) || AVATAR_RINGS[0];
 }
 
-function heroAvatarSVG(kind, ringId, seal, uid) {
+function heroAvatarSVG(kind, ringId, seal, uid, stage) {
   const ring = avatarRing(ringId);
   const col = ring.color;
   const ch = seal || "道";
   const gid = "avrg" + (uid || "");
-  const inner = heroSVG(kind || "male", gid)
+  const inner = heroSVG(kind || "male", stage || 0, gid)
     .replace('class="hero-svg"', 'x="0" y="0" width="200" height="224" preserveAspectRatio="xMidYMid slice"');
   return `
   <svg class="hero-avatar" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -1440,6 +1875,46 @@ const REALMS = (() => {
   }
   return out;
 })();
+
+/* ---------- 形象阶段：每突破一个大境界，衣着打扮升一档 ----------
+   十个大境界对应十档。robe 是「男修」的衣色（女修会自动偏紫），
+   trim 是衣缘与饰物的颜色，gem 是宝石色，aura 是灵光色，
+   auraA 是灵光浓度，head 决定发冠样式（见 avatar.js 的 heroHeaddress）。 */
+const HERO_STAGES = [
+  /* outer：外袍三段渐变（由浅到深）  inner：内衬交领色
+     trim ：衣缘 / 束带 / 饰物   gem：宝石   aura：灵光   auraA：灵光浓度 */
+  { name:"炼气", look:"布衣束巾", head:"cloth",
+    outer:["#4d5563","#343c48","#1e242e"], inner:"#b9c3cd", trim:"#8ea7c8", gem:"#5fbfa0", aura:"#5fbfa0", auraA:0.10 },
+  { name:"筑基", look:"玉簪束发", head:"pin",
+    outer:["#39565c","#274046","#152629"], inner:"#d2e3dd", trim:"#9fe0d2", gem:"#7fe0c8", aura:"#5fbfa0", auraA:0.16 },
+  { name:"金丹", look:"金线云履", head:"gold",
+    outer:["#463c58","#2f293c","#191520"], inner:"#e6d9c4", trim:"#e8c479", gem:"#ffe0a0", aura:"#e8c479", auraA:0.24 },
+  { name:"元婴", look:"玉冠护体", head:"jade",
+    outer:["#333f66","#232b48","#121728"], inner:"#dbe4f7", trim:"#a8c4ff", gem:"#cfe0ff", aura:"#9fb8ff", auraA:0.33 },
+  { name:"化神", look:"云纹披帛", head:"cloud",
+    outer:["#2b4e60","#1d3542","#0e1c24"], inner:"#d6eef4", trim:"#9fe4ec", gem:"#bff0ff", aura:"#7fd8e8", auraA:0.42 },
+  { name:"炼虚", look:"星纹玄衣", head:"star",
+    outer:["#232648","#16182f","#0a0b18"], inner:"#ded9f5", trim:"#c0aaff", gem:"#d8c8ff", aura:"#b39cff", auraA:0.52 },
+  { name:"合体", look:"华服广袖", head:"regal",
+    outer:["#3d2c44","#281e2f","#130e17"], inner:"#eedcea", trim:"#e8aede", gem:"#ffc8f0", aura:"#c98fe8", auraA:0.62 },
+  { name:"大乘", look:"金冠加身", head:"crown",
+    outer:["#463a26","#2e2716","#161208"], inner:"#f4ebd6", trim:"#ffe0a0", gem:"#fff0c0", aura:"#ffcf7a", auraA:0.72 },
+  { name:"渡劫", look:"雷纹玄袍", head:"storm",
+    outer:["#1d2734","#121a22","#06090d"], inner:"#dbe7f5", trim:"#9fd8ff", gem:"#dff0ff", aura:"#8cccff", auraA:0.82 },
+  { name:"仙人", look:"仙冠霞衣", head:"divine",
+    outer:["#202329","#111318","#050608"], inner:"#f7f4ec", trim:"#e2e8ef", gem:"#ffffff", aura:"#ffeec8", auraA:0.95 }
+];
+
+/* 境界下标 → 形象阶段下标（同一个大境界内保持不变） */
+const REALM_STAGE_OF = (() => {
+  const majors = [];
+  for (const r of REALMS) if (majors.indexOf(r.major) < 0) majors.push(r.major);
+  const n = Math.min(majors.length, HERO_STAGES.length);
+  return REALMS.map(r => Math.min(n - 1, majors.indexOf(r.major)));
+})();
+function realmStage(realmIdx) {
+  return REALM_STAGE_OF[Math.max(0, Math.min(REALMS.length - 1, realmIdx | 0))] || 0;
+}
 
 /* 功法：消耗灵石永久提升。
    unit 决定它加到哪一项（见 logic.js）：
@@ -2388,9 +2863,13 @@ function drawAch(s) {
 /* ---------- 主角形象 ---------- */
 function drawHero(s) {
   if (!el.heroStage) return;
-  if (heroDrawn !== s.heroKind) {
-    renderHero(el.heroStage, s.heroKind || "male");
-    heroDrawn = s.heroKind;
+  /* 形象随大境界变化：本相或阶段任一改变就重画 */
+  const key = (s.heroKind || "male") + "|" + realmStage(s.realm);
+  if (heroDrawn !== key) {
+    renderHero(el.heroStage, s.heroKind || "male", realmStage(s.realm));
+    heroDrawn = key;
+    el.heroStage.classList.add("stage-up");
+    setTimeout(() => el.heroStage.classList.remove("stage-up"), 620);
   }
 }
 
@@ -2401,7 +2880,7 @@ function openPickModal() {
     const info = HERO_INFO[k];
     return [
       '<div class="pick-card" data-pick="' + k + '">',
-        heroSVG(k),
+        heroSVG(k, 0),
         '<div class="pick-name">' + info.name + '</div>',
         '<div class="pick-tag">' + info.tag + '</div>',
         '<div class="pick-desc">' + info.desc + '</div>',
@@ -2538,14 +3017,16 @@ function daoNameOf(s) { return (s.daoName && s.daoName.trim()) ? s.daoName.trim(
 let daoKey = null;
 function drawDao(s) {
   if (!el.daoAvatar) return;
-  const key = (s.heroKind || "male") + "|" + (s.avatarRing || "jade") + "|" + (s.avatarSeal || "道");
+  const key = (s.heroKind || "male") + "|" + (s.avatarRing || "jade") + "|" + (s.avatarSeal || "道")
+    + "|" + realmStage(s.realm);
   if (daoKey !== key) {
-    el.daoAvatar.innerHTML = heroAvatarSVG(s.heroKind || "male", s.avatarRing, s.avatarSeal, "me");
+    el.daoAvatar.innerHTML = heroAvatarSVG(s.heroKind || "male", s.avatarRing, s.avatarSeal, "me", realmStage(s.realm));
     daoKey = key;
   }
   setText(el.daoNameText, daoNameOf(s));
   setText(el.daoRealm, REALMS[s.realm] ? REALMS[s.realm].label : "尚未择道");
-  setText(el.daoBadge, "道牌 · " + avatarRing(s.avatarRing).name + " · " + (s.avatarSeal || "道"));
+  setText(el.daoBadge, "道牌 · " + avatarRing(s.avatarRing).name + " · " + (s.avatarSeal || "道")
+    + " · " + HERO_STAGES[realmStage(s.realm)].look);
 
   /* 修行印记：凝神与降魔的战绩 */
   if (el.daoFeats) {
@@ -2580,7 +3061,7 @@ function drawPartner(s) {
   }
 
   const p = s.partner;
-  const key = p.kind + "|" + p.ring + "|" + p.seal + "|" + p.name;
+  const key = p.kind + "|" + p.ring + "|" + p.seal + "|" + p.name + "|" + (p.stage | 0);
   const intim = s.partnerIntim || 0;
   const cdLeft = trainCdLeft(s, now);
   const ready = cdLeft <= 0;
@@ -2594,7 +3075,7 @@ function drawPartner(s) {
       '<div class="card-head"><h3 class="card-title">道 侣</h3>',
       '<button class="mini-btn" data-open-invite="1">邀请 / 管理</button></div>',
       '<div class="partner-wrap">',
-        '<div class="partner-avatar">' + heroAvatarSVG(p.kind, p.ring, p.seal, "pt") + '</div>',
+        '<div class="partner-avatar">' + heroAvatarSVG(p.kind, p.ring, p.seal, "pt", p.stage | 0) + '</div>',
         '<div class="partner-info">',
           '<div class="partner-name">' + escapeHtml(p.name) + '</div>',
           '<div class="partner-line" id="partnerBonusLine"></div>',
@@ -2655,7 +3136,8 @@ let draftRing = "jade", draftSeal = "道";
 
 function paintAvatarDraft() {
   if (el.avatarPreview) {
-    el.avatarPreview.innerHTML = heroAvatarSVG(S ? S.heroKind : "male", draftRing, draftSeal, "pv");
+    el.avatarPreview.innerHTML = heroAvatarSVG(S ? S.heroKind : "male", draftRing, draftSeal, "pv",
+    S ? realmStage(S.realm) : 0);
   }
   if (el.ringList) {
     el.ringList.innerHTML = AVATAR_RINGS.map(r =>
@@ -2742,7 +3224,8 @@ function lbRowHtml(rec, rank, isMe, uidKey) {
   return [
     '<div class="lb-row' + (rank <= 3 ? " top" + rank : "") + (isMe ? " me" : "") + '">',
       '<div class="rk">' + (rank <= 3 ? ["🥇","🥈","🥉"][rank-1] : rank) + '</div>',
-      '<div class="av">' + heroAvatarSVG(rec.heroKind, rec.ring, rec.seal, uidKey || ("r" + rank)) + '</div>',
+      '<div class="av">' + heroAvatarSVG(rec.heroKind, rec.ring, rec.seal, uidKey || ("r" + rank),
+        realmStage(rec.realm | 0)) + '</div>',
       '<div class="who">',
         '<div class="nm">' + escapeHtml(rec.name) + (isMe ? ' <span class="dao-sub">（我）</span>' : '') + '</div>',
         '<div class="sub">' + escapeHtml(sub) + '</div>',
@@ -2862,6 +3345,7 @@ function encodeSave(s) {
       k: s.partner.kind || "male",
       r: s.partner.ring || "jade",
       s: s.partner.seal || "道",
+      g: s.partner.stage | 0,
       c: s.partner.code || ""
     } : null
   };
@@ -2924,6 +3408,7 @@ function decodeSave(code) {
     kind: HERO_KINDS.indexOf(c.pt.k) >= 0 ? c.pt.k : "male",
     ring: AVATAR_RINGS.some(r => r.id === c.pt.r) ? c.pt.r : "jade",
     seal: (typeof c.pt.s === "string" && c.pt.s.trim()) ? c.pt.s.trim().slice(0, 1) : "道",
+    stage: Math.max(0, Math.min(HERO_STAGES.length - 1, (c.pt.g | 0))),
     code: String(c.pt.c || ""),
     date: Date.now()
   } : null;
@@ -3826,7 +4311,8 @@ function bindEvents() {
     if (S.partner) { toast("你已有道侣，请先解绑", "bad"); return; }
     const inv = r.invite;
     if (!confirm('与「' + inv.name + '」（' + REALMS[inv.realm].label + '）结为道侣？')) return;
-    S.partner = { name:inv.name, kind:inv.kind, ring:inv.ring, seal:inv.seal, code:raw.trim(), date:Date.now() };
+    S.partner = { name:inv.name, kind:inv.kind, ring:inv.ring, seal:inv.seal,
+                  stage:realmStage(inv.realm | 0), code:raw.trim(), date:Date.now() };
     S.partnerIntim = 0;
     partnerKey = null;
     closeInviteModal();
