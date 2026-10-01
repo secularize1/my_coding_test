@@ -1003,7 +1003,7 @@ const HAIR_DARK = "#141a24";
 const HAIR_MID  = "#212b3a";
 const HAIR_HI   = "#3e4d63";
 
-/* 披发：女修长发垂腰；男修束发，只留齐肩短缕 */
+/* 披发：女修长发垂腰；男修只留颈后短束发，不外披 */
 function heroHairBack(k) {
   const fem = (k === "female");
   if (fem) {
@@ -1029,108 +1029,119 @@ function heroHairBack(k) {
     <path d="M100,52 C88,52 79,60 75,74" fill="none" stroke="${HAIR_HI}"
           stroke-width="2" stroke-linecap="round" opacity=".28"/>`;
   }
-  /* 男修：束发，脑后半长，发尾只到肩胛 */
+  /* 男修：贴头短束发，发尾收在肩线以上 */
   return `
-    <path d="M100,48 C82,48 69,63 67,88
-             C65,110 63,132 62,146
-             C61,155 67,160 74,156 C85,150 91,131 94,113
-             C96,100 97,92 100,92 C103,92 104,100 106,113
-             C109,131 115,150 126,156 C133,160 139,155 138,146
-             C137,132 135,110 133,88 C131,63 118,48 100,48 Z"
+    <path d="M100,50 C88.4,50 79.6,58.6 78.6,72
+             C78.2,79 78.2,85 78.4,89.6
+             C78.6,93.4 81.6,95.4 84.2,93.2
+             C89.6,89.2 92.6,83.4 94,77
+             C95.2,72.4 96.6,70 100,70
+             C103.4,70 104.8,72.4 106,77
+             C107.4,83.4 110.4,89.2 115.8,93.2
+             C118.4,95.4 121.4,93.4 121.6,89.6
+             C121.8,85 121.8,79 121.4,72 C120.4,58.6 111.6,50 100,50 Z"
           fill="${HAIR_DARK}"/>
-    <path d="M74,100 C69,122 65,140 64,152" fill="none" stroke="${HAIR_MID}"
-          stroke-width="6.5" stroke-linecap="round" opacity=".8"/>
-    <path d="M126,100 C131,122 135,140 136,152" fill="none" stroke="${HAIR_MID}"
-          stroke-width="6.5" stroke-linecap="round" opacity=".8"/>
-    <path d="M76,104 C71,126 68,142 67,154" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.6" stroke-linecap="round" opacity=".32"/>
-    <path d="M124,104 C129,126 132,142 133,154" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.6" stroke-linecap="round" opacity=".32"/>
-    <path d="M88,100 C86,120 84,138 82,152" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.1" stroke-linecap="round" opacity=".2"/>
-    <path d="M112,100 C114,120 116,138 118,152" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.1" stroke-linecap="round" opacity=".2"/>
-    <path d="M100,50 C90,50 82,57 78,70" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.8" stroke-linecap="round" opacity=".26"/>`;
+    <path d="M81.6,74 C81,82 81,87.6 81.4,91.5" fill="none" stroke="${HAIR_MID}"
+          stroke-width="5" stroke-linecap="round" opacity=".75"/>
+    <path d="M118.4,74 C119,82 119,87.6 118.6,91.5" fill="none" stroke="${HAIR_MID}"
+          stroke-width="5" stroke-linecap="round" opacity=".75"/>
+    <path d="M83.4,78 C83,84.6 83,88.6 83.4,91.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.3" stroke-linecap="round" opacity=".3"/>
+    <path d="M116.6,78 C117,84.6 117,88.6 116.6,91.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.3" stroke-linecap="round" opacity=".3"/>
+    <path d="M92,68 C90.6,78 89.6,86 89.2,92" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1" stroke-linecap="round" opacity=".18"/>
+    <path d="M108,68 C109.4,78 110.4,86 110.8,92" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1" stroke-linecap="round" opacity=".18"/>
+    <path d="M100,52 C91.6,52 85,57.4 82.4,66" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.6" stroke-linecap="round" opacity=".24"/>`;
 }
-/* 颅顶：拱形覆盖头顶，下缘沿发际线收，中间露出面部 */
+/* 颅顶：贴着颅骨的拱形发盖，发际线停在额头中上部（脸圆 cy=77,r=18.5） */
 function heroHairCap(k) {
   const fem = (k === "female");
-  const r = fem ? 19 : 19.5;
+  const P = fem
+    ? { hw: 21.6, top: 41.4, templeY: 77, h0: 65.6, p1: [110.6, 72.6], p2: [104.6, 68.6], p3: [100, 65.6] }
+    : { hw: 21.4, top: 41.0, templeY: 76,   h0: 64.8, p1: [110.4, 71.8], p2: [104.4, 67.8], p3: [100, 64.8] };
+  const { hw, top, templeY, p1, p2, p3 } = P;
+  const L = 100 - hw, R = 100 + hw;
+  const mir = (p) => [200 - p[0], p[1]];
+  const q = (p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+  const m1 = mir(p1), m2 = mir(p2), m3 = mir(p3);
+
+  const d = `M${L.toFixed(1)},${templeY}`
+    + ` C${(L - 6).toFixed(1)},58 ${(L + 3).toFixed(1)},${top} 100,${top}`
+    + ` C${(R - 3).toFixed(1)},${top} ${(R + 6).toFixed(1)},58 ${R.toFixed(1)},${templeY}`
+    + ` C${(R - 2.6).toFixed(1)},${(templeY - 4).toFixed(1)} ${q(p1)} ${q(p1)}`
+    + ` Q${((p1[0] + p2[0]) / 2).toFixed(1)},${(p1[1] + 1.6).toFixed(1)} ${q(p2)}`
+    + ` Q${((p2[0] + p3[0]) / 2).toFixed(1)},${(p2[1] + 1.2).toFixed(1)} ${q(p3)}`
+    + ` Q${((p2[0] + p3[0]) / 2 < 200 ? (200 - (p2[0] + p3[0]) / 2).toFixed(1) : "100")},${(p2[1] + 1.2).toFixed(1)} ${q(m2)}`
+    + ` Q${((m1[0] + m2[0]) / 2).toFixed(1)},${(p1[1] + 1.6).toFixed(1)} ${q(m1)}`
+    + ` C${(L + 2.6).toFixed(1)},${(templeY - 4).toFixed(1)} ${L.toFixed(1)},${templeY} ${L.toFixed(1)},${templeY} Z`;
+
   return `
-    <path d="M${100 - r - 2.5},88
-             C${100 - r - 4},56 ${100 - r + 3},42 100,42
-             C${100 + r - 3},42 ${100 + r + 4},56 ${100 + r + 2.5},88
-             C${100 + r},78 ${100 + r - 5},68 ${100 + r - 9},63
-             C${100 + r - 14},57 100,54.5 ${100 - r + 14},57
-             C${100 - r + 9},63 ${100 - r},78 ${100 - r - 2.5},88 Z"
-          fill="${HAIR_DARK}"/>
-    <path d="M${100 - r + 1},60 C${100 - r - 1},70 ${100 - r - 2},78 ${100 - r - 1.5},86"
-          fill="none" stroke="${HAIR_MID}" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
-    <path d="M${100 + r - 1},60 C${100 + r + 1},70 ${100 + r + 2},78 ${100 + r + 1.5},86"
-          fill="none" stroke="${HAIR_MID}" stroke-width="3.4" stroke-linecap="round" opacity=".85"/>
-    <path d="M88,47 C93,44.5 100,44 106,46" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.8" stroke-linecap="round" opacity=".4"/>`;
+    <path d="${d}" fill="${HAIR_DARK}"/>
+    <path d="M${(L + 5).toFixed(1)},${(templeY - 10).toFixed(1)} C${(L + 1.6).toFixed(1)},${(templeY - 5).toFixed(1)} ${(L - 0.4).toFixed(1)},${(templeY - 1).toFixed(1)} ${(L - 0.8).toFixed(1)},${(templeY + 3).toFixed(1)}"
+          fill="none" stroke="${HAIR_MID}" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+    <path d="M${(R - 5).toFixed(1)},${(templeY - 10).toFixed(1)} C${(R - 1.6).toFixed(1)},${(templeY - 5).toFixed(1)} ${(R + 0.4).toFixed(1)},${(templeY - 1).toFixed(1)} ${(R + 0.8).toFixed(1)},${(templeY + 3).toFixed(1)}"
+          fill="none" stroke="${HAIR_MID}" stroke-width="3" stroke-linecap="round" opacity=".75"/>
+    <path d="M88,${(top + 6.6).toFixed(1)} C93,${(top + 3.2).toFixed(1)} 100,${(top + 2.6).toFixed(1)} 106.4,${(top + 4).toFixed(1)}"
+          fill="none" stroke="${HAIR_HI}" stroke-width="1.7" stroke-linecap="round" opacity=".36"/>
+    <path d="M97.6,${(p3[1] + 1.2).toFixed(1)} C93.4,${(p3[1] + 2.4).toFixed(1)} 89,${(p3[1] + 2.8).toFixed(1)} 85.6,${(templeY - 3).toFixed(1)}"
+          fill="none" stroke="${HAIR_HI}" stroke-width="1" stroke-linecap="round" opacity=".22"/>
+    <path d="M102.4,${(p3[1] + 1.2).toFixed(1)} C106.6,${(p3[1] + 2.4).toFixed(1)} 111,${(p3[1] + 2.8).toFixed(1)} 114.4,${(templeY - 3).toFixed(1)}"
+          fill="none" stroke="${HAIR_HI}" stroke-width="1" stroke-linecap="round" opacity=".22"/>`;
 }
 
-/* 鬓发：自两鬓垂下。女修长发过胸，男修短鬓收在颌线以上 */
+/* 额前碎发：只在两鬓留一两缕极细的碎发，额头保持干净 */
+function heroHairFront(k) {
+  const fem = (k === "female");
+  const L = fem ? 2.6 : 0;
+  const y0 = fem ? 68.4 : 67.6;      /* 起点：鬓角发际处 */
+  const w = (x0, y0_, cx, cy, x1, y1, sw) =>
+    `<path d="M${(100 + x0).toFixed(2)},${y0_.toFixed(1)} Q${(100 + cx).toFixed(2)},${cy.toFixed(1)} ${(100 + x1).toFixed(2)},${y1.toFixed(1)}"
+           fill="none" stroke="${HAIR_DARK}" stroke-width="${sw}" stroke-linecap="round" opacity=".9"/>`;
+  const hi = (x0, y0_, cx, cy, x1, y1, sw) =>
+    `<path d="M${(100 + x0).toFixed(2)},${y0_.toFixed(1)} Q${(100 + cx).toFixed(2)},${cy.toFixed(1)} ${(100 + x1).toFixed(2)},${y1.toFixed(1)}"
+           fill="none" stroke="${HAIR_HI}" stroke-width="${sw}" stroke-linecap="round" opacity=".24"/>`;
+  return `
+    ${w(12.6, y0, 13.6, y0 + 3.4, 13.2, y0 + 7.6 + L, 1.4)}
+    ${w(-12.6, y0, -13.6, y0 + 3.4, -13.2, y0 + 7.6 + L, 1.4)}
+    ${w(9.4, y0 - 1.4, 10.6, y0 + 1.4, 10.4, y0 + 4.6 + L * 0.6, 1)}
+    ${w(-9.4, y0 - 1.4, -10.6, y0 + 1.4, -10.4, y0 + 4.6 + L * 0.6, 1)}
+    ${hi(13, y0 + 3, 13.4, y0 + 5.4, 13.3, y0 + 7.2 + L, .6)}
+    ${hi(-13, y0 + 3, -13.4, y0 + 5.4, -13.3, y0 + 7.2 + L, .6)}`;
+}
+/* 鬓发：自鬓角垂下的两缕。女修长及胸，男修短至颌线 */
 function heroHairSide(k) {
   const fem = (k === "female");
   if (fem) {
     return `
-    <path d="M84.4,62 C78,75 74.6,90 75.2,126
-             C75.4,130.6 80.4,131.4 81.2,124.2
-             C82.4,105 86,80 88.6,64 Z" fill="${HAIR_DARK}"/>
-    <path d="M115.6,62 C122,75 125.4,90 124.8,126
-             C124.6,130.6 119.6,131.4 118.8,124.2
-             C117.6,105 114,80 111.4,64 Z" fill="${HAIR_DARK}"/>
-    <path d="M87.4,66 C83.4,80 81.6,96 82.2,114" fill="none" stroke="${HAIR_DARK}"
-          stroke-width="2.8" stroke-linecap="round"/>
-    <path d="M112.6,66 C116.6,80 118.4,96 117.8,114" fill="none" stroke="${HAIR_DARK}"
-          stroke-width="2.8" stroke-linecap="round"/>
-    <path d="M80.6,74 C77.4,88 76.6,101 77.4,117" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.2" stroke-linecap="round" opacity=".24"/>
-    <path d="M119.4,74 C122.6,88 123.4,101 122.6,117" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.2" stroke-linecap="round" opacity=".24"/>`;
+    <path d="M84.6,62 C78.4,75.4 75.2,90.4 75.8,124
+             C76,128.6 81.2,129.4 82,122.2
+             C83.2,103 86.6,79 89.2,64 Z" fill="${HAIR_DARK}"/>
+    <path d="M115.4,62 C121.6,75.4 124.8,90.4 124.2,124
+             C124,128.6 118.8,129.4 118,122.2
+             C116.8,103 113.4,79 110.8,64 Z" fill="${HAIR_DARK}"/>
+    <path d="M87.8,67 C84,80.6 82.4,96 83,112" fill="none" stroke="${HAIR_DARK}"
+          stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M112.2,67 C116,80.6 117.6,96 117,112" fill="none" stroke="${HAIR_DARK}"
+          stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M80.8,74.6 C77.8,88 77,100.6 77.8,115.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.15" stroke-linecap="round" opacity=".26"/>
+    <path d="M119.2,74.6 C122.2,88 123,100.6 122.2,115.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.15" stroke-linecap="round" opacity=".26"/>`;
   }
   return `
-    <path d="M86,62 C81.6,72 79.8,82 80.4,93.6
-             C80.6,98.2 84.8,98.8 85.4,94.2
-             C86.2,83.6 87.6,72 89.6,63 Z" fill="${HAIR_DARK}"/>
-    <path d="M114,62 C118.4,72 120.2,82 119.6,93.6
-             C119.4,98.2 115.2,98.8 114.6,94.2
-             C113.8,83.6 112.4,72 110.4,63 Z" fill="${HAIR_DARK}"/>
-    <path d="M83.6,71 C81.4,80 80.6,88 81,94" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.1" stroke-linecap="round" opacity=".26"/>
-    <path d="M116.4,71 C118.6,80 119.4,88 119,94" fill="none" stroke="${HAIR_HI}"
-          stroke-width="1.1" stroke-linecap="round" opacity=".26"/>`;
-}
-
-/* 额前碎发：中分，自发旋向两侧扫出，几缕发须落在额上 */
-function heroHairFront(k) {
-  const fem = (k === "female");
-  const E = fem ? 3 : 0;
-  const wave = (x0, y0, cx, cy, x1, y1, w) =>
-    `<path d="M${x0},${y0} Q${cx},${cy} ${x1},${y1}" fill="none"
-           stroke="${HAIR_DARK}" stroke-width="${w}" stroke-linecap="round"/>`;
-  const thin = (x0, y0, cx, cy, x1, y1, w) =>
-    `<path d="M${x0},${y0} Q${cx},${cy} ${x1},${y1}" fill="none"
-           stroke="${HAIR_HI}" stroke-width="${w}" stroke-linecap="round" opacity=".26"/>`;
-  return `
-    ${wave(100, 54.2, 92.6, 56.6, 87.2, 64.4, 4.2)}
-    ${wave(99.2, 56.2, 90.8, 60.4, 86.4, 71.6 + E, 3.4)}
-    ${wave(97.8, 58, 89.4, 64.6, 87.8, 74.4 + E, 2.2)}
-    ${wave(100, 54.2, 107.4, 56.6, 112.8, 64.4, 4.2)}
-    ${wave(100.8, 56.2, 109.2, 60.4, 113.6, 71.6 + E, 3.4)}
-    ${wave(102.2, 58, 110.6, 64.6, 112.2, 74.4 + E, 2.2)}
-    ${wave(99.6, 53.6, 98.4, 58.4, 98.2, 62.6 + E, 1.5)}
-    ${wave(100.4, 53.6, 101.6, 58.6, 101.9, 63.4 + E, 1.5)}
-    ${thin(93.6, 58.4, 88.4, 63.4, 87.4, 70.4 + E, .9)}
-    ${thin(106.4, 58.4, 111.6, 63.4, 112.6, 70.4 + E, .9)}
-    ${thin(98.6, 57.4, 97.6, 61.4, 97.6, 65.4 + E, .8)}
-    ${thin(101.4, 57.4, 102.4, 61.4, 102.4, 65.4 + E, .8)}
-    ${fem ? wave(94.8, 56.6, 90, 62, 88.4, 68, 1.8) + wave(105.2, 56.6, 110, 62, 111.6, 68, 1.8) : ""}
-  `;
+    <path d="M85.4,62 C80.6,72.4 78.6,82.6 79.2,94.2
+             C79.4,98.6 83.6,99.2 84.2,94.6
+             C85,84 86.4,72 88.8,63.2 Z" fill="${HAIR_DARK}"/>
+    <path d="M114.6,62 C119.4,72.4 121.4,82.6 120.8,94.2
+             C120.6,98.6 116.4,99.2 115.8,94.6
+             C115,84 113.6,72 111.2,63.2 Z" fill="${HAIR_DARK}"/>
+    <path d="M83.4,72 C81.4,81.4 80.8,89 81.2,94.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.05" stroke-linecap="round" opacity=".28"/>
+    <path d="M116.6,72 C118.6,81.4 119.2,89 118.8,94.6" fill="none" stroke="${HAIR_HI}"
+          stroke-width="1.05" stroke-linecap="round" opacity=".28"/>`;
 }
 /* ---------- 躯干：交领右衽 + 外袍 ---------- */
 function heroBodyCore(k, pal) {
